@@ -11,7 +11,7 @@ This is the repository for Device Bound Secure Credentials. You're welcome to
 - [Issue tracker]
 - [Discussion forum]
 
-## Table of Contents [if the explainer is longer than one printed page]
+## Table of Contents
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
