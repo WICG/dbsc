@@ -168,8 +168,7 @@ If the request is properly authorized, the server establishes whatever state rep
 HTTP/1.1 200 OK
 Content-Type: application/json
 Cache-Control: no-store
-Set-Cookie: auth_cookie=abcdef0123; \
-            Domain=example.com; Max-Age=600; Secure; HttpOnly;
+Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; HttpOnly;
 ```
 ```json
 {
