@@ -1,6 +1,6 @@
-# Device Bound Secure Credentials explainer
+# Device Bound Session Credentials explainer
 
-This is the repository for Device Bound Secure Credentials. You're welcome to
+This is the repository for Device Bound Session Credentials. You're welcome to
 [contribute](CONTRIBUTING.md)!
 
 ## Authors:
@@ -18,7 +18,7 @@ This is the repository for Device Bound Secure Credentials. You're welcome to
 - [Introduction](#introduction)
   - [Goals [or Motivating Use Cases, or Scenarios]](#goals-or-motivating-use-cases-or-scenarios)
   - [Non-goals](#non-goals)
-  - [What makes Device Bound Secure Credentials different](#what-makes-device-bound-secure-credentials-different)
+  - [What makes Device Bound Session Credentials different](#what-makes-device-bound-secure-credentials-different)
     - [Application-level binding](#application-level-binding)
     - [Browser-initiated refreshes](#browser-initiated-refreshes)
   - [TPM considerations](#tpm-considerations)
@@ -35,7 +35,7 @@ This is the repository for Device Bound Secure Credentials. You're welcome to
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
-Device Bound Secure Credentials (DBSC) aims to reduce account hijacking caused by cookie theft. It does so by introducing a protocol and browser infrastructure to maintain and prove possession of a cryptographic key. The main challenge with cookies as an authentication mechanism is that they only lend themselves to bearer-token schemes. On desktop operating systems, application isolation is lacking and local malware can generally access anything that the browser itself can, and the browser must be able to access cookies. On the other hand, authentication with a private key allows for the use of system-level protection against key exfiltration.
+Device Bound Session Credentials (DBSC) aims to reduce account hijacking caused by cookie theft. It does so by introducing a protocol and browser infrastructure to maintain and prove possession of a cryptographic key. The main challenge with cookies as an authentication mechanism is that they only lend themselves to bearer-token schemes. On desktop operating systems, application isolation is lacking and local malware can generally access anything that the browser itself can, and the browser must be able to access cookies. On the other hand, authentication with a private key allows for the use of system-level protection against key exfiltration.
 
 DBSC offers an API for websites to control the lifetime of such keys, behind the abstraction of a session, and a protocol for periodically and automatically proving possession of those keys to the website's servers. One of the key goals is to enable drop-in integration with common types of current auth infrastructure. By device-binding the private key and with appropriate intervals of the proofs, the browser can limit malware's ability to offload its abuse off of the user's device, significantly increasing the chance that either the browser or server can detect and mitigate cookie theft.
 
@@ -47,7 +47,7 @@ Reduce session theft by offering an alternative to long-lived cookie bearer toke
 ### Non-goals
 DBSC will not prevent temporary access to the browser session while the attacker is resident on the user’s device. The private key should be stored as safe as modern desktop operating systems allow, preventing exfiltrating of the session private key, but the signing capability will still be available for any program running as the user on the user’s device. 
 
-### What makes Device Bound Secure Credentials different
+### What makes Device Bound Session Credentials different
 DBSC is not the first proposal towards these goals, with a notable one being [Token Binding](https://en.wikipedia.org/wiki/Token_Binding). This proposal offers two important features that we believe makes it easier to deploy than previous proposals. DBSC provides application-level binding and browser initiated refreshes that can make sure devices are still bound to the original device.
 #### Application-level binding
 For websites, device binding is most useful for securing authenticated sessions of users. DBSC allows websites to closely couple the setup of bound sessions with user sign-in mechanisms, makes session and key lifetimes explicit and controllable, and allows servers to design infrastructure that places verification of session credentials close to where user credentials (cookies) are processed in their infrastructure.
