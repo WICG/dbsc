@@ -49,10 +49,12 @@ DBSC will not prevent temporary access to the browser session while the attacker
 
 ### What makes Device Bound Session Credentials different
 DBSC is not the first proposal towards these goals, with a notable one being [Token Binding](https://en.wikipedia.org/wiki/Token_Binding). This proposal offers two important features that we believe makes it easier to deploy than previous proposals. DBSC provides application-level binding and browser initiated refreshes that can make sure devices are still bound to the original device.
+
 #### Application-level binding
 For websites, device binding is most useful for securing authenticated sessions of users. DBSC allows websites to closely couple the setup of bound sessions with user sign-in mechanisms, makes session and key lifetimes explicit and controllable, and allows servers to design infrastructure that places verification of session credentials close to where user credentials (cookies) are processed in their infrastructure.
 
 Alternatives such as Token Binding gain much from e.g. integrating with TLS, but this can make integration harder in environments where e.g. TLS channel termination is far removed from the application logic behind user sign-in and session management.
+
 #### Browser-initiated refreshes
 Other proposals have explored lower-level APIs for websites to create and use protected private keys, e.g. via WebCrypto or APIs similar to WebAuthn. While this works in theory, it puts a very large burden on the website to integrate with. In particular, since the cost of using protected keys is high, websites must design some infrastructure for collecting signatures only as often as needed.
 
@@ -61,9 +63,7 @@ This means either high-touch integrations where the keys are only used to protec
 DBSC instead allows a website to consolidate the session binding to a few points: At sign-in, it informs the browser that a session starts, which triggers the key creation. It then instructs the browser that any time a request is made while that session is active, the browser should ensure the presence of certain cookies. The browser does this by calling a dedicated refresh endpoint (specified by the website) whenever such cookies are needed, presenting that endpoint with a proof of possession of the private key. That endpoint in turn, using existing standard Set-Cookie headers, provides the browser with short-term cookies needed to make other requests.
 
 This provides two important benefits:
-
 1. Session binding logic is consolidated in the sign-in mechanism, and the new dedicated refresh endpoint. All other parts of the website continue to see cookies as their only authentication credentials, the only difference is that those cookies are short-lived. This allows deployment on complex existing setups, often with no changes to non-auth related endpoints.
-
 1. If a browser is about to make a request where it has been instructed to include such a cookie, but doesn't have one, it defers making that request until the refresh is done. While this may add latency to such cases, it also means non-auth endpoints do not need to tolerate unauthenticated requests or respond with any kind of retry logic or redirects. This again allows deployment with minimal changes to existing endpoints.
 
 Note that the latency introduced by deferring of requests can be mitigated by the browser in other ways, which we discuss later.
@@ -123,10 +123,10 @@ Requirements:
 
 Below is an example of the API being used:
 ```javascript
-let promise = navigator.securesession.start({
+let promise = navigator.secureSession.start({
   // Session start options
   "endpoint": "<url prefix of standard session endpoint>", // required
-  "supported_binding_algs": ["ES256,RS256"], // required
+  "supportedBindingAlgorithms": ["ES256,RS256"], // required
   "authorization": "<authorization code>", // optional
 });
 promise.then((sessionInfo) => {
@@ -154,7 +154,7 @@ Cookie: whatever_cookies_apply_to_this_request=value;
 ```
 ```json
 {
-  "binding_alg": "ES256",
+  "binding_algorithm": "ES256",
   "binding_public_key": <base64url encoded generated public key>,
   "client_constraints": {
     "signature_quota_per_minute": 2,
