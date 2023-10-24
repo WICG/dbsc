@@ -8,7 +8,7 @@ This is the repository for Device Bound Session Credentials. You're welcome to
 - [Arnar Birgisson](arnarb@google.com), Google
 
 ## Participate (to come)
-- [Issue tracker]
+- [Issue tracker](https://github.com/WICG/dbsc/issues)
 - [Discussion forum]
 
 ## Table of Contents
