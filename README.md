@@ -99,7 +99,7 @@ As long as that session is active, the browser performs the following refresh as
 1. The browser may choose to proactively refresh cookies that are about to expire, if it predicts the user may soon need them. This is purely a latency optimization, and not required.
 
 ### Start Session
-![Start session diagram](start.png)
+![Start session diagram](key_registration.svg)
 
 The API consists of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface supports the following method:
 
