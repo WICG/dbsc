@@ -191,7 +191,7 @@ Subsequently, as long as the browser considers this session "active", it follows
 ### Maintaining a session
 As long as the named cookie is not expired the browser will keep sending requests as normal. Once the cookie is expired the browser will hold all requests for the scope of the cookie, except where the server excluded the paths in the registration, while refreshing the cookie. This is where the browser driven protocol makes a difference, if not for this there would be potentially many requests without the required cookie.
 #### Refresh procedure
-![Refresh diagram](refresh.png)
+![Refresh diagram](refresh_diagram.svg)
 
 The browser refreshes the short-term session credential by calling the session endpoint:
 
