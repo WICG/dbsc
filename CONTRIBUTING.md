@@ -1,6 +1,6 @@
-# Device Bound Secure Credentials
+# Device Bound Session Credentials
 
-This repository is being used for work in the W3C Device Bound Secure Credentials, governed by the [W3C Community License
+This repository is being used for work in the W3C Device Bound Session Credentials, governed by the [W3C Community License
 Agreement (CLA)](http://www.w3.org/community/about/agreements/cla/). To make substantive contributions,
 you must join the CG.
 
