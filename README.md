@@ -84,6 +84,7 @@ There are a few obvious considerations to ensure we achieve that goal:
 - This API—which allows background "pings" to the refresh endpoint when the user is not directly active—must not enable long-term tracking of a user when they have navigated away from the connected site.
 
 ## High level overview
+![High level diagram](reg_and_refresh.svg)
 The general flow of a secure session is as follows:
 1. The website requests that the browser start a new session, providing an HTTP endpoint to negotiate registration parameters.
 1. The browser creates a device-bound key pair, and calls the registration HTTP endpoint to set up the session and register the public key.
