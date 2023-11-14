@@ -100,48 +100,14 @@ As long as that session is active, the browser performs the following refresh as
 1. The browser may choose to proactively refresh cookies that are about to expire, if it predicts the user may soon need them. This is purely a latency optimization, and not required.
 
 ### Start Session
-![Start session diagram](key_registration.svg)
+![Start session diagram](key_registration_header.svg)
 
-The API consists of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface supports the following method:
-
-- **startSession():**
-- Parameters:
-  - endpoint: The URL of the secure session endpoint, supporting /startsession and /refresh operations
-  - supported_binding_algs: Array of cryptographic algorithms supported by the server
-  - authorization: Optional authorization code to be passed to Start Session HTTP request
-- Returns:
-  - A promise with a string containing the session ID (which may be empty)
-
-When called, this method must:
-- Generate and store a new, secure cryptographic key pair
-- Call the "endpoint" + /startsession as specified below in Start Session (HTTP Request/Response)
-- Return a promise which
-  - If that call succeeds (i.e. returns an HTTP 200), returns a session ID obtained from that call (which can be the empty string)
-  - If that call fails, throws an exception (which may indicate the HTTP status of the failed call)
-
-Requirements:
-- The endpoint must have the same origin as the JavaScript.
-
-Below is an example of the API being used:
-```javascript
-let promise = navigator.secureSession.start({
-  // Session start options
-  "endpoint": "<url prefix of standard session endpoint>", // required
-  "supportedBindingAlgorithms": ["ES256,RS256"], // required
-  "authorization": "<authorization code>", // optional
-});
-promise.then((sessionInfo) => {
-  // Success means the browser has completed the session setup with the
-  // session endpoint and will perform the necessary maintenance tasks
-  // going forward.
-  console.log("Session with id {} was started.", sessionInfo.id);
-});
-promise.catch((...) => {
-  // Session start failed for some reason, e.g. the HTTP endpoint was
-  // not reachable, or broke protocol.
-  <error handling>
-});
+The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
+```http
+HTTP/1.1 200 OK
+Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=nonce
 ```
+The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded.
 
 The browser responds to the session start by selecting a compatible signature algorithm and creating a device-bound private key for the new session. It then makes the following HTTP request (assuming the endpoint URL is https://auth.example.com/securesession):
 
@@ -290,3 +256,47 @@ It is important that the user is always in control and can delete the session ke
 ### Login Status API
 ### Interaction with Inactive Documents (BFCache, Prerendering)
 When a session is ended for any reason, any inactive documents which had access to that session's credentials should be destroyed. This ensures that pages in BFCache or that are pre-rendering that contain information guarded by those credentials are not presented after the session has ended.
+
+## Alternative JavaScript API for StartSession
+![Start session diagram](key_registration.svg)
+
+The API consists of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface supports the following method:
+
+- **startSession():**
+- Parameters:
+  - endpoint: The URL of the secure session endpoint, supporting /startsession and /refresh operations
+  - supported_binding_algs: Array of cryptographic algorithms supported by the server
+  - authorization: Optional authorization code to be passed to Start Session HTTP request
+- Returns:
+  - A promise with a string containing the session ID (which may be empty)
+
+When called, this method must:
+- Generate and store a new, secure cryptographic key pair
+- Call the "endpoint" + /startsession as specified below in Start Session (HTTP Request/Response)
+- Return a promise which
+  - If that call succeeds (i.e. returns an HTTP 200), returns a session ID obtained from that call (which can be the empty string)
+  - If that call fails, throws an exception (which may indicate the HTTP status of the failed call)
+
+Requirements:
+- The endpoint must have the same origin as the JavaScript.
+
+Below is an example of the API being used:
+```javascript
+let promise = navigator.secureSession.start({
+  // Session start options
+  "endpoint": "<url prefix of standard session endpoint>", // required
+  "supportedBindingAlgorithms": ["ES256,RS256"], // required
+  "authorization": "<authorization code>", // optional
+});
+promise.then((sessionInfo) => {
+  // Success means the browser has completed the session setup with the
+  // session endpoint and will perform the necessary maintenance tasks
+  // going forward.
+  console.log("Session with id {} was started.", sessionInfo.id);
+});
+promise.catch((...) => {
+  // Session start failed for some reason, e.g. the HTTP endpoint was
+  // not reachable, or broke protocol.
+  <error handling>
+});
+```
