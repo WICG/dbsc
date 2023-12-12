@@ -182,12 +182,9 @@ Sec-Session-Challenge: session_identifier=<session identifier>,challenge=<base64
 
 The server can also serve challenges ahead of time attached to any response as an optimization, for example:
 ```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-Cache-Control: no-store
+HTTP/1.1 XXX
 Sec-Session-Challenge: session_identifier=<session identifier>,challenge=<base64url encoded challenge>
 ```
-
 
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
 
