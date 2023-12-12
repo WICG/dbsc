@@ -118,14 +118,21 @@ Accept: application/json
 Content-Type: application/json
 Content-Length: nn
 Cookie: whatever_cookies_apply_to_this_request=value;
+<base64-URL-encoded registration JWT>
 ```
+The JWT is signed with the newly created private key, and needs to contain the following values:
 ```json
+// Header
 {
-  "binding_algorithm": "ES256",
-  "binding_public_key": <base64url encoded generated public key>,
-  "client_constraints": {
-    "signature_quota_per_minute": 2,
-  },
+  "alg": "Signature Algorithm",
+  "typ": "JWT",
+}
+// Payload
+{
+  "aud", "URL of this request"
+  "jti", "nonce"
+  "iat", "timestamp"
+  "key", "public key";
 }
 ```
 
