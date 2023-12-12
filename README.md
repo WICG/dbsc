@@ -165,7 +165,7 @@ As long as the named cookie is not expired the browser will keep sending request
 The browser refreshes the short-term session credential by calling the session endpoint:
 
 ```http
-GET /securesession/refresh HTTP/1.1
+POST /securesession/refresh HTTP/1.1
 Host: auth.example.com
 Content-Type: application/json
 Content-Length: nn
@@ -189,7 +189,7 @@ Sec-Session-Challenge: session_identifier=<session identifier>,challenge=<base64
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
 
 ```http
-GET /securesession/refresh HTTP/1.1
+POST /securesession/refresh HTTP/1.1
 Sec-Session-Response: <base64-URL-encoded JWT>
 ```
 
