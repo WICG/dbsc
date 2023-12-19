@@ -159,7 +159,12 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
 }
 ```
 
-If the browser accepts this response, it successfully resolves the promise from the initial JS call with the session identifier (this allows for some decoupling of sign-in and session-management services on the server side).
+If the request is not properly authorized, the server can request a new signed request by answering instead with a 401:
+
+```http
+HTTP/1.1 401
+Sec-Session-Challenge: challenge=new_challenge
+```
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
 
