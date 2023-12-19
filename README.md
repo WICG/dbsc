@@ -130,10 +130,11 @@ The JWT is signed with the newly created private key, and needs to contain the f
 }
 // Payload
 {
-  "aud", "URL of this request"
-  "jti", "nonce"
-  "iat", "timestamp"
-  "key", "public key";
+  "aud", "URL of this request",
+  "jti", "nonce",
+  "iat", "timestamp",
+  "key", "public key",
+  "authentication": "<authentication_code>", // optional
 }
 ```
 
