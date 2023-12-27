@@ -106,9 +106,9 @@ As long as that session is active, the browser performs the following refresh as
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=nonce
+Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=nonce;authorization=authorization_code
 ```
-The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded.
+The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded. The authorization code is optional and will be sent in the registration JWT if present. The authorization code is not an authorization token, the only meaning of the authorization parameter is that the browser will set it in the JWT on the registration call to the endpoint. This allows passing a bearer token for the server to link registration with some preceding sign in flow without relying on cookies, or it may fit some existing oauth-modeled infrastructure, where a one time authz token can be used here, a refresh token as the session id, and access tokens as the short term cookies. If a website wants to use other tokens (including bespoke non-standard ones), as long as they accept them in the Authorization header, they should be able to just do so.
 
 The browser responds to the session start by selecting a compatible signature algorithm and creating a device-bound private key for the new session. It then makes the following HTTP request (assuming the endpoint URL is https://auth.example.com/securesession):
 
@@ -130,11 +130,11 @@ The JWT is signed with the newly created private key, and needs to contain the f
 }
 // Payload
 {
-  "aud", "URL of this request",
-  "jti", "nonce",
-  "iat", "timestamp",
-  "key", "public key",
-  "authentication": "<authentication_code>", // optional
+  "aud": "URL of this request",
+  "jti": "nonce",
+  "iat": "timestamp",
+  "key": "public key",
+  "authorization": "authorization code", // optional, only if set in registration header
 }
 ```
 
