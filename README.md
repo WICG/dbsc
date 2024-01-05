@@ -106,9 +106,11 @@ As long as that session is active, the browser performs the following refresh as
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=nonce;authorization=authorization_code
+Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=nonce;authorization=authorization_value
 ```
-The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded. The authorization code is optional and will be sent in the registration JWT if present. The purpose of the authorization parameter is that the browser will set it in the JWT on the registration call to the endpoint. This allows passing a bearer token for the server to link registration with some preceding sign in flow without relying on cookies, or it may fit some existing OAuth-modeled infrastructure, where a one-time authorization code, an access token or id token can be used here for authentication. If a website wants to use other tokens (including bespoke non-standard ones), as long as they accept them in the Authorization header, they should be able to just do so.
+The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded.
+
+The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructgure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
 
 The browser responds to the session start by selecting a compatible signature algorithm and creating a device-bound private key for the new session. It then makes the following HTTP request (assuming the endpoint URL is https://auth.example.com/securesession):
 
@@ -119,6 +121,8 @@ Accept: application/json
 Content-Type: application/json
 Content-Length: nn
 Cookie: whatever_cookies_apply_to_this_request=value;
+Authorization: Bearer <authorization_value>
+
 <base64-URL-encoded registration JWT>
 ```
 The JWT is signed with the newly created private key, and needs to contain the following values:
@@ -134,7 +138,7 @@ The JWT is signed with the newly created private key, and needs to contain the f
   "jti": "nonce",
   "iat": "timestamp",
   "key": "public key",
-  "authorization": "authorization code", // optional, only if set in registration header
+  "authorization": "<authorization_value>", // optional, only if set in registration header
 }
 ```
 
@@ -277,7 +281,7 @@ The API consists of a new interface, SecureSession, an instance of which is obta
 - Parameters:
   - endpoint: The URL of the secure session endpoint, supporting /startsession and /refresh operations
   - supported_binding_algs: Array of cryptographic algorithms supported by the server
-  - authorization: Optional authorization code to be passed to Start Session HTTP request
+  - authorization: Optional authorization value to be passed to Start Session HTTP request
 - Returns:
   - A promise with a string containing the session ID (which may be empty)
 
@@ -297,7 +301,7 @@ let promise = navigator.secureSession.start({
   // Session start options
   "endpoint": "<url prefix of standard session endpoint>", // required
   "supportedBindingAlgorithms": ["ES256,RS256"], // required
-  "authorization": "<authorization code>", // optional
+  "authorization": "<authorization value>", // optional
 });
 promise.then((sessionInfo) => {
   // Success means the browser has completed the session setup with the
