@@ -273,7 +273,7 @@ It is important that the user is always in control and can delete the session ke
 When a session is ended for any reason, any inactive documents which had access to that session's credentials should be destroyed. This ensures that pages in BFCache or that are pre-rendering that contain information guarded by those credentials are not presented after the session has ended.
 
 ## Alternative JavaScript API for StartSession
-![Start session diagram](key_registration.svg)
+![Start session diagram](dbsc_js_v2.svg)
 
 The API consists of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface supports the following method:
 
