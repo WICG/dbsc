@@ -103,6 +103,8 @@ As long as that session is active, the browser performs the following refresh as
 ### Start Session
 ![Start session diagram](header_setup.svg)
 
+[Link to editable diagram](https://sequencediagram.org/index.html#initialData=MoUwTgbuC0B8CqBncACAggcxAOwC4C4VQBjaURRASwHttoAlEDSxXMAQ1xuwCgeMw1AK4AHFMlyjxICtxRgQARyEzcPJKkw5ccUJHD4ACgHlgAFRQB6ZMSELks2tdzswuB1Vo9s1XCBTUUGAoGsFaeAA0ekEAxADuABYgnPgA3gBEAEaU2AAmORjQ7AA2GPgAdJXpAL7qyGFYeAA8ZOBB+KA6AMLU1ADWlCCE7EK4CQD6xL0DIN6+-oGooeiNuFFt4PFJKRke3NCUudqUAGaDYBVVtTi5fD5+AUEh9SvaW8kE5J7YKCwoPnEUOxiFwoDwgA)
+
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
@@ -179,6 +181,8 @@ Note if multiple cookies are required, the browser returns multiple Set-Cookie h
 As long as the named cookie is not expired the browser will keep sending requests as normal. Once the cookie is expired the browser will hold all requests for the scope of the cookie, except where the server excluded the paths in the registration, while refreshing the cookie. This is where the browser driven protocol makes a difference, if not for this there would be potentially many requests without the required cookie.
 #### Refresh procedure
 ![Refresh diagram](refresh_v2.svg)
+
+[Link to editable diagram](https://sequencediagram.org/index.html#initialData=A4QwTgLglgxloDsIAICqBnApmZBBA5pkgFCiSzwhLIASmANgCbIBKmAjgK6boTqnhocRCgDK2AG7ZixBAHsImZHKk4M2PISQAacWFUBiAO4ALTCAgAucenRQ5CZDDlyA1lCUhOEEwH1nbh7ImAAewFBgmIzE6jgERBAAtAB8dEysHNy86JbIAOIAogAqwSEgALbA9JgAdM7lAPTAYAqYMIqMvpFcPBDE+C2cwBkAZpHoJshYtvYIMVhxWknJeqqWAAoA8qIlDVgwnOM8dg4NkWM8JsSr2CmxmgmWNEVF68gALAAMAIyyrcqqNALB46G5gYxmCzWNqJGwnBCJADCJhA9GqCEIlhq2Jq8w08SQKTBG22u32hx4x1mZ0wFwmf0UAI09wJEF0kmwEPMVgA3gAicQwWFUhyJNjoYAOLHYvkAX2uHLAd2BrKeLzeACZPp8GUoVMyVUt2fpOaZudCkoiXO5MLkvD5-NaPABeCSo7jEIjReSM-VqQ0JY2GM1QtjVEBYZBmdLdLJ8ZBGKA+JxOnjIc7jMzRFlLImK3KFEqhCpVWr1JotRTtKJdTK9YhAA)
 
 The browser refreshes the short-term session credential by calling the session endpoint:
 
@@ -274,6 +278,8 @@ When a session is ended for any reason, any inactive documents which had access 
 
 ## Alternative JavaScript API for StartSession
 ![Start session diagram](dbsc_js_v2.svg)
+
+[Link to editable diagram](https://sequencediagram.org/index.html#initialData=A4QwTgLglgxloDsIAIDqBTARsgCiA5ugFCiSzwhLICqAzumMgIKFInjRyIoDKDAbgyJF8YAPYBXYMh4QOyerVpQxCIhmx5CAWgB8dBs1YQAXMgQh+UfCAhiwAOnowJYdIuWqncyAAoHAQCURAhiEOjIYoKMBows6EgAxADuABbotiYAwm62EQDW6ACeyKBQYESxRgkQenxg0SY4API8ACrIAPTOru7ungjdPhAhYRFRhlXxSAA09dEp6ZkA3gBEmFAIACab+NogADb4JgEOqwC+RPMMelPGJgASbW04yABMAAwfo+GR0TT0OLGOYCBiLDKmPi1LJiMT5KDoMwgCQQVIAfRgsPh6AAvPxDhJiBpcAR0AAebR3GpmYDiAC2UHoDjctDEB0E-iCRASWx+43+xK06BBDTBaQhJj4ShUCGQjPMYmSyBAMGggiIQA)
 
 The API consists of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface supports the following method:
 
