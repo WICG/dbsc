@@ -101,7 +101,7 @@ As long as that session is active, the browser performs the following refresh as
 1. The browser may choose to proactively refresh cookies that are about to expire, if it predicts the user may soon need them. This is purely a latency optimization, and not required.
 
 ### Start Session
-![Start session diagram](key_registration_header.svg)
+![Start session diagram](header_setup.svg)
 
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
