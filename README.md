@@ -108,9 +108,14 @@ As long as that session is active, the browser performs the following refresh as
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=nonce;authorization=authorization_value
+Sec-Session-Registration: "path";challenge=:Y2hhbGxlbmdl:;es256;rs256;authorization=:YXV0aGNvZGU=:
 ```
-The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded.
+This is a structured header with a list of string arguments representing the path. Each path can have multiple attributes, one token for each supported algorithm (where the possibilities are es256 and rs256) and a named attribute called challenge which should have a bytestring that is the challenge utf8 encoded. There is also an optional bytestring attribute called authorization. There can be more than one registration on one response:
+```http
+HTTP/1.1 200 OK
+Sec-Session-Registration: "path1";challenge=:Y2hhbGxlbmdl:;es256;rs256;authorization=:YXV0aGNvZGU=:
+Sec-Session-Registration: "path2";challenge=:bmV3b25l:;es256
+```
 
 The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructgure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
 
