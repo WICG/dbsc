@@ -129,7 +129,6 @@ Accept: application/json
 Content-Type: application/json
 Content-Length: nn
 Cookie: whatever_cookies_apply_to_this_request=value;
-Authorization: Bearer <authorization_value>
 
 <base64-URL-encoded registration JWT>
 ```
