@@ -52,7 +52,13 @@ DBSC is bound to a device with cryptographic keys that cannot be exported from t
 Reduce session theft by offering an alternative to long-lived cookie bearer tokens, that allows session authentication that is bound to the user's device. This makes the internet safer for users in that it is less likely their identity is abused, since malware is forced to act locally and thus becomes easier to detect and mitigate. At the same time the goal is to disrupt the cookie theft ecosystem and force it to adapt to new protections.
 
 ### Motivating use cases
-The primary driving factor is dealing with the threat of Malware installed by an attacker on a user's device. By binding authentication sessions to the device, DBSC aims to disrupt the cookie theft industry since exfiltrating these cookies will no longer have any value. We think this will substantially reduce the success rate of cookie theft malware. Attackers would be forced to act locally on the device, which makes on-device detection and cleanup more effective, both for anti-virus software as well as for enterprise managed devices. [Source](https://blog.chromium.org/2024/04/fighting-cookie-theft-using-device.html)
+The primary driving factor is dealing with the threat of malware installed by an attacker on a user's device. By binding authentication sessions to the device, DBSC aims to disrupt the cookie theft industry since exfiltrating these cookies will no longer have any value. We think this will substantially reduce the success rate of cookie theft malware. Attackers would be forced to act locally on the device, which makes on-device detection and cleanup more effective, both for anti-virus software as well as for enterprise managed devices. [Source](https://blog.chromium.org/2024/04/fighting-cookie-theft-using-device.html)
+
+A concrete example was the [Phishing campaign targets YouTube creators with cookie theft malware (article from 2021)](https://blog.google/threat-analysis-group/phishing-campaign-targets-youtube-creators-cookie-theft-malware/) where attackers attempted to phish and install malware on YouTube creators to exfiltrate their cookies. However, even after the malware has been removed the attacker still has access to the YouTube creators accounts.
+
+For the rest of the DBSC proposal, it is a requirement to explicitly handle the scenario where malware was installed on the user's device and has similar access to the browser or other installed applications, such as:
+* Access to any and all data saved by the browser
+* Direct access to call a TPM's public API
 
 Once the attacker is no longer resident on the user's device, the authentication session binding will prevent the attacker from further access to the user's session credentials.
 
