@@ -45,7 +45,7 @@ DBSC is bound to a device with cryptographic keys that cannot be exported from t
 Reduce session theft by offering an alternative to long-lived cookie bearer tokens, that allows session authentication that is bound to the user's device. This makes the internet safer for users in that it is less likely their identity is abused, since malware is forced to act locally and thus becomes easier to detect and mitigate. At the same time the goal is to disrupt the cookie theft ecosystem and force it to adapt to new protections.
 
 ### Non-goals
-DBSC will not prevent temporary access to the browser session while the attacker is resident on the user’s device. The private key should be stored as safe as modern desktop operating systems allow, preventing exfiltrating of the session private key, but the signing capability will still be available for any program running as the user on the user’s device. 
+DBSC will not prevent temporary access to the browser session while the attacker is resident on the user’s device. The private key should be stored as safe as modern desktop operating systems allow, preventing exfiltration of the session private key, but the signing capability will still be available for any program running as the user on the user’s device. 
 
 ### What makes Device Bound Session Credentials different
 DBSC is not the first proposal towards these goals, with a notable one being [Token Binding](https://en.wikipedia.org/wiki/Token_Binding). This proposal offers two important features that we believe makes it easier to deploy than previous proposals. DBSC provides application-level binding and browser initiated refreshes that can make sure devices are still bound to the original device.
@@ -112,7 +112,7 @@ Sec-Session-Registration: registration=path;supported-alg=ES256,RS256;challenge=
 ```
 The path is the path to the registration endpoint on the same origin utf8encoded, and the nonce should also be utf8encoded.
 
-The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructgure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
+The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
 
 The browser responds to the session start by selecting a compatible signature algorithm and creating a device-bound private key for the new session. It then makes the following HTTP request (assuming the endpoint URL is https://auth.example.com/securesession):
 
