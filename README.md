@@ -74,6 +74,7 @@ DBSC depends on user devices having a way of signing challenges while protecting
  Chrome has done studies to understand TPM availability to understand the feasibility of secure sessions. Current data shows about 60%, and currently growing, of Windows users would be offered protections. Studies have also been done on the current populations of TPMs, both for latency and for predictability. Currently the latency is (P50: 200ms/ P95: 600ms) for signing operations. The error rate is very low, currently around 0.001%.
 
 Based on this research, TPMs are widely available, with a latency and consistency that is acceptable for the proposed usage.
+
 ### Privacy considerations
 An important high-level goal of this protocol is to introduce no additional surface for user tracking: implementing this API (for a browser) or enabling it (for a website) should not entail any significant user privacy tradeoffs.
 
@@ -109,13 +110,13 @@ As long as that session is active, the browser performs the following refresh as
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: "path";challenge=:Y2hhbGxlbmdl:;es256;rs256;authorization=:YXV0aGNvZGU=:
+Sec-Session-Registration: (RS256 ES256);challenge="nonce";path="StartSession"
 ```
-This is a structured header with a list of string arguments representing the path. Each path can have multiple attributes, one token for each supported algorithm (where the possibilities are es256 and rs256) and a named attribute called challenge which should have a bytestring that is the challenge utf8 encoded. There is also an optional bytestring attribute called authorization. There can be more than one registration on one response:
+This is a structured header with a list of token arguments representing the allowed algorithms (possibilities are ES256 and RS256). The list have multiple string attributes, "path" is required describing the endpoint to use, "challenge" is to provide a nonce for the registration JWT. There is also an optional string attribute called authorization. There can be more than one registration on one response:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: "path1";challenge=:Y2hhbGxlbmdl:;es256;rs256;authorization=:YXV0aGNvZGU=:
-Sec-Session-Registration: "path2";challenge=:bmV3b25l:;es256
+Sec-Session-Registration: (ES256 RS256);path="path1";challenge="nonce";authorization="authcode"
+Sec-Session-Registration: (ES256);path="path2";challenge="nonce"
 ```
 
 The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
@@ -129,8 +130,8 @@ Accept: application/json
 Content-Type: application/json
 Content-Length: nn
 Cookie: whatever_cookies_apply_to_this_request=value;
+Sec-Session-Response: registration JWT
 
-<base64-URL-encoded registration JWT>
 ```
 The JWT is signed with the newly created private key, and needs to contain the following values:
 ```json
@@ -175,7 +176,7 @@ If the request is not properly authorized, the server can request a new signed r
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: challenge=new_challenge
+Sec-Session-Challenge: challenge="newChallenge"
 ```
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
@@ -204,20 +205,20 @@ In response to this the server can optionally first request a proof of possessio
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: session_identifier=<session identifier>,challenge=<base64url encoded challenge>
+Sec-Session-Challenge: session_identifier="sessionId",challenge="challenge"
 ```
 
 The server can also serve challenges ahead of time attached to any response as an optimization, for example:
 ```http
 HTTP/1.1 XXX
-Sec-Session-Challenge: session_identifier=<session identifier>,challenge=<base64url encoded challenge>
+Sec-Session-Challenge: session_identifier="sessionId",challenge="challenge"
 ```
 
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
 
 ```http
 POST /securesession/refresh HTTP/1.1
-Sec-Session-Response: <base64-URL-encoded JWT>
+Sec-Session-Response: refresh JWT
 ```
 
 The JWT contains:
@@ -262,7 +263,7 @@ The server may set or update other cookies not subject to session refreshes in t
 If instead the server decides to end the session it can respond with:
 ```json
 {
-  "session_identifier": "<server issued identifier for the session>",
+  "session_identifier": "sessionId",
   "continue": false
  }
 ```
