@@ -116,8 +116,8 @@ Sec-Session-Registration: (RS256 ES256);challenge="nonce";path="StartSession"
 This is a structured header with a list of token arguments representing the allowed algorithms (possibilities are ES256 and RS256). The list have multiple string attributes, "path" is required describing the endpoint to use, "challenge" is to provide a nonce for the registration JWT. There is also an optional string attribute called authorization. There can be more than one registration on one response:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: (ES256 RS256);path="path1";challenge="nonce";authorization="authcode"
-Sec-Session-Registration: (ES256);path="path2";challenge="nonce"
+Sec-Session-Registration: (ES256 RS256);path="path1";challenge="challenge_value";authorization="authcode"
+Sec-Session-Registration: (ES256);path="path2";challenge="challenge_value"
 ```
 
 The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
@@ -145,7 +145,7 @@ The JWT is signed with the newly created private key, and needs to contain the f
 // Payload
 {
   "aud": "URL of this request",
-  "jti": "nonce",
+  "jti": "challenge_value",
   "iat": "timestamp",
   "key": "public key",
   "authorization": "<authorization_value>", // optional, only if set in registration header
@@ -164,7 +164,7 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
 
 ```json
 {
-  "session_identifier": "<server issued identifier for the session>",
+  "session_identifier": "session_id",
   "refresh_url": "/RefreshEndpoint",
 
   "scope": {
@@ -198,7 +198,7 @@ If the request is not properly authorized, the server can request a new signed r
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: challenge="newChallenge"
+Sec-Session-Challenge: challenge="challenge_value"
 ```
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
@@ -220,20 +220,20 @@ Host: auth.example.com
 Content-Type: application/json
 Content-Length: nn
 Cookie: whatever_cookies_apply_to_this_request=value;
-Sec-Session-Id: [session ID]
+Sec-Session-Id: session_id
 ```
 
 In response to this the server can optionally first request a proof of possession of the key by issuing a challenge to the browser by responding with a 401 response with a challenge:
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: session_identifier="sessionId",challenge="challenge"
+Sec-Session-Challenge: session_identifier="session_id",challenge="challenge_value"
 ```
 
 The server can also serve challenges ahead of time attached to any response as an optimization, for example:
 ```http
 HTTP/1.1 XXX
-Sec-Session-Challenge: session_identifier="sessionId",challenge="challenge"
+Sec-Session-Challenge: session_identifier="session_id",challenge="challenge_value"
 ```
 
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
@@ -246,13 +246,13 @@ Sec-Session-Response: refresh JWT
 The JWT contains:
 ```json
 {
-  "jti": "challenge from Sec-Session-Challenge header",
+  "jti": "challenge_value",
   "aud": "the URL to which the Sec-Session-Response will be sent",
   "sub": "the session ID corresponding to the binding key",
 }
 ```
 
-If the server is satisfied with the response, or if it did not request it, it answers by setting the short term cookie. Optionally the server can adjust the session in the body of the response similar to how it was set up.
+If the server is satisfied with the response, or if it did not request it, it answers by setting the short term cookie. Optionally the server can adjust the session in the body of the response (similar to how it was set up)[https://github.com/WICG/dbsc/blob/main/README.md#session-registration-instructions-json].
 
 ```http
 HTTP/1.1 200 OK
@@ -260,24 +260,10 @@ Content-Type: application/json
 Cache-Control: no-store
 Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; HttpOnly;
 ```
-With the following contents:
-```json
-{ // optionally adjusting the session
-  // id must be the same as previously
-  "session_identifier": "<server issued identifier for the session>",
-  "credentials": [{
-    "name": "auth_cookie",
-    "excluded_scope": [
-      // the path is a prefix
-      "path_a",
-      "path_b"
-    ]
-  }],
-}
-```
+The contents is a json with the same specifications as during the registration.
 On receiving this response, the browser releases any requests that were deferred pending this refresh, including the new cookie.
 Note:
-This response is nearly identical to the response to session setup, and can be handled by the same logic in the client.
+This response is identical to the response to session setup, and can be handled by the same logic in the client.
 The new set of instructions replaces any previous instructions for the session. E.g. if the cookie name is different here than before, the browser should not trigger refreshes based on the absence of the old cookie name.
 The server may issue a different Max-Age, or scope for the short-term cookie.
 The server may set or update other cookies not subject to session refreshes in this response, as in any response.
@@ -285,7 +271,7 @@ The server may set or update other cookies not subject to session refreshes in t
 If instead the server decides to end the session it can respond with:
 ```json
 {
-  "session_identifier": "sessionId",
+  "session_identifier": "session_id",
   "continue": false
  }
 ```
