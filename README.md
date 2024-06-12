@@ -167,7 +167,8 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
   "session_identifier": "<server issued identifier for the session>",
   "refresh_url": "/RefreshEndpoint",
 
-  "scope": {  // Origin-scoped by default (i.e. https://example.com)
+  "scope": {
+    // Origin-scoped by default (i.e. https://example.com)
     // Specifies to include https://*.example.com except excluded subdomains.
     // This can only be true if the origin's host is the root eTLD+1.
     "include_site": true,
@@ -175,7 +176,7 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
     "scope_specification" : [
       { "type": "include", "domain": "trusted.example.com", "path": "/only_trusted_path" },
       { "type": "exclude", "domain": "untrusted.example.com", "path": "/" },
-      { "type": "exclude", "domain": "*.example.com", "path": "/static" },
+      { "type": "exclude", "domain": "*.example.com", "path": "/static" }
     ]
   },
 
@@ -189,7 +190,7 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
     "name": "auth_cookie",
     "attributes": "Domain=example.com; Path=/; Secure; SameSite=None"
     // Attributes Max-Age, Expires and HttpOnly are ignored
-  }],
+  }]
 }
 ```
 
