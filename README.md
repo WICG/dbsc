@@ -158,16 +158,34 @@ Content-Type: application/json
 Cache-Control: no-store
 Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; HttpOnly;
 ```
+
 ```json
 {
   "session_identifier": "<server issued identifier for the session>",
-  "credentials": [{
-    "name": "auth_cookie",
-    "excluded_scope": [
-      // the path is a prefix
-      "path_a",
-      "path_b"
+  "refresh_url": "/RefreshEndpoint",
+
+  "scope": {  // Origin-scoped by default (i.e. https://example.com)
+    // Specifies to include https://*.example.com except excluded subdomains.
+    // This can only be true if the origin's host is the root eTLD+1.
+    "include_site": true,
+
+    scope_specification : [
+      { type: "include", domain: "trusted.example.com", path: "/only_trusted_path" },
+      { type: "exclude", domain: "untrusted.example.com", path: "/" },
+      { type: "exclude", domain: "*.example.com", path: "/static" },
     ]
+  },
+
+  "credentials": [{
+    "type": "cookie",
+    // This specifies the exact cookie that this config applies to. Attributes
+    // match the cookie attributes in RFC 6265bis and are parsed similarly to
+    // a normal Set-Cookie line, using the same default values.
+    // These SHOULD be equivalent to the Set-Cookie line accompanying this 
+    // response.
+    "name": "auth_cookie",
+    "attributes": "Domain=example.com; Path=/; Secure; SameSite=None"
+    // Attributes Max-Age, Expires and HttpOnly are ignored
   }],
 }
 ```
