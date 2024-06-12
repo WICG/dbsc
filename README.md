@@ -173,9 +173,9 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
     "include_site": true,
 
     "scope_specification" : [
-      { type: "include", domain: "trusted.example.com", path: "/only_trusted_path" },
-      { type: "exclude", domain: "untrusted.example.com", path: "/" },
-      { type: "exclude", domain: "*.example.com", path: "/static" },
+      { "type": "include", "domain": "trusted.example.com", "path": "/only_trusted_path" },
+      { "type": "exclude", "domain": "untrusted.example.com", "path": "/" },
+      { "type": "exclude", "domain": "*.example.com", "path": "/static" },
     ]
   },
 
