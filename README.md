@@ -107,6 +107,7 @@ As long as that session is active, the browser performs the following refresh as
 
 [Link to editable diagram](https://sequencediagram.org/index.html#initialData=MoUwTgbuC0B8CqBncACAggcxAOwC4C4VQBjaURRASwHttoAlEDSxXMAQ1xuwCgeMw1AK4AHFMlyjxICtxRgQARyEzcPJKkw5ccUJHD4ACgHlgAFRQB6ZMSELks2tdzswuB1Vo9s1XCBTUUGAoGsFaeAA0ekEAxADuABYgnPgA3gBEAEaU2AAmORjQ7AA2GPgAdJXpAL7qyGFYeAA8ZOBB+KA6AMLU1ADWlCCE7EK4CQD6xL0DIN6+-oGooeiNuFFt4PFJKRke3NCUudqUAGaDYBVVtTi5fD5+AUEh9SvaW8kE5J7YKCwoPnEUOxiFwoDwgA)
 
+#### Session Registration Header
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
@@ -121,6 +122,7 @@ Sec-Session-Registration: (ES256);path="path2";challenge="nonce"
 
 The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
 
+#### Session Registration JWT
 The browser responds to the session start by selecting a compatible signature algorithm and creating a device-bound private key for the new session. It then makes the following HTTP request (assuming the endpoint URL is https://auth.example.com/securesession):
 
 ```http
@@ -150,6 +152,7 @@ The JWT is signed with the newly created private key, and needs to contain the f
 }
 ```
 
+#### Session Registration instructions JSON
 If the request is properly authorized, the server establishes whatever state represents the session server-side, and returns the following response.
 
 ```http
