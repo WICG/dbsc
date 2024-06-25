@@ -116,8 +116,8 @@ Sec-Session-Registration: (RS256 ES256);challenge="nonce";path="StartSession"
 This is a structured header with a list of token arguments representing the allowed algorithms (possibilities are ES256 and RS256). The list have multiple string attributes, "path" is required describing the endpoint to use, "challenge" is to provide a nonce for the registration JWT. There is also an optional string attribute called authorization. There can be more than one registration on one response:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: (ES256 RS256);path="path1";challenge="challenge_value";authorization="authcode"
-Sec-Session-Registration: (ES256);path="path2";challenge="challenge_value"
+Sec-Session-Registration: (ES256 RS256);path="path1";challenge="nonce";authorization="authcode"
+Sec-Session-Registration: (ES256);path="path2";challenge="nonce"
 ```
 
 The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
@@ -145,7 +145,7 @@ The JWT is signed with the newly created private key, and needs to contain the f
 // Payload
 {
   "aud": "URL of this request",
-  "jti": "challenge_value",
+  "jti": "nonce",
   "iat": "timestamp",
   "key": "public key",
   "authorization": "<authorization_value>", // optional, only if set in registration header
@@ -198,7 +198,7 @@ If the request is not properly authorized, the server can request a new signed r
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: challenge="challenge_value"
+Sec-Session-Challenge: challenge="nonce"
 ```
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
@@ -227,13 +227,13 @@ In response to this the server can optionally first request a proof of possessio
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: session_identifier="session_id",challenge="challenge_value"
+Sec-Session-Challenge: session_identifier="session_id",challenge="nonce"
 ```
 
 The server can also serve challenges ahead of time attached to any response as an optimization, for example:
 ```http
 HTTP/1.1 XXX
-Sec-Session-Challenge: session_identifier="session_id",challenge="challenge_value"
+Sec-Session-Challenge: session_identifier="session_id",challenge="nonce"
 ```
 
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
@@ -246,7 +246,7 @@ Sec-Session-Response: refresh JWT
 The JWT contains:
 ```json
 {
-  "jti": "challenge_value",
+  "jti": "nonce",
   "aud": "the URL to which the Sec-Session-Response will be sent",
   "sub": "the session ID corresponding to the binding key",
 }
