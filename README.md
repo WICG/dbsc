@@ -105,7 +105,7 @@ As long as that session is active, the browser performs the following refresh as
 There is an option for the server to opt out of the browser defering requests. If so it will instead:
 1. Sign any requests that would be defered, use the most recent challange. If there is not one, use the current timestamp. The browser may cache these signatures.
 1. The server can respond with 401 if it wants the request signed with a new challenge.
-1. The server can also serve chaalenges ahead of time on any response with the Sec-Session-Challenge header.
+1. The server can also serve challenges ahead of time on any response with the Sec-Session-Challenge header.
 1. Once the browser get an instruction to set the missing cookie it will stop signing requests.
 We do not reccomend this option for most deployments, but it is possibly for those that want to potentially save a network roundtrip in some circumstances.
 
