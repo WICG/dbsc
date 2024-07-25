@@ -102,6 +102,14 @@ As long as that session is active, the browser performs the following refresh as
 1. If any requests were deferred in step 2, the browser now makes those requests including the updated set of cookies.
 1. The browser may choose to proactively refresh cookies that are about to expire, if it predicts the user may soon need them. This is purely a latency optimization, and not required.
 
+There is an option for the server to opt out of the browser defering requests. If so it will instead:
+1. Sign any requests that would be defered, use the most recent challange. If there is not one, use the current timestamp. The browser may cache these signatures.
+1. The server can respond with 401 if it wants the request signed with a new challenge.
+1. The server can also serve chaalenges ahead of time on any response with the Sec-Session-Challenge header.
+1. Once the browser get an instruction to set the missing cookie it will stop signing requests.
+We do not reccomend this option for most deployments, but it is possibly for those that want to potentially save a network roundtrip in some circumstances.
+
+
 ### Start Session
 ![Start session diagram](header_setup.svg)
 
@@ -171,7 +179,9 @@ Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; Htt
     // Origin-scoped by default (i.e. https://example.com)
     // Specifies to include https://*.example.com except excluded subdomains.
     // This can only be true if the origin's host is the root eTLD+1.
+    "origin": "example.com",
     "include_site": true,
+    "defer_requests": true, // optional and true by default
 
     "scope_specification" : [
       { "type": "include", "domain": "trusted.example.com", "path": "/only_trusted_path" },
