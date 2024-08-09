@@ -158,3 +158,9 @@ Highlights (only the difference with IDPCallsPublicLocalKeyHelper):
 1. **Session establishment (Steps 1-10)**: Since RP is IDP, the session initiation with the headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` is optimized and initiated by the RP itself.
 1. **Token Issuance (Steps 11-13)**: The tokens once generated, can be delivered to RP directly through an API instead of a header based response.
 1. **DBSC Protocol (Steps 14-26)**: The `startSession` and `refreshSession` protocol remains the same as in the original DBSC proposal.
+
+#### IDP Calls Private Local Key Helper
+
+A special case is for enterprises that already have `well-known` Local Key Helpers, which are expected to be trusted and enabled by default in a browser. Here, since the browser can trust a given IDP (based on the URL and a policy mapping) and can trust the IDP to invoke the appropriate Local Key Helper (refer [Local key helper on Windows](./KeyGeneration.md#local-key-helper-on-windows)), there are a few optimizations that can be made to the protocol, in skipping the nonce and reducing the number of round trips between the IDP and the Local Key Helper.
+
+![IDPCallsPrivateLocalKeyHelper](./IDPCallsPrivateLocalKeyHelper.svg)
