@@ -1,6 +1,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
 
 - [Device Bound Session Credentials for Enterprise - explainer](#device-bound-session-credentials-for-enterprise---explainer)
   - [Authors](#authors)
@@ -71,19 +72,19 @@ DBSC(E) is not intended to be a separate proposal from DBSC, it is rather buildi
 
 ## Terminology
 
-### **Browser**:
+### Browser:
 
 In this document, "Browser" refers to a functionality in a web browser that is responsible for the DBSC protocol. This functionality will be implemented by Edge, Chrome (or their common engine), and other browsers that choose to implement DBSC/DBSC(E).
 
-### **Relying Party (RP)**:
+### Relying Party (RP):
 
 A web application that uses DBSC(E) protocol for cookie binding.
 
-### **Identity Provider (IdP)**:
+### Identity Provider (IdP):
 
 IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means.
 
-### **Device Registration Client**:
+### Device Registration Client:
 
 A process where the user registers the device with the IdP. This process is expected to be a once-in-a-lifetime operation.
 
@@ -100,7 +101,7 @@ One device registration client can manage multiple devices on the same physical 
 
 DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol amd is only concerned with the keys generated in a "clean room" state and the management of the generated keys to prove device binding.
 
-### **Local Key Helper**:
+### Local Key Helper:
 
 **Local Key Helper** is an integral part of the the **Device Registration Client** , a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
 
@@ -121,7 +122,7 @@ Please refer to the Windows Local Key Helper [here](./KeyGeneration.md#local-key
 
 Note: We plan to provide a reference implementation of the Local Key Helper for major platforms here in the future.
 
-### **Attestation Service**:
+### Attestation Service:
 
 A service that is responsible for verifying the device registration and providing the attestation to the IdP. The attestation service can be owned by the IdP or a third party. DBSC relies on the attestation service to validate the binding statement and ensure that the binding key and the device key belong to the same device. We have added details on the specifics of the binding artifacts generated during the device registration process, and the validation of the binding statement in the [DBSC(E) Key Generation](#key-generation-specifics) section.
 

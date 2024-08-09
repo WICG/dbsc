@@ -100,9 +100,9 @@ There are a few obvious considerations to ensure we achieve that goal:
 
 ### Enterprise support
 
-While DBSC addresses a general problem of session hijacking, and can be applicable to any _browser_ consumer, it is possible to expand this protocol to better support enterprise use cases. By adding specifics to key generation and enabling the switch if there is a specific policy administered on the device, we can provide a more secure environment for enterprise users. This is the goal of DBSC(E), which is an extension to DBSC. The high-level design of DBSC(E) is described in the [DBSC(E) Overview](DBSC-E/Overview.md).
+While DBSC addresses a general problem of session hijacking, and can be applicable to any _browser_ consumer, it is possible to expand this protocol to better support enterprise use cases. By adding specifics to key generation and enabling the switch if there is a specific policy administered on the device, we can provide a more secure environment for enterprise users. This is the goal of DBSC(E), which is an extension to DBSC. The high-level design of DBSC(E) is described in the [DBSC(E) Overview](<DBSC(E)/Overview.md>).
 
-DBSC-E provides a mechanism for enterprise and advanced browser customers to be able to deploy true device binding for any browser session, hence protecting against session hijacking and credential theft.
+DBSC(E) removes the vulnerability DBSC has, where a malware, if already present in the device during the key generation, can take over the session even if it is eventually bound to the device. By assuring a clean state key generation and introducing device key chaining, DBSC(E) can mitigate this vulnerability: More details about the importance of DBSC are here: [Why DBSC(E)?](<DBSC(E)/Overview.md#why-dbsce>).
 
 ## High level overview
 
