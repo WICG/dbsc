@@ -1,0 +1,10 @@
+title Device registration
+
+autonumber 1
+participant "Device registration client" as D
+participant "Attestation service" as A
+
+note over D, A: Provisioning ...
+D->>A: Register device (DeviceKey, AIK for KG, AIK for TPM, AIK for Software)
+A->>D: 200 OK
+
