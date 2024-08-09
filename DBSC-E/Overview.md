@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Device Bound Session Credentials for Enterprise - explainer](#device-bound-session-credentials-for-enterprise---explainer)
+  - [Authors](#authors)
+  - [Contributors](#contributors)
+  - [Participate (to come)](#participate-to-come)
+  - [Overview](#overview)
+  - [Why DBSC(E)?](#why-dbsce)
+  - [How does it integrate with DBSC?](#how-does-it-integrate-with-dbsc)
+  - [Terminology](#terminology)
+    - [**Browser**:](#browser)
+    - [**Relying Party (RP)**:](#relying-party-rp)
+    - [**Identity Provider (IdP)**:](#identity-provider-idp)
+    - [**Device Registration Client**:](#device-registration-client)
+    - [**Local Key Helper**:](#local-key-helper)
+      - [Platform Examples:](#platform-examples)
+    - [**Attestation Service**:](#attestation-service)
+  - [High-Level Design](#high-level-design)
+    - [Device Registration (Pre-Session)](#device-registration-pre-session)
+    - [DBSC(E) Highlevel design](#dbsce-highlevel-design)
+      - [IDP Calls Public Local Key Helper](#idp-calls-public-local-key-helper)
+      - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
+      - [IDP Calls Private Local Key Helper](#idp-calls-private-local-key-helper)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Device Bound Session Credentials for Enterprise - explainer
 
 This is the repository for Device Bound Session Credentials for Enterprise. You're welcome to
