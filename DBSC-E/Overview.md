@@ -120,7 +120,7 @@ As mentioned above, since an enterprise can choose to have its own Authenticatio
 
 #### IDP Calls Public Local Key Helper
 
-Note: To map this design with the existing DBSC
+For easy mapping with the existing DBSC proposal, please note:
 
 - Steps 1-16 specify the key generation process for a public local key helper
 - Steps 17-29 are [DBSC](https://github.com/wicg/dbsc), added for completeness.
@@ -145,4 +145,16 @@ Highlights:
 
 1. **SignIn Succeeds with binding (steps 15-16)**: The IdP will return the auth tokens to the RP,with the thumbprint of the public key embedded in the token.
 
-1. **DBSC Protocol (steps 17-29)**: The DBSC protocol is applied with the generated keys. RP can now initiate a session with the acquired tokens and the browser generates a JWT with the Local Key Helper which embeds the binding info. The signed JWT is now returned along with the tokens to the RP, which is inturn embedded in any cookies generated and stored by the RT, binding them. All future transactions including a refresh session now will look for the binding info in the cookies, hence securing them against session hijacking.
+1. **DBSC Protocol (steps 17-29)**: Once the sign in completes, with the intended IDP/Local Key Helper, the DBSC protocol is applied with the generated keys. RP can now initiate a session with the acquired tokens and the browser generates a JWT with the Local Key Helper which embeds the binding info. The signed JWT is now returned along with the tokens to the RP, which is inturn embedded in any cookies generated and stored by the RT, binding them. All future transactions including a refresh session now will look for the binding info in the cookies, hence securing them against session hijacking.
+
+#### IDP is RP and Calls Public Local Key Helper
+
+In some cases, we see the web service assuming dual roles of both the resource server and the authentication server (think of github client authenticated by github service). In such cases, DBSC(E) can be optimized to simplify the protocol and align with the perf goals for specific services.
+
+![IDPSameAsRP-CallsPublicLocalKeyHelper](./IDPSameAsRP-CallsPublicLocalKeyHelper.svg)
+
+Highlights (only the difference with IDPCallsPublicLocalKeyHelper):
+
+1. **Session establishment (Steps 1-10)**: Since RP is IDP, the session initiation with the headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` is optimized and initiated by the RP itself.
+1. **Token Issuance (Steps 11-13)**: The tokens once generated, can be delivered to RP directly through an API instead of a header based response.
+1. **DBSC Protocol (Steps 14-26)**: The `startSession` and `refreshSession` protocol remains the same as in the original DBSC proposal.
