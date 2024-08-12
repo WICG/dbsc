@@ -1,26 +1,24 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
-
 - [Device Bound Session Credentials for Enterprise - explainer](#device-bound-session-credentials-for-enterprise---explainer)
   - [Authors](#authors)
   - [Contributors](#contributors)
-  - [Participate (to come)](#participate-to-come)
+  - [Participate (TBD links)](#participate-tbd-links)
   - [Overview](#overview)
   - [Why DBSC(E)?](#why-dbsce)
   - [How does it integrate with DBSC?](#how-does-it-integrate-with-dbsc)
-  - [Terminology](#terminology)
-    - [**Browser**:](#browser)
-    - [**Relying Party (RP)**:](#relying-party-rp)
-    - [**Identity Provider (IdP)**:](#identity-provider-idp)
-    - [**Device Registration Client**:](#device-registration-client)
-    - [**Local Key Helper**:](#local-key-helper)
-      - [Platform Examples:](#platform-examples)
-    - [**Attestation Service**:](#attestation-service)
   - [High-Level Design](#high-level-design)
+  - [Terminology](#terminology)
+    - [Browser](#browser)
+    - [Relying Party (RP)](#relying-party-rp)
+    - [Identity Provider (IdP)](#identity-provider-idp)
+    - [Device Registration Client](#device-registration-client)
+    - [Local Key Helper](#local-key-helper)
+      - [Platform Examples:](#platform-examples)
+    - [Attestation Service:](#attestation-service)
     - [Device Registration (Pre-Session)](#device-registration-pre-session)
-    - [DBSC(E) Highlevel design](#dbsce-highlevel-design)
+    - [DBSC(E) use cases](#dbsce-use-cases)
       - [IDP Calls Public Local Key Helper](#idp-calls-public-local-key-helper)
       - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
       - [IDP Calls Private Local Key Helper](#idp-calls-private-local-key-helper)
@@ -51,14 +49,14 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 - [Kai Song](), Microsoft
 - [Amit Gusain](), Microsoft
 
-## Participate (to come)
+## Participate (TBD links)
 
 - [Issue tracker]()
 - [Discussion forum]
 
 ## Overview
 
-Device Bound Session Credentials for Enterprise - DBSC(E), is not a separate proposal but an addition to existing [DBSC](https://github.com/wicg/dbsc) proposal to enhance the key generation mechanism and security for enterprise use cases. It aims to provide a mechanism for enterprise and advanced browser customers to be able to deploy true device binding for any browser session, hence protecting against session hijacking and credential theft.
+Device Bound Session Credentials for Enterprise - DBSC(E), is not a separate protocol but an addition to the existing [DBSC](https://github.com/wicg/dbsc) proposal to enhance the key generation mechanism and security for enterprise use cases. It aims to provide a mechanism for enterprise and advanced browser customers to be able to deploy true device binding for any browser session, hence protecting against session hijacking and credential theft.
 
 ## Why DBSC(E)?
 
@@ -68,7 +66,7 @@ DBSC(E) aims to mitigate this risk by introducing the concept of credential gene
 
 ## How does it integrate with DBSC?
 
-DBSC(E) is not intended to be a separate proposal from DBSC, it is rather building on existing DBSC, and adds the binding specific details to the protocol. It is expected that the DBSC(E) proposal will be integrated into the DBSC proposal in the specification. In the high-level design, we have folded the DBSC proposal into the end to end flow, for and end-to-end illustration of cookie binding. Please read the [DBSC proposal](https://githuub.com/wicg/dbsc) before you proceed.
+DBSC(E) is not intended to be a separate proposal from DBSC, it is rather building on existing DBSC, and adds the binding specific details to the protocol. It is expected that the DBSC(E) proposal will be integrated into the DBSC proposal in the specification. In the high-level design, we have folded the DBSC proposal into the end to end flow. Please read the [DBSC proposal](https://githuub.com/wicg/dbsc) before you proceed.
 
 ## High-Level Design
 
@@ -95,18 +93,19 @@ In this document, "Browser" refers to a functionality in a web browser that is r
 
 ### Relying Party (RP)
 
-A web application that uses DBSC(E) protocol for cookie binding.
+A web application that uses DBSC(E) protocol for cookie binding. This is referred to as `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
 
 ### Identity Provider (IdP)
 
-IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means.
+IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means. IDP and RP are same for the consumer use case and is referred to as `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
 
 ### Device Registration Client
 
-A process where the user registers the device with the IdP. This process is expected to be a once-in-a-lifetime operation.
+This is a pre-requisite for DBSC(E) to work.
 
-The device registration is a process that establishes a trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication.
+Device Registration Client is a process where the user registers the device with the IdP and is expected to be a once-in-a-lifetime operation.
 
+The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication.
 A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this.
 
 One device registration client can manage multiple devices on the same physical device. There also can be multiple device registration clients on the same device. The device registration client can be owned and supported by:
@@ -120,6 +119,7 @@ DBSC(E) aims to support most of these scenarios. It does not define the device r
 
 ### Local Key Helper
 
+DBSC(E) introduced the concept of `Local Key Helper` which can be mapped to the `TPM` or any `Key generation helper` for the consumer case.
 **Local Key Helper** is an integral part of the the **Device Registration Client** , a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
 
 From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
@@ -133,7 +133,7 @@ The Local Key Helper is responsible for:
 - Producing signatures with the binding key
 - Cleanup of the binding key and its artifacts (when the user clears the browser session or the key is unused for a long time).
 
-#### Platform Examples:
+#### Platform Examples
 
 Please refer to the Windows Local Key Helper [here](./KeyGeneration.md#local-key-helper-on-windows) for an example of a Local Key Helper.
 
@@ -151,13 +151,13 @@ Any enterprise user is expected to either use a device issued by their organizat
 
 ### DBSC(E) use cases
 
-This section expands on the generic design to address different enterprise use cases:
+This section expands on the [generic design](#high-level-design) to address different enterprise use cases:
 
 #### IDP Calls Public Local Key Helper
 
 For easy mapping with the existing DBSC proposal, please note:
 
-- Steps 1-16 specify the key generation process for a public local key helper
+- Steps 1-16 specify the key generation process for a public local key helper.
 - Steps 17-29 are [DBSC](https://github.com/wicg/dbsc), added for completeness.
 
 ![IDPCallsPublicLocalKeyHelper](./IDPCallsPublicLocalKeyHelper.svg)
