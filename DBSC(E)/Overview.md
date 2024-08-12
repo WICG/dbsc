@@ -35,7 +35,7 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 ## Authors
 
 - [Sameera Gajjarapu](sameera.gajjarapu@microsoft.com), Microsoft
-- [Alexander Tokerev](alextok@microsoft.com), Microsoft
+- [Alexander Tokarev](alextok@microsoft.com), Microsoft
 
 ## Contributors
 
