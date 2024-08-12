@@ -1,0 +1,44 @@
+participant "TPM" as t
+participant "Browser" as b
+participant "Server" as w
+
+
+
+b->w: sign-in flow 
+w->b: 200 w/signed-in content, response includes header to start secure session.  \nHeader: ""Sec-Session-Registration: session_identifier=..., challenge=...""\n(challenge required for private key proof of possession) \n\n<size:10><color:#blue>Sec-Session-GenerateKey: \nRPUrl, IDPUrl, challenge=nonce, extraParams...\n\nSec-Session-HelperIdList: \n[HelperId1, HelperId2], HelperCacheTime
+note over b: browser initiates session binding\nbased on header presence \n<color:#blue>evaluate policy for \n(HelperId...)
+b->t: request create keypair \n<color:#blue>(serverUrl, authUrl?, challenge, extraParams?)
+note over b: For Enterprise, this call will be platform\nbased & generates device attestation
+t->b: return public key &\n<color:#blue>BindingStatement\n{challenge, thumbprint(pubKey), extraClaims?..}
+note over b: create JWT w/challenge
+b->t:request sign JWT  \n<color:#blue>(challenge,public key, extraParams?..)
+t->b: return JWT signature
+b->w: POST /securesession/startsession \n\n""{"alg":..., "typ":"JWT", ...}{...,"key":"<public_key>"}"" 
+note over w: store public key, establish session
+w->b: 200 w/cookie and session ID\nbody includes scope of cookies (origin + path)\n\nheader: ""Set-Cookie: auth_cookie""\nbody: ""{"session_identifier":...}""
+==Some time passes...==
+note over b: user clicks link for path /somecontent
+b->b: check if origin+path requires bound cookie
+alt bound cookie not required
+b->w: GET /somecontent
+w->b: 200 w/content
+else bound cookie required
+b->b: check if required cookies exist
+alt required cookie present and not expired
+b->w: GET /somecontent
+w->b: 200 w/content
+else required cookie missing or expired
+note over b: request deferred while we get cookies...
+b->w: GET /securesession/refresh \nheader: ""Sec-Session-Id: [session ID]""
+w->b:401\n\nHeader: ""Sec-Session-Challenge: session_identifier=..., challenge=...""
+note over b: create JWT w/challenge
+b->t:request sign JWT
+t->b: return JWT signature
+b->w: GET /securesession/refresh \nheader: ""Sec-Session-Response: [JWT]""
+note over w: validate proof of possesion
+w->b:200 w/cookie and session ID\nbody includes scope of cookies (origin + path)\n\nheader: ""Set-Cookie: auth_cookie""\nbody: ""{"session_identifier":...}""
+note over b: secure session established, resume\noriginal request
+b->w: GET /somecontent
+w->b: 200 w/some content
+end
+end

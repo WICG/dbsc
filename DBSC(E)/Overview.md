@@ -70,21 +70,38 @@ DBSC(E) aims to mitigate this risk by introducing the concept of credential gene
 
 DBSC(E) is not intended to be a separate proposal from DBSC, it is rather building on existing DBSC, and adds the binding specific details to the protocol. It is expected that the DBSC(E) proposal will be integrated into the DBSC proposal in the specification. In the high-level design, we have folded the DBSC proposal into the end to end flow, for and end-to-end illustration of cookie binding. Please read the [DBSC proposal](https://githuub.com/wicg/dbsc) before you proceed.
 
+## High-Level Design
+
+DBSC(E), if enabled for a given enteprise, specifies the generation of the cryptographic artifacts (keys and binding info) before a sign in session is established. By enabling the browser to invoke specific APIs based on an existing policy, it allows enterprises to add to the existing key generation. It also allows them to place stricter restrictions on specific sessions, hence providing the flexibility to secure a session appropriately.
+
+The high-level design is divided into two parts:
+
+1. Key generation and validation before the session starts (DBSC(E) is focused on this part).
+2. DBSC protocol applied with the generated keys (DBSC is focused on this part).
+
+Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. As we cover different use cases DBSC(E) can be applied for, ee differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Okta, Github to ship their own local key helper as a part of the IdP. We also optimize the protocol for RP and IdP as the same service (google client authenticated by google service as an example), since it simplifies the protocol and align with the perf goals for specific services.
+
+DBSC(E) Introduction (in contrast with DBSC):
+
+![DBSC(E) Highlevel Design](<./DBSC(E).svg>)
+
+Before we get into the specifics, we will introduce the terminology and design specifics for the key generation and validation below.
+
 ## Terminology
 
-### Browser:
+### Browser
 
 In this document, "Browser" refers to a functionality in a web browser that is responsible for the DBSC protocol. This functionality will be implemented by Edge, Chrome (or their common engine), and other browsers that choose to implement DBSC/DBSC(E).
 
-### Relying Party (RP):
+### Relying Party (RP)
 
 A web application that uses DBSC(E) protocol for cookie binding.
 
-### Identity Provider (IdP):
+### Identity Provider (IdP)
 
 IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means.
 
-### Device Registration Client:
+### Device Registration Client
 
 A process where the user registers the device with the IdP. This process is expected to be a once-in-a-lifetime operation.
 
@@ -101,7 +118,7 @@ One device registration client can manage multiple devices on the same physical 
 
 DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol amd is only concerned with the keys generated in a "clean room" state and the management of the generated keys to prove device binding.
 
-### Local Key Helper:
+### Local Key Helper
 
 **Local Key Helper** is an integral part of the the **Device Registration Client** , a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
 
@@ -126,26 +143,15 @@ Note: We plan to provide a reference implementation of the Local Key Helper for 
 
 A service that is responsible for verifying the device registration and providing the attestation to the IdP. The attestation service can be owned by the IdP or a third party. DBSC relies on the attestation service to validate the binding statement and ensure that the binding key and the device key belong to the same device. We have added details on the specifics of the binding artifacts generated during the device registration process, and the validation of the binding statement in the [DBSC(E) Key Generation](#key-generation-specifics) section.
 
-## High-Level Design
-
-DBSC(E), if enabled for a given enteprise, specifies the generation of the cryptographic artifacts (keys and binding info) before a sign in session is established. By enabling the browser to invoke specific APIs based on an existing policy, it allows enterprises to add to the existing key generation. It also allows them to place stricter restrictions on specific sessions, hence providing the flexibility to secure a session appropriately.
-
-The high-level design is divided into two parts:
-
-1. Key generation and validation before the session starts (DBSC(E) is focused on this part).
-2. DBSC protocol applied with the generated keys (DBSC is focused on this part).
-
-Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. We differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Okta, Github to ship their own local key helper as a part of the IdP. We also optimize the protocol for RP and IdP as the same service (google client authenticated by google service as an example), since it simplifies the protocol and align with the perf goals for specific services.
-
 ### Device Registration (Pre-Session)
 
 Any enterprise user is expected to either use a device issued by their organization or register their personal device with the organization. The device registration is expected to be a once-in-a-lifetime operation, and the user is expected to perform this operation in a clean room environment.
 
 ![DeviceRegistration](./DeviceRegistration.svg)
 
-### DBSC(E) Highlevel design
+### DBSC(E) use cases
 
-As mentioned above, since an enterprise can choose to have its own Authentication service (IdP) determine the key generation, or have a third party generate the keys, we will cover both the use cases below.
+This section expands on the generic design to address different enterprise use cases:
 
 #### IDP Calls Public Local Key Helper
 
