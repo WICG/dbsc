@@ -56,32 +56,17 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 
 ## Overview
 
-Device Bound Session Credentials for Enterprise - DBSC(E), is not a separate protocol but an addition to the existing [DBSC](https://github.com/wicg/dbsc) proposal to enhance the key generation mechanism and security for enterprise use cases. It aims to provide a mechanism for enterprise and advanced browser customers to be able to deploy true device binding for any browser session, hence protecting against session hijacking and credential theft.
+Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to the existing [DBSC](https://github.com/wicg/dbsc) proposal. It refines the key generation mechanism resulting in additional security for enterprise use cases. It aims to provide a mechanism for enterprise and advanced browser customers to be able to deploy true device binding for any browser session, hence protecting against session hijacking and credential theft.
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during the web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own credentials (asymmetric key pair) to the web application, there by stealing the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
+While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during the initial web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own credentials (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
 
-DBSC(E) aims to mitigate this risk by introducing the concept of credential generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the device. It guaratees any given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as "clean room"). With DBSC(E), the malware will not be able to compromise a device even during signin/login. Device registration is also expected to be a once-in-a-lifetime operation, and hence the user will not be required to perform this operation again, reducing the chances of malware compromising the device.
+DBSC(E) aims to mitigate this risk by introducing the concept of credential generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the device. It guaratees any given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as "clean room"). With DBSC(E), the malware will not be able to compromise a device even during signin/login. Device registration is also expected to be a once-in-a-lifetime operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials the device.
 
 ## How does it integrate with DBSC?
 
 DBSC(E) is not intended to be a separate proposal from DBSC, it is rather building on existing DBSC, and adds the binding specific details to the protocol. It is expected that the DBSC(E) proposal will be integrated into the DBSC proposal in the specification. In the high-level design, we have folded the DBSC proposal into the end to end flow. Please read the [DBSC proposal](https://githuub.com/wicg/dbsc) before you proceed.
-
-## High-Level Design
-
-DBSC(E), if enabled for a given enteprise, specifies the generation of the cryptographic artifacts (keys and binding info) before a sign in session is established. By enabling the browser to invoke specific APIs based on an existing policy, it allows enterprises to add to the existing key generation. It also allows them to place stricter restrictions on specific sessions, hence providing the flexibility to secure a session appropriately.
-
-The high-level design is divided into two parts:
-
-1. Key generation and validation before the session starts (DBSC(E) is focused on this part).
-2. DBSC protocol applied with the generated keys (DBSC is focused on this part).
-
-Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. As we cover different use cases DBSC(E) can be applied for, ee differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Okta, Github to ship their own local key helper as a part of the IdP. We also optimize the protocol for RP and IdP as the same service (google client authenticated by google service as an example), since it simplifies the protocol and align with the perf goals for specific services.
-
-DBSC(E) Introduction (in contrast with DBSC):
-
-![DBSC(E) Highlevel Design](<./DBSC(E).svg>)
 
 Before we get into the specifics, we will introduce the terminology and design specifics for the key generation and validation below.
 
@@ -105,8 +90,7 @@ This is a pre-requisite for DBSC(E) to work.
 
 Device Registration Client is a process where the user registers the device with the IdP and is expected to be a once-in-a-lifetime operation.
 
-The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication.
-A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this.
+The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication. A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this.
 
 One device registration client can manage multiple devices on the same physical device. There also can be multiple device registration clients on the same device. The device registration client can be owned and supported by:
 
@@ -120,7 +104,7 @@ DBSC(E) aims to support most of these scenarios. It does not define the device r
 ### Local Key Helper
 
 DBSC(E) introduced the concept of `Local Key Helper` which can be mapped to the `TPM` or any `Key generation helper` for the consumer case.
-**Local Key Helper** is an integral part of the the **Device Registration Client** , a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
+**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
 
 From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
 
@@ -135,9 +119,11 @@ The Local Key Helper is responsible for:
 
 #### Platform Examples
 
-Please refer to the Windows Local Key Helper [here](./KeyGeneration.md#local-key-helper-on-windows) for an example of a Local Key Helper.
+- Windows: Please refer to the Windows Local Key Helper [here](./KeyGeneration.md#local-key-helper-on-windows) for an example of a Local Key Helper.
+- MacOS: TBD
+- Android:TBD
 
-Note: We plan to provide a reference implementation of the Local Key Helper for major platforms here in the future.
+Note: Above are examples of Local Key Helpers that can be used for DBSC(E) key generation. Any platform is free to build a version of this, as long as the API is consistent with the protocol.
 
 ### Attestation Service:
 
@@ -149,11 +135,60 @@ Any enterprise user is expected to either use a device issued by their organizat
 
 ![DeviceRegistration](./DeviceRegistration.svg)
 
+## High-Level Design
+
+DBSC(E), if enabled for a given enteprise, specifies the generation of the cryptographic artifacts (keys and binding info) before a sign in session is established. By enabling the browser to invoke specific APIs based on an existing policy, it allows enterprises to add to the existing key generation. It also allows them to place stricter restrictions on specific sessions, hence providing the flexibility to secure a session appropriately.
+
+The high-level design is divided into two parts:
+
+1. Key generation and validation before the session starts (DBSC(E) is focused on this part).
+2. DBSC protocol applied with the generated keys (DBSC is focused on this part).
+
+Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. As we cover different use cases DBSC(E) can be applied for, ee differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Okta, Github to ship their own local key helper as a part of the IdP. We also optimize the protocol for RP and IdP as the same service (google client authenticated by google service as an example), since it simplifies the protocol and align with the perf goals for specific services.
+
+DBSC(E) (in contrast with DBSC):
+
+![DBSC(E) Highlevel Design](<./DBSC(E).svg>)
+
+Highlights:
+
+Note: All references to RP, IDP are equivalent to `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
+
+1. **Pre-Session initiation with special headers (steps 1-2):** When a user starts a sign-in process, or initiates a session, the webpage initiating the session sends special headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` to the browser in response, to indicate that the session is expected to be DBSC(E) compliant.
+
+   - The `Sec-Session-GenerateKey` header contains the URL of the server(RP), the URL of the IdP (authentication service in most cases - which is optional for consumer use cases), a `nonce`(challenge) and any extra parameters that the IdP wants to send to the Local Key Helper.
+   - As the Local Key Helper is public or thirdparty, and potentially can be from a different vendor, `nonce`(challenge) is essential to prevent the clock skew difference between the IdP and the Local Key Helper. The `nonce`(challenge) is expected to be a random number generated by the IdP.
+   - The `Sec-Session-HelperIdList` header contains a list of helper IDs that the browser can use to generate the key. As we touched upon before, there could be multiple devices on a single physical device, and/or multiple device registration clients on a single device. The `HelperId` helps the browser to choose the right **Local Key Helper** to generate the key. The browser will evaluate the policy for the IdP and the helper IDs, and choose the appropriate helper ID to generate the key. The browser will then call the Local Key Helper to generate the key.
+
+1. **Key and Binding Statement Generation (steps 3-7):** The Local Key Helper generates the key and the binding statement. AIK refers to the `Attestation Key` described [above](#attestation-key). The binding statement is expected to contain the `nonce`(challenge) sent by the IdP, the thumbprint of the public key, and any extra claims that the IdP wants to send.
+
+   - Format of the Binding Statement: We expect the `binding statement` will be a `string`, as we want to keep the format open to allow for platform-specific optimizations. However, the validation of the `binding statement` is prescribed to include `nonce`(challenge) and the thumbprint of the public key. The `binding statement` is expected to be shortlived to prevent forgery of the binding statement from a different device. More details on `binding statement` can be found [here](./KeyGeneration.md#binding-statement).
+   - The `extra claims` is a provision added for specific IdPs or Local Key Helper vendors to add any additional information to the `binding statement`. It is intentionally left undefined, and can be customized.
+   - Local Key Helper can optionally signal the browser to cache the Binding Statement in the browser. This is to avoid repeated calls to the Local Key Helper for the same IdP. The browser can cache the Binding Statement for a certain time, and if the IdP requests a new key within that time, the browser can return the cached Binding Statement. TBD define under which conditions.
+
+1. **Sign In/Session Initiation (steps 8-9):** The `Binding Statement`, with the `KeyId` is expected to be returned to the IdP witha new header, `Sec-Session-Keys`. The IdP will [validate](#binding-statement---generation-and-validation) the signature on the `Binding Statement`, `nonce` and stores the thumbprint of the public key. Once the validation succeeds, the IdP will proceed with the sign-in ceremony (optionally generate auth tokens if the RP and IdP are separate, illustrated [below](#idp-is-rp-and-calls-public-local-key-helper), that embed the thumbprint of the public key). The `KeyId` is expected to be returned to the RP/IdP, and the IdP will use the `KeyId` to identify the key to be used for the session.
+
+1. **SignIn Succeeds with binding (steps 10-14)**: At this point, all DBSC(E) specific steps are completed. The server returns signed in content with a special header response to the browser: `Sec-Session-Registration` indicated the session is expected to be DBSC compliant. All steps further are as per the original DBSC proposal with additional params introduced for DBSC(E) customization.
+
 ### DBSC(E) use cases
 
 This section expands on the [generic design](#high-level-design) to address different enterprise use cases:
 
+#### IDP is RP and Calls Public Local Key Helper
+
+This is the same use case elaborated in the high level design [above](#high-level-design). However, we have separated the IdP/RP components of the server for the enterprise use case in the below diagram.
+
+![IDPSameAsRP-CallsPublicLocalKeyHelper](./IDPSameAsRP-CallsPublicLocalKeyHelper.svg)
+
+Highlights:
+
+- Auth tokens are not mentioned in the DBSC(E) high level design, as they are optional for the consumer use case. However, for the enterprise use case, the IdP can generate the auth tokens and embed the thumbprint of the public key in the token.
+- The token can be delivered to the RP directly through an API instead of a header based response.
+- The tokens also contain the thumpbrint of the public key, and the RP can validate the thumbprint of the public key from the token.
+
 #### IDP Calls Public Local Key Helper
+
+In Enterprise, it is a valid use case to have separate servers as [RP](#relying-party-rp) and [IdP](#identity-provider-idp). We address the use case where these are separate entities and probably from different vendors below.
 
 For easy mapping with the existing DBSC proposal, please note:
 
@@ -162,40 +197,23 @@ For easy mapping with the existing DBSC proposal, please note:
 
 ![IDPCallsPublicLocalKeyHelper](./IDPCallsPublicLocalKeyHelper.svg)
 
-Highlights:
-
-1. **Session initiation with special headers (steps 1-4):** When a user starts a sign-in process, or initiates a session, the IdP will call the browser to generate a key for the session. It is expected that the webpage initiating the session sends special headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` to the browser, to indicate that the session is expected to be DBSC(E) compliant.
-
-   - The `Sec-Session-GenerateKey` header contains the URL of the webpage(RP), the URL of the IdP (authentication service in most cases), a `nonce`, and any extra parameters that the IdP wants to send to the Local Key Helper.
-   - As the Local Key Helper is public or thirdparty, and potentially can be from a different vendor, `nonce` is essential to prevent the clock skew difference between the IdP and the Local Key Helper. The `nonce` is expected to be a random number generated by the IdP.
-   - The `Sec-Session-HelperIdList` header contains a list of helper IDs that the browser can use to generate the key. As we touched upon before, there could be multiple devices on a single physical device, and/or multiple device registration clients on a single device. The `HelperId` helps the browser to choose the right **Local Key Helper** to generate the key. The browser will evaluate the policy for the IdP and the helper IDs, and choose the appropriate helper ID to generate the key. The browser will then call the Local Key Helper to generate the key.
-
-1. **Key and Binding Statement Generation (steps 5-9):** The Local Key Helper generates the key and the binding statement. AIK refers to the `Attestation Key` described [above](#attestation-key). The binding statement is expected to contain the `nonce` sent by the IdP, the thumbprint of the public key, and any extra claims that the IdP wants to send.
-
-   - Format of the Binding Statement: We expect the `binding statement` will be a `string`, as we want to keep the format open to allow for platform-specific optimizations. However, the validation of the `binding statement` is prescribed to include `nonce` and the thumbprint of the public key. The `binding statement` is expected to be shortlived to prevent forgery of the binding statement from a different device. More details on `binding statement` can be found [here](./KeyGeneration.md#binding-statement).
-   - The `extra claims` is a provision added for specific IdPs or Local Key Helper vendors to add any additional information to the `binding statement`. It is intentionally left undefined, and can be customized.
-   - TBD define under which conditions: Local Key Helper can optionally signal the browser to cache the Binding Statement in the browser. This is to avoid repeated calls to the Local Key Helper for the same IdP. The browser can cache the Binding Statement for a certain time, and if the IdP requests a new key within that time, the browser can return the cached Binding Statement.
-
-1. **Sign In/Session Initiation (steps 10-14)**: The `Binding Statement`, with the `KeyId` is expected to be returned to the IdP witha new header, `Sec-Session-Keys`. The IdP will [validate](#binding-statement---generation-and-validation) the signature on the `Binding Statement`, `nonce` and stores the thumbprint of the public key. Once the validation succeeds, the IdP will proceed with the sign-in ceremony and generate the auth tokens, that embed the thumbprint of the public key. The `KeyId` is expected to be returned to the Relying Party, and the IdP will use the `KeyId` to identify the key to be used for the session.
-
-1. **SignIn Succeeds with binding (steps 15-16)**: The IdP will return the auth tokens to the RP,with the thumbprint of the public key embedded in the token.
-
-1. **DBSC Protocol (steps 17-29)**: Once the sign in completes, with the intended IDP/Local Key Helper, the DBSC protocol is applied with the generated keys. RP can now initiate a session with the acquired tokens and the browser generates a JWT with the Local Key Helper which embeds the binding info. The signed JWT is now returned along with the tokens to the RP, which is inturn embedded in any cookies generated and stored by the RT, binding them. All future transactions including a refresh session now will look for the binding info in the cookies, hence securing them against session hijacking.
-
-#### IDP is RP and Calls Public Local Key Helper
-
-In some cases, we see the web service assuming dual roles of both the resource server and the authentication server (think of github client authenticated by github service). In such cases, DBSC(E) can be optimized to simplify the protocol and align with the perf goals for specific services.
-
-![IDPSameAsRP-CallsPublicLocalKeyHelper](./IDPSameAsRP-CallsPublicLocalKeyHelper.svg)
-
-Highlights (only the difference with IDPCallsPublicLocalKeyHelper):
-
-1. **Session establishment (Steps 1-10)**: Since RP is IDP, the session initiation with the headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` is optimized and initiated by the RP itself.
-1. **Token Issuance (Steps 11-13)**: The tokens once generated, can be delivered to RP directly through an API instead of a header based response.
-1. **DBSC Protocol (Steps 14-26)**: The `startSession` and `refreshSession` protocol remains the same as in the original DBSC proposal.
-
 #### IDP Calls Private Local Key Helper
 
-A special case is for enterprises that already have `well-known` Local Key Helpers, which are expected to be trusted and enabled by default in a browser. Here, since the browser can trust a given IDP (based on the URL and a policy mapping) and can trust the IDP to invoke the appropriate Local Key Helper (refer [Local key helper on Windows](./KeyGeneration.md#local-key-helper-on-windows)), there are a few optimizations that can be made to the protocol, in skipping the nonce and reducing the number of round trips between the IDP and the Local Key Helper.
+A special case is for enterprises that already have `well-known` Local Key Helpers, which are expected to be trusted and enabled by default in a browser. Here, since the browser can trust a given IDP (based on the URL and a policy mapping) and can trust the IDP to invoke the appropriate Local Key Helper (refer [Local key helper on Windows](./KeyGeneration.md#local-key-helper-on-windows)), there are a few optimizations that can be made to the protocol, in skipping the `nonce`(challenge) and reducing the number of round trips between the IDP and the Local Key Helper.
 
 ![IDPCallsPrivateLocalKeyHelper](./IDPCallsPrivateLocalKeyHelper.svg)
+
+Highlights:
+
+- Since the IDP (a specific URL) is trusted in this use case, the browser can skip the `nonce`(challenge) and directly call the Local Key Helper.
+- Attestation Service is optional as it is assumed that the IDP is trusted and can validate the binding statement. In other words, Attestation Service is assumed to be part of the IDP in this case.
+- The headers are modeled after confidential client flow(OAuth2) implemented with [Microsoft IDP](https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens) as an example. It is possible to replace `Microsoft` with `Okta` and achieve the same flow.
+
+### Cleanup of the binding keys and their artifacts
+
+For the health of the operating system and user privacy, it is important to clean up binding keys and their artifacts. If the number of keys grows too high, the performance of the OS can degrade.
+
+The cleanup can occur:
+
+- On demand, when the user decides to clear browser cookies.
+- Automatically, when a key hasn't been used for a long time (N days) to keep the OS healthy.

@@ -1,20 +1,29 @@
-participant "TPM" as t
+
+participant "<color:#blue>Attestation Service" as s
+participant "<color:#blue>LocalKeyHelper/TPM" as t
 participant "Browser" as b
-participant "Server" as w
+participant "Server\n<color:#blue>RP/IDP" as w
 
-
-
+autonumber 1
 b->w: sign-in flow 
-w->b: 200 w/signed-in content, response includes header to start secure session.  \nHeader: ""Sec-Session-Registration: session_identifier=..., challenge=...""\n(challenge required for private key proof of possession) \n\n<size:10><color:#blue>Sec-Session-GenerateKey: \nRPUrl, IDPUrl, challenge=nonce, extraParams...\n\nSec-Session-HelperIdList: \n[HelperId1, HelperId2], HelperCacheTime
-note over b: browser initiates session binding\nbased on header presence \n<color:#blue>evaluate policy for \n(HelperId...)
-b->t: request create keypair \n<color:#blue>(serverUrl, authUrl?, challenge, extraParams?)
-note over b: For Enterprise, this call will be platform\nbased & generates device attestation
-t->b: return public key &\n<color:#blue>BindingStatement\n{challenge, thumbprint(pubKey), extraClaims?..}
+w->b: <color:#blue>302\nSec-Session-GenerateKey: \nRPUrl, IDPUrl, challenge=nonce, extraParams...\n\nSec-Session-HelperIdList: \n[HelperId1, HelperId2, ..], HelperCacheTime
+note over b:<color:#blue>browser pre-generates keys\nbased on headers\n\n<color:#blue>currentHelperId=\nevaluate policy for \n(Server, [HelperId1, HelperId2...])
+b->t: request create keypair \n<color:#blue>(serverUrl,challenge,extraParams?)\n pre generates key and attestation
+t->t: <color:#blue>generateKey()
+note over t: For Enterprise, this call will be platform\nbased & generates device attestation
+t->s: <color:#blue>generateBindingStatement\n(publicKey, AIK, challenge)
+s->t: <color:#blue>BindingStatement\n{challenge, thumbprint(publicKey), extraClaims}
+t->b: return public key &\n<color:#blue>BindingStatement\n{challenge, thumbprint(publicKey), extraClaims?..}
+note over b: <color:#blue>Cache the key for server
+b->w: <color:#blue>Load sign-in\nSec-Session-Keys: KeyId,\nBinding Statement\n{challenge, thumbprint(publicKey), extraClaims...}
+w->w: <color:#blue>validate signature on the \nbinding statement and challenge\nstore thumbprint, KeyId
+w->b: 200 w/signed-in content, response includes header to start secure session.  \nHeader: ""Sec-Session-Registration: session_identifier=..., challenge=..."",\n<color:#blue>KeyId, extraParams</color>\n(challenge required for private key proof of possession)
+note over b: browser initiates session binding\nbased on header presence
 note over b: create JWT w/challenge
 b->t:request sign JWT  \n<color:#blue>(challenge,public key, extraParams?..)
 t->b: return JWT signature
 b->w: POST /securesession/startsession \n\n""{"alg":..., "typ":"JWT", ...}{...,"key":"<public_key>"}"" 
-note over w: store public key, establish session
+note over w: store public key, establish session\n<color:#blue>validate the JWT
 w->b: 200 w/cookie and session ID\nbody includes scope of cookies (origin + path)\n\nheader: ""Set-Cookie: auth_cookie""\nbody: ""{"session_identifier":...}""
 ==Some time passes...==
 note over b: user clicks link for path /somecontent
@@ -30,9 +39,9 @@ w->b: 200 w/content
 else required cookie missing or expired
 note over b: request deferred while we get cookies...
 b->w: GET /securesession/refresh \nheader: ""Sec-Session-Id: [session ID]""
-w->b:401\n\nHeader: ""Sec-Session-Challenge: session_identifier=..., challenge=...""
+w->b:401\n\nHeader: ""Sec-Session-Challenge: session_identifier=..., challenge=...""\n<color:#blue>"extraParams":<custom..>}"" 
 note over b: create JWT w/challenge
-b->t:request sign JWT
+b->t:request sign JWT\n<color:#blue>challenge, extraParams...
 t->b: return JWT signature
 b->w: GET /securesession/refresh \nheader: ""Sec-Session-Response: [JWT]""
 note over w: validate proof of possesion
