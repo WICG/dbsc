@@ -74,7 +74,7 @@ Before we get into the specifics, we will introduce the terminology and design s
 
 ### Browser
 
-In this document, "Browser" refers to a functionality in a web browser that is responsible for the DBSC protocol. This functionality will be implemented by Edge, Chrome (or their common engine), and other browsers that choose to implement DBSC/DBSC(E).
+In this document, "Browser" refers to the functionality in a web browser that is responsible for the DBSC protocol. This functionality will be implemented by Edge, Chrome (or their common engine), and other browsers that choose to implement DBSC/DBSC(E).
 
 ### Relying Party (RP)
 
@@ -103,7 +103,7 @@ DBSC(E) aims to support most of these scenarios. It does not define the device r
 
 ### Local Key Helper
 
-DBSC(E) introduced the concept of `Local Key Helper` which can be mapped to the `TPM` or any `Key generation helper` for the consumer case.
+DBSC(E) introduces the concept of `Local Key Helper` which can be mapped to the `TPM` or any `Key generation helper` for the consumer case.
 **Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
 
 From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
@@ -127,7 +127,7 @@ Note: Above are examples of Local Key Helpers that can be used for DBSC(E) key g
 
 ### Attestation Service:
 
-A service that is responsible for verifying the device registration and providing the attestation to the IdP. The attestation service can be owned by the IdP or a third party. DBSC relies on the attestation service to validate the binding statement and ensure that the binding key and the device key belong to the same device. We have added details on the specifics of the binding artifacts generated during the device registration process, and the validation of the binding statement in the [DBSC(E) Key Generation](#key-generation-specifics) section.
+A service that is responsible for verifying the device registration and providing the attestation to the IdP. The attestation service can be owned by the IdP or a third party. DBSC(E) relies on the attestation service to validate the binding statement and ensure that the binding key and the device key belong to the same device. We have added details on the specifics of the binding artifacts generated during the device registration process, and the validation of the binding statement in the [DBSC(E) Key Generation](#key-generation-specifics) section.
 
 ### Device Registration (Pre-Session)
 
