@@ -56,11 +56,11 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 
 ## Overview
 
-Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to the existing [DBSC](https://github.com/wicg/dbsc) proposal. It refines the key generation mechanism resulting in additional security for enterprise use cases. It aims to provide a mechanism for enterprise and advanced browser customers to be able to deploy true device binding for any browser session, hence protecting against session hijacking and credential theft.
+Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to the existing [DBSC](https://github.com/wicg/dbsc) proposal. It refines the key generation mechanism resulting in additional security for enterprise use cases. It aims to provide a mechanism for enterprise and advanced browser customers to be able to deploy enhanced/customised device binding for any browser session, hence protecting against session hijacking and cookie theft.
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during the initial web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own credentials (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
+While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during the initial web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
 
 DBSC(E) aims to mitigate this risk by introducing the concept of credential generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the device. It guaratees any given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as "clean room"). With DBSC(E), the malware will not be able to compromise a device even during signin/login. Device registration is also expected to be a once-in-a-lifetime operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials the device.
 
@@ -144,7 +144,7 @@ The high-level design is divided into two parts:
 1. Key generation and validation before the session starts (DBSC(E) is focused on this part).
 2. DBSC protocol applied with the generated keys (DBSC is focused on this part).
 
-Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. As we cover different use cases DBSC(E) can be applied for, differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Okta, Github to ship their own local key helper as a part of the IdP. We also optimize the protocol for RP and IdP as the same service (google client authenticated by google service as an example), since it simplifies the protocol and align with the perf goals for specific services.
+Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. As we cover different use cases DBSC(E) can be applied for, we differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Okta, Github to ship their own local key helper as a part of the IdP. We also optimize the DBSC(E) protocol for RP and IdP as the same service (google client authenticated by google service as an example), since it simplifies the protocol and aligns with the perf goals for specific services.
 
 DBSC(E) (in contrast with DBSC):
 
@@ -188,7 +188,7 @@ Highlights:
 
 #### IDP Calls Public Local Key Helper
 
-In Enterprise, it is a valid use case to have separate servers as [RP](#relying-party-rp) and [IdP](#identity-provider-idp). We address the use case where these are separate entities and probably from different vendors below.
+In Enterprise, and some consumer use cases, it is a valid use case to have separate servers as [RP](#relying-party-rp) and [IdP](#identity-provider-idp). We address the use case where these are separate entities and probably from different vendors below.
 
 For easy mapping with the existing DBSC proposal, please note:
 
