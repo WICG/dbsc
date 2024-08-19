@@ -62,7 +62,7 @@ Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to 
 
 While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during the initial web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
 
-DBSC(E) aims to mitigate this risk by introducing the concept of credential generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the device. It guaratees any given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as "clean room"). With DBSC(E), the malware will not be able to compromise a device even during signin/login. Device registration is also expected to be a once-in-a-lifetime operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials the device.
+DBSC(E) aims to mitigate this risk by introducing the concept of key generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the device. Enterprises are free to decide when and how to have the device bound keys generated and DBSC(E) allows for the possibility for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)). With DBSC(E), the malware makes it harder to compromise a device even during signin/login. Device registration is also expected to be a once-in-a-lifetime operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials the device.
 
 ## How does it integrate with DBSC?
 
@@ -82,7 +82,7 @@ A web application that uses DBSC(E) protocol for cookie binding. This is referre
 
 ### Identity Provider (IdP)
 
-IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means. IDP and RP are same for the consumer use case and is referred to as `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
+IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means. IDP and RP are same for the certain consumer/enterprise use cases and is referred to as `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
 
 ### Device Registration Client
 
@@ -109,7 +109,7 @@ DBSC(E) introduces the concept of `Local Key Helper` which can be mapped to the 
 From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
 
 - _Public local key helper_ or _third party_: Can be accessed by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP through a well-defined public protocol. A third party local key helper has a special deployment mechanism.
-- _Private local key helper_ or _well known_ : Can be specific to an IdP. Typically owned by the IdP and will have a private protocol to communicate with the IdP. Comes with either OS or built into the browser. It assumed that well-known key helpers are **trusted and enabled by default** in a browser. A browser knows how to activate a well-known key helper.
+- _Private local key helper_ or _well known_ : Can be specific to an IdP. Typically owned by the IdP and will have a private protocol to communicate with the IdP. Comes with either OS or built into the browser. It assumed that well-known key helpers are **trusted and enabled by default** in a browser and/or a given IDP. A browser knows how to activate a well-known key helper.
 
 The Local Key Helper is responsible for:
 

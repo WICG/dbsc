@@ -5,7 +5,7 @@ participant "Browser" as b
 participant "Server\n<color:#blue>RP/IDP" as w
 
 autonumber 1
-b->w: sign-in flow 
+b->w: <color:#blue> initiate </color> sign-in flow 
 w->b: <color:#blue>302\nSec-Session-GenerateKey: \nRPUrl, IDPUrl, challenge=nonce, extraParams...\n\nSec-Session-HelperIdList: \n[HelperId1, HelperId2, ..], HelperCacheTime
 note over b:<color:#blue>browser pre-generates keys\nbased on headers\n\n<color:#blue>currentHelperId=\nevaluate policy for \n(Server, [HelperId1, HelperId2...])
 b->t: request create keypair \n<color:#blue>(serverUrl,challenge,extraParams?)\n pre generates key and attestation
