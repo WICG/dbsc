@@ -108,7 +108,7 @@ DBSC(E) introduces the concept of `Local Key Helper` which can be mapped to the 
 
 From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
 
-- _Public local key helper_ or _third party_: Can be accessed by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP through a well-defined public protocol. A third party local key helper has a special deployment mechanism.
+- _Public local key helper_ or _third party_: Can be accessed by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP through as defined in DBSC(E) protocol. A third party local key helper has a special deployment mechanism. We expect to loosely define the API and deployment mechanism in the upcoming specification, and will leave the specific implementation details to the vendors. However, we have provided examples of how this can look for a few platforms [below](#platform-examples).
 - _Private local key helper_ or _well known_ : Can be specific to an IdP. Typically owned by the IdP and will have a private protocol to communicate with the IdP. Comes with either OS or built into the browser. It assumed that well-known key helpers are **trusted and enabled by default** in a browser and/or a given IDP. A browser knows how to activate a well-known key helper.
 
 The Local Key Helper is responsible for:
