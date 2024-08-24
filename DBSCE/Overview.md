@@ -33,7 +33,7 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 ## Authors
 
 - [Sameera Gajjarapu](sameera.gajjarapu@microsoft.com), Microsoft
-- [Alexander Tokarev](alextok@microsoft.com), Microsoft
+- [Aleksander Tokarev](alextok@microsoft.com), Microsoft
 
 ## Contributors
 
@@ -60,9 +60,9 @@ Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to 
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during the initial web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
+While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during any web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
 
-DBSC(E) aims to mitigate this risk by introducing the concept of key generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the device. Enterprises are free to decide when and how to have the device bound keys generated and DBSC(E) allows for the possibility for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)). With DBSC(E), the malware makes it harder to compromise a device even during signin/login. Device registration is also expected to be a once-in-a-lifetime operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials the device.
+DBSC(E) aims to mitigate this risk by introducing the concept of key generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the key. Enterprises can decide when and how to generate device bound keys, however, DBSC(E) allows for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials of the device.DBSC(E) makes it impossible for malware to compromise a device during signin/login, but DBSC(E) doesn't protect a given session if the malware is present during the device registration.
 
 ## How does it integrate with DBSC?
 
@@ -82,13 +82,13 @@ A web application that uses DBSC(E) protocol for cookie binding. This is referre
 
 ### Identity Provider (IdP)
 
-IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means. IDP and RP are same for the certain consumer/enterprise use cases and is referred to as `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
+IdP is an authentication server that can be either external to the Relying Party or part of the Relying Party. Eg: Office.com authenticating with Microsoft Entra ID or google.com authenticating with google. Note: The protocol doesn't change if the IdP is part of the Relying Party, except that some redirects between the IdP and the RP can be skipped or implemented by other means. IDP and RP are same for the certain consumer/enterprise use cases and is referred to as `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
 
 ### Device Registration Client
 
 This is a pre-requisite for DBSC(E) to work.
 
-Device Registration Client is a process where the user registers the device with the IdP and is expected to be a once-in-a-lifetime operation.
+Device Registration Client is a process where the user or administrator registers the device with the IdP and is expected to be a once-in-a-lifetime protected operation.
 
 The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication. A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this.
 
@@ -99,12 +99,14 @@ One device registration client can manage multiple devices on the same physical 
 - Device management software (MDM provider) - the device gets registered when the MDM is enrolled.
 - Third-party software vendor - the device gets registered according to the vendor rules.
 
-DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol amd is only concerned with the keys generated in a "clean room" state and the management of the generated keys to prove device binding.
+DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol and is only concerned with the keys generated in a "clean room" state and the management of the generated keys to prove device binding.
+
 
 ### Local Key Helper
 
-DBSC(E) introduces the concept of `Local Key Helper` which can be mapped to the `TPM` or any `Key generation helper` for the consumer case.
-**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. It can be Public or Private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
+DBSC(E) introduces the concept of `Local Key Helper`.
+
+**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. *Local key helper* can be public or private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
 
 From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
 
@@ -127,7 +129,7 @@ Note: Above are examples of Local Key Helpers that can be used for DBSC(E) key g
 
 ### Attestation Service:
 
-A service that is responsible for verifying the device registration and providing the attestation to the IdP. The attestation service can be owned by the IdP or a third party. DBSC(E) relies on the attestation service to validate the binding statement and ensure that the binding key and the device key belong to the same device. We have added details on the specifics of the binding artifacts generated during the device registration process, and the validation of the binding statement in the [DBSC(E) Key Generation](#key-generation-specifics) section.
+A service that is responsible for verifying that the binding key is issued by the expected device and providing the attestation of the key to the IdP. The attestation service can be owned by the IdP or a third party. DBSC(E) relies on the attestation service to validate the binding statement and ensure that the binding key and the device key belong to the same device. We have added details on the specifics of the binding artifacts generated during the device registration process, and the validation of the binding statement in the [DBSC(E) Key Generation](#key-generation-specifics) section.
 
 ### Device Registration (Pre-Session)
 
