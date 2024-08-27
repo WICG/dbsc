@@ -65,9 +65,9 @@ Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to 
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal is focused on providing a mechanism for browsers to bind session credentials to a device, it still remains vulnerable to malware that can run on a device during any web application signin/login. If a malware happens to be already running in the device, it can force the user to login, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable.
+While the original DBSC proposal enables browsers to bind session cookies to a device, it still remains vulnerable to on devie malware. Such a malware can inject its own binding keys if it is present during signin/session establishment, or it can force the user to signin, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable. Hence a temporary malware presence in the system can result in permanent session compromise in certain cases.
 
-DBSC(E) aims to mitigate this risk by introducing the concept of key generation (asymmetric device-bound key) during the device registration and binds all the future sessions to the key. Enterprises can decide when and how to generate device bound keys, however, DBSC(E) allows for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, and hence the user will not be required to perform this operation again, reducing opportunities for malware to extract session credentials of the device.DBSC(E) makes it impossible for malware to compromise a device during signin/login, but DBSC(E) doesn't protect a given session if the malware is present during the device registration.
+DBSC(E) aims to mitigate this risk by introducing the concept of once-in-a-lifetime protected [device registration](#device-registration) operation and binds all the future sessions to a binding key that can be cryptographically proven to be on the same device. DBSC(E) allows for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. an enterprise registering a device before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, hence the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. DBSC(E) makes it impossible for malware to compromise a device during signin/login, but DBSC(E) doesn't protect a given session if the malware is present during the device registration or if the malware is persistent on the device and uses device-bound sessions to exfiltrate application data rather than the sessions.
 
 ## How does it integrate with DBSC?
 
@@ -104,7 +104,9 @@ One device registration client can manage multiple devices on the same physical 
 - Device management software (MDM provider) - the device gets registered when the MDM is enrolled.
 - Third-party software vendor - the device gets registered according to the vendor rules.
 
-DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol and is only concerned with the keys generated in a "clean room" state and the management of the generated keys to prove device binding.
+DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol and is only concerned with the keys generated in a "clean room" and the management of the generated keys to prove device binding.
+
+TODO: Add a definition of cleanroom and examples
 
 ### Device Registration
 
@@ -116,7 +118,7 @@ Any enterprise user is expected to either use a device issued by their organizat
 
 DBSC(E) introduces the concept of `Local Key Helper`.
 
-**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. *Local key helper* can be public or private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below. DBSC(E) defines browser interaction with _Local key helpers_ for each platform. Those details are outlined in [KeyGeneration.md](./KeyGeneration.md).
+**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. *Local key helper* can be public or private and is expected to be either shipped as a part of a given enterprise framework (with the IDP/OS) or can be installed by a provider in compliance with the protocol expanded below. DBSC(E) defines browser interaction with _Local key helpers_ for each platform. Those details are outlined in [KeyGeneration.md](./KeyGeneration.md).
 
 From the deployment point of view there are two types of local key helpers: _private_ and _public_
 
@@ -127,13 +129,13 @@ Additionally, some _Local key helpers_ are classified as `well-known` (a special
 
 The Local Key Helper is responsible for:
 
-- Generation of the binding key and producing binding statements (see below)
-- Producing signatures with the binding key
-- Cleanup of the binding key and its artifacts (when the user clears the browser session or the key is unused for a long time).
+- Generation of the [binding key](#binding-key) and producing [binding statements](#binding-statement) (see below).
+- Producing signatures with the binding key.
+- Cleanup of the [binding key](#binding-key) and its artifacts (when the user clears the browser session or the key is unused for a long time).
 
 #### Platform Requirements
 
-- Windows: Please refer to the Windows Local Key Helper [here](./KeyGeneration.md#local-key-helper-on-windows) for an example of a Local Key Helper.
+- [Windows](./KeyGeneration.md#local-key-helper-on-windows)
 - MacOS: TBD
 - Android:TBD
 
@@ -153,7 +155,7 @@ There are three artifacts that are generated during/after the device registratio
 
 A _binding key_ is an asymmetric key pair that is used to bind an auth cookie. It is identified by a key ID and it is the responsibility of the browser to remember key ID mapping to _Local Key Helper_ and _RP_ and to use it for DBSC signatures and key management. As there could be multiple `devices` on a single physical device and or many device registration clients on a single device (mentioned [above](#device-registration-client)), the key mapping is expected to be managed by the Browser and the Local Key Helper.
 
-This **binding key** is the same as defined in the DBSC proposal [here](https://github.com/WICG/dbsc?tab=readme-ov-file#maintaining-a-session) and is expected to be cryptographically attested by the [attestation key](#attestation-key)which is created in a secure enclave (TPM or Keyguard) on the original device. However, please note that in the context of the DBSC proposal, the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), however, as long as the [device registration process is executed with a clean room environment](#device-registration), binding key can be mapped to a specific device and the bound session is protected from any malware trying to infilterate it.
+This **binding key** is the same as defined in the DBSC proposal [here](https://github.com/WICG/dbsc?tab=readme-ov-file#maintaining-a-session) and is expected to be cryptographically attested by the [attestation key](#attestation-key) which is created in a secure enclave (TPM or Keyguard) on the original device. However, please note that in the context of the DBSC proposal, the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), however, as long as the [device registration process is executed with a clean room environment](#device-registration), binding key can be mapped to a specific device and the bound session is protected from any malware trying to infilterate it.
 
 ##### Attestation Key
 
@@ -193,7 +195,7 @@ DBSC(E) (in contrast with DBSC):
 
 Highlights:
 
-Note: All references to RP, IDP are equivalent to `server` in the original [DBSC design](https://github.com/wicg/dbsc).
+Note: All references to RP, IDP are equivalent to `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
 
 1. **Pre-Session initiation with special headers (steps 1-2):** When a user starts a sign-in process, or initiates a session, the webpage initiating the session sends special headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` to the browser in response, to indicate that the session is expected to be DBSC(E) compliant.
 
