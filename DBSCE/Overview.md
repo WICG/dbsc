@@ -18,9 +18,9 @@
       - [Platform Requirements](#platform-requirements)
     - [Attestation Service](#attestation-service)
       - [Key Generation Specifics](#key-generation-specifics)
-        - [**Binding Key**](#binding-key)
-        - [**Attestation Key**](#attestation-key)
-        - [**Binding Statement**](#binding-statement)
+        - [Binding Key](#binding-key)
+        - [Attestation Key](#attestation-key)
+        - [Binding Statement](#binding-statement)
   - [High-Level Design](#high-level-design)
     - [DBSC(E) use cases](#dbsce-use-cases)
       - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
@@ -116,12 +116,14 @@ Any enterprise user is expected to either use a device issued by their organizat
 
 DBSC(E) introduces the concept of `Local Key Helper`.
 
-**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. *Local key helper* can be public or private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below.
+**Local Key Helper** is an integral part of the the **Device Registration Client**, a software interface responsible for the DBSC Key management. *Local key helper* can be public or private and is expected to be either shipped as a part of a given enterprise framework (with the IdP/OS) or can be installed by a provider in compliance with the protocol expanded below. DBSC(E) defines browser interaction with _Local key helpers_ for each platform. Those details are outlined in [KeyGeneration.md](./KeyGeneration.md).
 
-From the deployment point of view there are two types of local key helpers: _well-known_(_private_) and _third party_(_public_)
+From the deployment point of view there are two types of local key helpers: _private_ and _public_
 
-- _Public local key helper_ or _third party_: Can be accessed by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP through as defined in DBSC(E) protocol. A third party local key helper has a special deployment mechanism. We expect to loosely define the API and deployment mechanism in the upcoming specification, and will leave the specific implementation details to the vendors. However, we have provided examples of how this can look for a few platforms [below](#platform-examples).
-- _Private local key helper_ or _well known_ : Can be specific to an IdP. Typically owned by the IdP and will have a private protocol to communicate with the IdP. Comes with either OS or built into the browser. It assumed that well-known key helpers are **trusted and enabled by default** in a browser and/or a given IDP. A browser knows how to activate a well-known key helper.
+- _Public local key helper_: Expected to have a well-documented implementation and can be used by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP as defined in DBSC(E) protocol. 
+- _Private local key helper_ : Is specific to an IdP. Can be only used by a specific IDP that owns the implementation and will have a private protocol to communicate with the IdP. Comes with either OS or built into the browser. 
+
+Additionally, some _Local key helpers_ are classified as `well-known` (a special case of `private`) and will be **enabled by default** in a browser and/or a given IDP. A browser knows how to activate a well-known key helper without needing an admin-side configuration.
 
 The Local Key Helper is responsible for:
 
@@ -147,24 +149,24 @@ This section defines the artifacts of binding and how they help establish proof 
 
 There are three artifacts that are generated during/after the device registration process, which are used to prove the device binding. These are the [binding key](#binding-key), the [attestation key](#attestation-key), and the [binding statement](#binding-statement).
 
-##### **Binding Key**
+##### Binding Key
 
 A _binding key_ is an asymmetric key pair that is used to bind an auth cookie. It is identified by a key ID and it is the responsibility of the browser to remember key ID mapping to _Local Key Helper_ and _RP_ and to use it for DBSC signatures and key management. As there could be multiple `devices` on a single physical device and or many device registration clients on a single device (mentioned [above](#device-registration-client)), the key mapping is expected to be managed by the Browser and the Local Key Helper.
 
-This **binding key** is the same as defined in the DBSC proposal [here](https://github.com/WICG/dbsc?tab=readme-ov-file#maintaining-a-session) and is expected to be cryptographically attested by the [attestation key](#attestation-key)which is created in a secure enclave (TPM or Keyguard) on the original device. However, please note that in the context of the DBSC proposal, the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), if the binding key is generated during the [device registration process in a clean room](#device-registration), it is protected from any malware trying to infilterate the session.
+This **binding key** is the same as defined in the DBSC proposal [here](https://github.com/WICG/dbsc?tab=readme-ov-file#maintaining-a-session) and is expected to be cryptographically attested by the [attestation key](#attestation-key)which is created in a secure enclave (TPM or Keyguard) on the original device. However, please note that in the context of the DBSC proposal, the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), however, as long as the [device registration process is executed with a clean room environment](#device-registration), binding key can be mapped to a specific device and the bound session is protected from any malware trying to infilterate it.
 
-##### **Attestation Key**
+##### Attestation Key
 
 An _attestation key_ is generated during the device registration process and has the following properties:
 
     1. It signs only the private/other keys that reside in the same secure enclave as the attestation key.
     2. It cannot sign any external payload, or if it signs, it cannot generate an output that can be interpreted as an attestation statement.
 
-Since the attestation key can be uploaded only once to the backend at the moment of device registration, in the clean room, and there is no need to change this key unless the device loses it (Could be due to key rotation or similar operations).
+The attestation key also can be uploaded only once to the backend at the moment of device registration, in the clean room, and there is no need to change this key unless the device loses it (Could be due to key rotation or similar operations).
 
 The **attestation key**, hence, can be used to attest that the **binding key** belongs to the same device as the attestation key, by signing the public part of the binding key (with the attestation key) and generating an **attestation statement**. Depending on the specific implementation, this **attestation statement** itself can be a **binding statement**, or it can be sent to an attestation service to produce the final binding statement.
 
-##### **Binding Statement**
+##### Binding Statement
 
 Additonal to the binding key, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the device key. Details on how this statement is issued are out of scope for this document. However, the validation of the binding statement is a key building block of the DBSC(E) protocol.
 
