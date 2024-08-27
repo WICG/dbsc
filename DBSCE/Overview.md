@@ -193,7 +193,7 @@ DBSC(E) (in contrast with DBSC):
 
 Highlights:
 
-Note: All references to RP, IDP are equivalent to `server` in the original [DBSC design](https://githuub.com/wicg/dbsc).
+Note: All references to RP, IDP are equivalent to `server` in the original [DBSC design](https://github.com/wicg/dbsc).
 
 1. **Pre-Session initiation with special headers (steps 1-2):** When a user starts a sign-in process, or initiates a session, the webpage initiating the session sends special headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` to the browser in response, to indicate that the session is expected to be DBSC(E) compliant.
 
