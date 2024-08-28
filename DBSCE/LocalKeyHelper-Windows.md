@@ -1,7 +1,3 @@
-
-<span style="color:red">!!! DRAFT - Please note this page is still in draft as we work on platform specific details
-</span>
-
 ### Local key helper on Windows
 
 On Windows, a Local key helper is a COM class. A COM interface that the local key helper implements is TBD (working name for this document is ILocalKeyHelper)

@@ -65,9 +65,11 @@ Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to 
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal enables browsers to bind session cookies to a device, it still remains vulnerable to on devie malware. Such a malware can inject its own binding keys if it is present during signin/session establishment, or it can force the user to signin, and provide its own binding keys (asymmetric key pair) to the web application, there by gaining the ability to steal the session. Any upcoming sessions after this, even with DBSC, will not be reliable. Hence a temporary malware presence in the system can result in permanent session compromise in certain cases.
+While the original DBSC proposal enables browsers to bind session cookies to a device, it still remains vulnerable to "on device" malware. Such a malware, if present on the device, can inject its own binding keys when the DBSC session is established during any signin operaton. If a DBSC session is already established when the malware gains access to the system, the malware can force a signin session, and potentially hijack all subsequent sessions. Any upcoming sessions after this, even with DBSC, will not be reliable. Hence a temporary malware presence in the system can result in permanent session compromise in certain cases.
 
-DBSC(E) aims to mitigate this risk by introducing the concept of once-in-a-lifetime protected [device registration](#device-registration) operation and binds all the future sessions to a binding key that can be cryptographically proven to be on the same device. DBSC(E) allows for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. an enterprise registering a device before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, hence the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. DBSC(E) makes it impossible for malware to compromise a device during signin/login, but DBSC(E) doesn't protect a given session if the malware is present during the device registration or if the malware is persistent on the device and uses device-bound sessions to exfiltrate application data rather than the sessions.
+DBSC(E) aims to mitigate this risk by introducing the concept of once-in-a-lifetime protected [device registration](#device-registration) operation and binds all the future sessions to binding keys that can be cryptographically proven to be on the same device. DBSC(E) allows for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. an organization registering a device before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, hence the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. 
+
+Therefore, if a device registration is executed in a clean room and precedes any sign in sessions, DBSC(E) makes it impossible for a malware to bind session cookies to malicious binding keys during any sign in operation. However, it is to be noted that, DBSC(E) doesn't protect a given session if the malware is present during the device registration or if the malware is persistent on the device and uses device-bound sessions to exfiltrate application data rather than the sessions.
 
 ## How does it integrate with DBSC?
 
@@ -111,10 +113,9 @@ One device registration client can manage multiple devices on the same physical 
 
 DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol and is only concerned with the keys generated in a "clean room" and the management of the generated keys to prove device binding.
 
-
 ### Device Registration
 
-Any enterprise user is expected to either use a device issued by their organization or register their personal device with an organization. The device registration is expected to be a once-in-a-lifetime protected operation, and the user is expected to perform this operation with a clean room environment.
+The device registration is expected to be a once-in-a-lifetime protected operation, and the user is expected to perform this operation with a clean room environment.
 
 ![DeviceRegistration](./DeviceRegistration.svg)
 
@@ -139,9 +140,9 @@ The Local Key Helper is responsible for:
 
 This section prescribes the browser discovery process of a given local key helper for a few well known platforms:
 
-- [Windows](./PlatformKeyHelpers.md#local-key-helper-on-windows)
-- MacOS: TBD
-- Android:TBD
+- [Windows](./LocalKeyHelper-Windows.md)
+- [MacOS](./LocalKeyHelper-Mac.md)
+- [Android](./LocalKeyHelper-Android.md)
 
 Note: Above are platform specifications for Local Key Helpers that can be used for DBSC(E) key generation. Any vendor can ship their local key helper in compliance with the DBSC(E).
 
