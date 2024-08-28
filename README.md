@@ -128,7 +128,7 @@ Sec-Session-Registration: (ES256 RS256);path="path1";challenge="nonce";authoriza
 Sec-Session-Registration: (ES256);path="path2";challenge="nonce"
 ```
 
-The authorization value is optional. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
+The authorization value is optional for servers to send, but mandatory for clients to implement. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
 
 #### Session Registration JWT
 The browser responds to the session start by selecting a compatible signature algorithm and creating a device-bound private key for the new session. It then makes the following HTTP request (assuming the endpoint URL is https://auth.example.com/securesession):
