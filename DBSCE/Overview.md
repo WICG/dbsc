@@ -95,7 +95,12 @@ This is a pre-requisite for DBSC(E) to work.
 
 Device Registration Client is a process where the user or administrator registers the device with the IdP and is expected to be a once-in-a-lifetime protected operation.
 
-The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication. A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this.
+The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication. A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this. 
+
+A clean room enviroment is a reliable, malware and exploit free state of a system. Examples can be: 
+- New device from the factory connected to a secure network during registration 
+- Company issued devices configured by admin for the employees
+- A malware free device installing browser in a secure network
 
 One device registration client can manage multiple devices on the same physical device. There also can be multiple device registration clients on the same device. The device registration client can be owned and supported by:
 
@@ -106,7 +111,6 @@ One device registration client can manage multiple devices on the same physical 
 
 DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol and is only concerned with the keys generated in a "clean room" and the management of the generated keys to prove device binding.
 
-TODO: Add a definition of cleanroom and examples
 
 ### Device Registration
 
@@ -122,10 +126,8 @@ DBSC(E) introduces the concept of `Local Key Helper`.
 
 From the deployment point of view there are two types of local key helpers: _private_ and _public_
 
-- _Public local key helper_: Expected to have a well-documented implementation and can be used by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP as defined in DBSC(E) protocol. 
-- _Private local key helper_ : Is specific to an IdP. Can be only used by a specific IDP that owns the implementation and will have a private protocol to communicate with the IdP. Comes with either OS or built into the browser. 
-
-Additionally, some _Local key helpers_ are classified as `well-known` (a special case of `private`) and will be **enabled by default** in a browser and/or a given IDP. A browser knows how to activate a well-known key helper without needing an admin-side configuration.
+- _Public local key helper_: Expected to have a well-documented API and can be used by any Identity Provider (IdP). Typically owned by a provider different from the IdP, communicates with the IdP as defined in DBSC(E) protocol. 
+- _Private local key helper_ : Is specific to an IdP. Can be only used by a specific IDP that owns the implementation and will have a private protocol to communicate with the IdP. 
 
 The Local Key Helper is responsible for:
 
@@ -135,11 +137,13 @@ The Local Key Helper is responsible for:
 
 #### Platform Requirements
 
-- [Windows](./KeyGeneration.md#local-key-helper-on-windows)
+This section prescribes the browser discovery process of a given local key helper for a few well known platforms:
+
+- [Windows](./PlatformKeyHelpers.md#local-key-helper-on-windows)
 - MacOS: TBD
 - Android:TBD
 
-Note: Above are platform specifications for Local Key Helpers that can be used for DBSC(E) key generation. Any platform is free to build a version of this, as long as the API is consistent with the protocol. A detailed protocol will be documented under the DBSC(E) spec.
+Note: Above are platform specifications for Local Key Helpers that can be used for DBSC(E) key generation. Any vendor can ship their local key helper in compliance with the DBSC(E).
 
 ### Attestation Service
 
@@ -151,12 +155,6 @@ This section defines the artifacts of binding and how they help establish proof 
 
 There are three artifacts that are generated during/after the device registration process, which are used to prove the device binding. These are the [binding key](#binding-key), the [attestation key](#attestation-key), and the [binding statement](#binding-statement).
 
-##### Binding Key
-
-A _binding key_ is an asymmetric key pair that is used to bind an auth cookie. It is identified by a key ID and it is the responsibility of the browser to remember key ID mapping to _Local Key Helper_ and _RP_ and to use it for DBSC signatures and key management. As there could be multiple `devices` on a single physical device and or many device registration clients on a single device (mentioned [above](#device-registration-client)), the key mapping is expected to be managed by the Browser and the Local Key Helper.
-
-This **binding key** is the same as defined in the DBSC proposal [here](https://github.com/WICG/dbsc?tab=readme-ov-file#maintaining-a-session) and is expected to be cryptographically attested by the [attestation key](#attestation-key) which is created in a secure enclave (TPM or Keyguard) on the original device. However, please note that in the context of the DBSC proposal, the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), however, as long as the [device registration process is executed with a clean room environment](#device-registration), binding key can be mapped to a specific device and the bound session is protected from any malware trying to infilterate it.
-
 ##### Attestation Key
 
 An _attestation key_ is generated during the device registration process and has the following properties:
@@ -164,9 +162,21 @@ An _attestation key_ is generated during the device registration process and has
     1. It signs only the private/other keys that reside in the same secure enclave as the attestation key.
     2. It cannot sign any external payload, or if it signs, it cannot generate an output that can be interpreted as an attestation statement.
 
+TBD: Generalize this for various platforms.
+
 The attestation key also can be uploaded only once to the backend at the moment of device registration, in the clean room, and there is no need to change this key unless the device loses it (Could be due to key rotation or similar operations).
 
-The **attestation key**, hence, can be used to attest that the **binding key** belongs to the same device as the attestation key, by signing the public part of the binding key (with the attestation key) and generating an **attestation statement**. Depending on the specific implementation, this **attestation statement** itself can be a **binding statement**, or it can be sent to an attestation service to produce the final binding statement.
+The _attestation key_, hence, can be used to attest that the [binding key](#binding-key) belongs to the same device as the attestation key, by signing the public part of the binding key (with the attestation key) and generating an _attestation statement_. Depending on the specific implementation, this _attestation statement_ itself can be a _binding statement_, or it can be sent to an attestation service to produce the final binding statement.
+
+##### Binding Key
+
+A _binding key_ is an asymmetric key pair that is used to bind an auth cookie. It is identified by a _KeyId_ and it is the responsibility of the browser to remember _KeyId_ mapping to _Local Key Helper_ and _RP_ and to use it for DBSC signatures and key management. As there could be multiple `devices` on a single physical device and or many device registration clients on a single device (mentioned [above](#device-registration-client)) (TBD: add examples above), the key mapping is expected to be managed by the Browser and the Local Key Helper.
+
+This **binding key** for DBSC(E) is similar to the artifact defined in the DBSC proposal [here](https://github.com/WICG/dbsc?tab=readme-ov-file#maintaining-a-session) and is expected to be cryptographically attested by the [attestation key](#attestation-key) which is created in a secure enclave (TPM or Keyguard) on the same device. 
+
+>> TBD: Make this definition single - and link to it here if needed:
+In the context of the original DBSC proposal(https://github/wicg/dbsc), the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), however, as long as the [device registration process is executed with a clean room environment](#device-registration), binding key can be mapped to a specific device and the bound session is protected from any malware trying to infilterate it.
+
 
 ##### Binding Statement
 
@@ -200,14 +210,15 @@ Note: All references to RP, IDP are equivalent to `server` in the original [DBSC
 1. **Pre-Session initiation with special headers (steps 1-2):** When a user starts a sign-in process, or initiates a session, the webpage initiating the session sends special headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` to the browser in response, to indicate that the session is expected to be DBSC(E) compliant.
 
    - The `Sec-Session-GenerateKey` header contains the URL of the server(RP), the URL of the IdP (authentication service in most cases - which is optional for consumer use cases), a `nonce` and any extra parameters that the IdP wants to send to the Local Key Helper. `nonce` is essential to prevent replay of cached binding key/binding statements from a different device (proof of posession) and to prevent the clock-skew between the IdP and the Local Key Helper. 
-      - For all _public local key helpers_, e.d., Contoso's IDP calling Fabrikam's Local key helper, `nonce`  must be _shortlived_. If `nonce`  is not shortlived, it is possible to steal the `bindingStatement` and the `bindingKey` from a device controlled by the attacker and to be able to bind the cookies to the malicious `bindingKey`. The allowance for long lived `nonce`  is possible with _private local key helpers_ and covered [later](#idp-calls-private-local-key-helper).
-      - `nonce` also helps prevent the clock skew between servers where IDP and Attestation servers are from different vendors. Since the `nonce`  sent by the IDP is embedded in the binding statement, the IDP will be able to validate `nonce`  to ensure the `binding statement` is issued recently.
-      - `nonce` is generated by the IdP/RP as a part of the request, a random number with time sensitivity, and must be embedded in the binding statement. IdP will be able to validate nonce to ensure the binding statement is freshly issued.
+      - For all _public local key helpers_, e.g., Contoso's IDP calling Fabrikam's Local key helper, `nonce`  must be _shortlived_. If `bindingStatement` is not shortlived, it is possible for the attacker to generate the `bindingStatement` and the `bindingKey` from a device controlled by the attacker and use them to bind the victim's cookies to the malicious `bindingKey`. The enforcement of a shortlived binding statement is achieved through `nonce`. 
+      - The allowance for long lived `bindingStatement` is possible with _private local key helpers_ where the IDP can use other means to establish fresh proof of posession of the device. This is covered in detail in [later sections](#idp-calls-private-local-key-helper).
+      - `nonce` also helps prevent the clock skew between servers where IDP and Attestation servers are from different vendors. Since the `nonce`  sent by the IDP is embedded in the `bindingStatement`, the IDP will be able to validate `nonce` to ensure the `binding statement` is issued recently.
+      - `nonce` is generated by the IdP/RP as a part of the request, is a random number that MUST be unique, and MUST be time sensitive and MUST be verifiable by the issuer. 
    - The `Sec-Session-HelperIdList` header contains a list of helper IDs that the browser can use to generate the key. As we touched upon before, there could be multiple devices on a single physical device, and/or multiple device registration clients on a single device. The `HelperId` helps the browser to choose the right **Local Key Helper** to generate the key. The browser will evaluate the policy for the IdP and the helper IDs, and choose the appropriate helper ID to generate the key. The browser will then call the Local Key Helper to generate the key.
 
 1. **Key and Binding Statement Generation (steps 3-7):** The Local Key Helper generates the key and the binding statement. AIK refers to the `Attestation Key` described [above](#attestation-key). The binding statement is expected to contain the `nonce` sent by the IdP, the thumbprint of the public key, and any extra claims that the IdP wants to send.
 
-   - Format of the Binding Statement: We expect the `binding statement` will be a `string`, as we want to keep the format open to allow for platform-specific optimizations. However, the validation of the `binding statement` is prescribed to include `nonce` and the thumbprint of the public key. The `binding statement` is expected to be shortlived to prevent forgery of the binding statement from a different device. More details on `binding statement` can be found [here](./KeyGeneration.md#binding-statement).
+   - Format of the Binding Statement: We expect the `binding statement` will be a `string`, as we want to keep the format open to allow for platform-specific optimizations. However, the validation of the `binding statement` is prescribed to include `nonce` and the thumbprint of the public key. The `binding statement` is expected to be shortlived to prevent forgery of the binding statement from a different device. More details on `binding statement` can be found [here](#binding-statement).
    - The `extra claims` is a provision added for specific IdPs or Local Key Helper vendors to add any additional information to the `binding statement`. It is intentionally left undefined, and can be customized.
    - Local Key Helper can optionally signal the browser to cache the Binding Statement in the browser. This is to avoid repeated calls to the Local Key Helper for the same IdP. The browser can cache the Binding Statement for a certain time, and if the IdP requests a new key within that time, the browser can return the cached Binding Statement. TBD define under which conditions.
 
@@ -248,7 +259,11 @@ A special case is for enterprises that already have `well-known` Local Key Helpe
 
 ![IDPCallsPrivateLocalKeyHelper](./IDPCallsPrivateLocalKeyHelper.svg)
 
+A _private local key helper_ is a special use case. In this case the IDP owns the local key helper [implementation](#local-key-helper), and can use a private protocol to communicate with the local key helper.
+
 Highlights:
+
+
 
 - Since proof of device is made with SSO headers, the browser can skip the `nonce` and directly call the Local Key Helper.
 - IDP can validate the binding statement, i.e., the binding key belongs to the correct device.
