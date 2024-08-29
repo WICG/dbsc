@@ -143,7 +143,7 @@ Cookie: whatever_cookies_apply_to_this_request=value;
 Sec-Session-Response: registration JWT
 
 ```
-The JWT is signed with the newly created private key, and needs to contain the following values:
+The JWT is signed with the newly created private key, and needs to contain the following values (the public key is in the [JWK](https://datatracker.ietf.org/doc/html/rfc7517) format):
 ```json
 // Header
 {
@@ -155,7 +155,10 @@ The JWT is signed with the newly created private key, and needs to contain the f
   "aud": "URL of this request",
   "jti": "nonce",
   "iat": "timestamp",
-  "key": "public key",
+  "key": {
+    "kty": "key type",
+    "<kty-specific parameters>": "<value>",
+  },
   "authorization": "<authorization_value>", // optional, only if set in registration header
 }
 ```
