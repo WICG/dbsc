@@ -65,11 +65,11 @@ Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to 
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal enables browsers to bind session cookies to a device, it still remains vulnerable to "on device" malware. Such a malware, if present on the device, can inject its own binding keys when the DBSC session is established during any signin operaton. If a DBSC session is already established when the malware gains access to the system, the malware can force a signin session, and potentially hijack all subsequent sessions. Any upcoming sessions after this, even with DBSC, will not be reliable. Hence a temporary malware presence in the system can result in permanent session compromise in certain cases.
+While the original DBSC proposal enables browsers to bind session cookies to a device, it still remains vulnerable to "on device" malware. Such a malware, if present on the device, can inject its own binding keys when the DBSC session is established during any signin operaton. If a DBSC session is already established when the malware gains access to the system, the malware can force a new signin operation, and potentially hijack all subsequent sessions. Any upcoming sessions after this, even with DBSC, will not be reliable. Hence a temporary malware presence in the system can result in permanent session compromise in certain cases.
 
-DBSC(E) aims to mitigate this risk by introducing the concept of once-in-a-lifetime protected [device registration](#device-registration) operation and binds all the future sessions to binding keys that can be cryptographically proven to be on the same device. DBSC(E) allows for a given session to be bound to the device, if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. an organization registering a device before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, hence the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. 
+DBSC(E) aims to mitigate this risk by introducing the concept of once-in-a-lifetime protected [device registration](#device-registration) operation and binds all the future sessions to binding keys that can be cryptographically proven to be on the same device. DBSC(E) is able to provide this risk mitigation if the device registration is performed when there is no malware on the device (a state referred to as ["clean room"](#device-registration-client)) e.g. an organization registering a device before giving a device to an employee. Device registration is also expected to be a once-in-a-lifetime protected operation, hence the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. 
 
-Therefore, if a device registration is executed in a clean room and precedes any sign in sessions, DBSC(E) makes it impossible for a malware to bind session cookies to malicious binding keys during any sign in operation. However, it is to be noted that, DBSC(E) doesn't protect a given session if the malware is present during the device registration or if the malware is persistent on the device and uses device-bound sessions to exfiltrate application data rather than the sessions.
+Therefore, if a device registration is executed in a clean room and precedes any sign in sessions, DBSC(E) makes it impossible for a malware to bind session cookies to malicious binding keys during a sign in operation that implements DBSC(E). However, it is to be noted that, DBSC(E) doesn't protect a given session if the malware is present during the device registration or if the malware is persistent on the device and uses device-bound sessions to exfiltrate application data rather than the sessions.
 
 ## How does it integrate with DBSC?
 
@@ -95,7 +95,7 @@ IdP is an authentication server that can be either external to the Relying Party
 
 This is a pre-requisite for DBSC(E) to work.
 
-Device Registration Client is a process where the user or administrator registers the device with the IdP and is expected to be a once-in-a-lifetime protected operation.
+Device Registration is a process where the user or administrator registers the device with the IdP and is expected to be a once-in-a-lifetime protected operation.
 
 The device registration establishes trust between the device and a service that maintains a directory of all devices. This document does not cover the protocol of device registration, but it assumes that during device registration, some asymmetric keys are shared between the client and the service, typically a device key and some other keys necessary for the secure device communication. A client software component that performs the device registration is called a _device registration client_. As mentioned above, the key assumption in DBSC(E) is that device registration happened in a clean room environment, and it is the responsibility of the device owner to ensure this. 
 
@@ -113,7 +113,6 @@ One device registration client can manage multiple devices on the same physical 
 
 DBSC(E) aims to support most of these scenarios. It does not define the device registration protocol and is only concerned with the keys generated in a "clean room" and the management of the generated keys to prove device binding.
 
-### Device Registration
 
 The device registration is expected to be a once-in-a-lifetime protected operation, and the user is expected to perform this operation with a clean room environment.
 
@@ -154,7 +153,7 @@ A service that is responsible for verifying that the binding key is issued by th
 
 This section defines the artifacts of binding and how they help establish proof of binding.
 
-There are three artifacts that are generated during/after the device registration process, which are used to prove the device binding. These are the [binding key](#binding-key), the [attestation key](#attestation-key), and the [binding statement](#binding-statement).
+There are three artifacts that are generated during/after the device registration process, which are used to prove the device binding. These are the [attestation key](#attestation-key), the [binding key](#binding-key), and the [binding statement](#binding-statement).
 
 ##### Attestation Key
 
@@ -177,7 +176,6 @@ This **binding key** for DBSC(E) is similar to the artifact defined in the DBSC 
 
 >> TBD: Make this definition single - and link to it here if needed:
 In the context of the original DBSC proposal(https://github/wicg/dbsc), the binding key validation is not guaranteed to be attack free, as it can be generated by malware, if the malware is present on the device. In the context DBSC(E), however, as long as the [device registration process is executed with a clean room environment](#device-registration), binding key can be mapped to a specific device and the bound session is protected from any malware trying to infilterate it.
-
 
 ##### Binding Statement
 
@@ -255,20 +253,12 @@ For easy mapping with the existing DBSC proposal, please note:
 ![IDPCallsPublicLocalKeyHelper](./IDPCallsPublicLocalKeyHelper.svg)
 
 #### IDP Calls Private Local Key Helper
+<span style="color:red">!!! DRAFT - Please note this section is still in draft as we work on platform specific details
+</span
 
 A special case is for enterprises that already have `well-known` Local Key Helpers, which are expected to be trusted and enabled by default in a browser. Here, since the browser can trust a given IDP (based on the URL and a policy mapping) and can trust the IDP to invoke the appropriate Local Key Helper (refer [Local key helper on Windows](./KeyGeneration.md#local-key-helper-on-windows)), there are a few optimizations that can be made to the protocol, in skipping the `nonce` and reducing the number of round trips between the IDP and the Local Key Helper.
 
 ![IDPCallsPrivateLocalKeyHelper](./IDPCallsPrivateLocalKeyHelper.svg)
-
-A _private local key helper_ is a special use case. In this case the IDP owns the local key helper [implementation](#local-key-helper), and can use a private protocol to communicate with the local key helper.
-
-Highlights:
-
-
-
-- Since proof of device is made with SSO headers, the browser can skip the `nonce` and directly call the Local Key Helper.
-- IDP can validate the binding statement, i.e., the binding key belongs to the correct device.
-- The headers are modeled with [Microsoft IDP](https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens) as an example. It is possible to replace `Microsoft` with `Okta` and achieve the same flow if Okta complies with the device registration.
 
 ### Cleanup of the binding keys and their artifacts
 
