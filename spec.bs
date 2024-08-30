@@ -43,8 +43,8 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
 <section>
   <h2 id="intro">Introduction</h2>
 
-  <em>This section is not normative.</em>
-  <em>Note this is a very early drafting for wirting collaborations only</em>
+  <em>This section is not normative.</em><br/>
+  <em>Note this is a very early drafting for writing collaboration only</em>
 
   The web is built on a stateless protocol, to provide required functionality
   Web applications store data locally on a user's computer in order to provide
