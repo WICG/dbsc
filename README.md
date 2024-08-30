@@ -144,7 +144,7 @@ Sec-Session-Response: registration JWT
 
 ```
 The JWT is signed with the newly created private key, and needs to contain the following values (the public key is in the [JWK](https://datatracker.ietf.org/doc/html/rfc7517) format):
-```json
+```jsonc
 // Header
 {
   "alg": "Signature Algorithm",
@@ -173,7 +173,7 @@ Cache-Control: no-store
 Set-Cookie: auth_cookie=abcdef0123; Domain=example.com; Max-Age=600; Secure; HttpOnly;
 ```
 
-```json
+```jsonc
 {
   "session_identifier": "session_id",
   "refresh_url": "/RefreshEndpoint",
