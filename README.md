@@ -211,8 +211,11 @@ If the request is not properly authorized, the server can request a new signed r
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: challenge="nonce"
+Sec-Session-Challenge: "nonce"
 ```
+
+Where Sec-Session-Challenge header is a structured header with a list of challenge nonces that may specify an optional "id" parameter: "nonce";id="session_id".
+The challenge applies to the current context if "id" is not present; otherwise it applies to the specific session. The browser ignores the challenge if "id" doesn't match any session locally.
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
 
@@ -240,13 +243,13 @@ In response to this the server can optionally first request a proof of possessio
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: session_identifier="session_id",challenge="nonce"
+Sec-Session-Challenge: "nonce";id="session_id"
 ```
 
 The server can also serve challenges ahead of time attached to any response as an optimization, for example:
 ```http
 HTTP/1.1 XXX
-Sec-Session-Challenge: session_identifier="session_id",challenge="nonce"
+Sec-Session-Challenge: "nonce";id="session_id"
 ```
 
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
