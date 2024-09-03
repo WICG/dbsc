@@ -119,13 +119,13 @@ We do not reccomend this option for most deployments, but it is possibly for tho
 The session start process is initiated by the server attaching a header with Sec-Session-Registration and appropriate parameters, this looks like:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: (RS256 ES256);challenge="nonce";path="StartSession"
+Sec-Session-Registration: (RS256 ES256);challenge="challenge_value";path="StartSession"
 ```
-This is a structured header with a list of token arguments representing the allowed algorithms (possibilities are ES256 and RS256). The list have multiple string attributes, "path" is required describing the endpoint to use, "challenge" is to provide a nonce for the registration JWT. There is also an optional string attribute called authorization. There can be more than one registration on one response:
+This is a structured header with a list of token arguments representing the allowed algorithms (possibilities are ES256 and RS256). The list have multiple string attributes, "path" is required describing the endpoint to use, "challenge" is to provide a challenge value for the registration JWT. There is also an optional string attribute called authorization. There can be more than one registration on one response:
 ```http
 HTTP/1.1 200 OK
-Sec-Session-Registration: (ES256 RS256);path="path1";challenge="nonce";authorization="authcode"
-Sec-Session-Registration: (ES256);path="path2";challenge="nonce"
+Sec-Session-Registration: (ES256 RS256);path="path1";challenge="challenge_value";authorization="authcode"
+Sec-Session-Registration: (ES256);path="path2";challenge="challenge_value"
 ```
 
 The authorization value is optional for servers to send, but mandatory for clients to implement. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
@@ -153,7 +153,7 @@ The JWT is signed with the newly created private key, and needs to contain the f
 // Payload
 {
   "aud": "URL of this request",
-  "jti": "nonce",
+  "jti": "challenge_value",
   "iat": "timestamp",
   "key": {
     "kty": "key type",
@@ -211,10 +211,10 @@ If the request is not properly authorized, the server can request a new signed r
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: "nonce"
+Sec-Session-Challenge: "challenge_value"
 ```
 
-Where Sec-Session-Challenge header is a structured header with a list of challenge nonces that may specify an optional "id" parameter: "nonce";id="session_id".
+Where Sec-Session-Challenge header is a structured header with a list of challenge values that may specify an optional "id" parameter: "challenge_value";id="session_id".
 The challenge applies to the current context if "id" is not present; otherwise it applies to the specific session. The browser ignores the challenge if "id" doesn't match any session locally.
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
@@ -243,13 +243,13 @@ In response to this the server can optionally first request a proof of possessio
 
 ```http
 HTTP/1.1 401
-Sec-Session-Challenge: "nonce";id="session_id"
+Sec-Session-Challenge: "challenge_value";id="session_id"
 ```
 
 The server can also serve challenges ahead of time attached to any response as an optimization, for example:
 ```http
 HTTP/1.1 XXX
-Sec-Session-Challenge: "nonce";id="session_id"
+Sec-Session-Challenge: "challenge_value";id="session_id"
 ```
 
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
@@ -262,7 +262,7 @@ Sec-Session-Response: refresh JWT
 The JWT contains:
 ```json
 {
-  "jti": "nonce",
+  "jti": "challenge_value",
   "aud": "the URL to which the Sec-Session-Response will be sent",
   "sub": "the session ID corresponding to the binding key",
 }
