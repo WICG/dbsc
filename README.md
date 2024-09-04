@@ -252,6 +252,20 @@ HTTP/1.1 XXX
 Sec-Session-Challenge: "challenge_value";id="session_id"
 ```
 
+It is also possible to send challenges to multiple sessions:
+```http
+HTTP/1.1 XXX
+Sec-Session-Challenge: "challenge 1";id="session 1"
+Sec-Session-Challenge: "challenge 2";id="session 2"
+```
+
+This can also be formatted as:
+```http
+HTTP/1.1 XXX
+Sec-Session-Challenge: "challenge 1";id="session 1", "challenge 2";id="session 2"
+```
+as each challenge is a structured header item.
+
 The browser replies to that response with a Sec-Session-Response header, containing a signed JWT:
 
 ```http
