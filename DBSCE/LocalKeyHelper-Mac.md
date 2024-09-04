@@ -5,7 +5,7 @@
 
 On macOS, a Local Key Helper is a protocol (`LocalKeyHelper.h`), and its implementation (`LocalKeyHelperImpl.h`/`LocalKeyHelperImpl.m`) is yet to be determined.
 
-The Local Key Helper will be implemented and shipped as an XPC service on macOS. It will be signed with app sandbox entitlement for securety requirement.
+Each _Local key helper_ vendor will implement and ship as an XPC service on macOS. It will be signed with app sandbox entitlement for security requirement.
 
 To start the Local Key Helper XPC service, the service plist (property list) needs to be defined and registered in the launchAgent. This will ensure the service starts up when a idP sends a service connections.
 
