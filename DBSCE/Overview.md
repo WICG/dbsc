@@ -1,35 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [Device Bound Session Credentials for Enterprise - explainer](#device-bound-session-credentials-for-enterprise---explainer)
-  - [Authors](#authors)
-  - [Contributors](#contributors)
-  - [Participate (TBD links)](#participate-tbd-links)
-  - [Overview](#overview)
-  - [Why DBSC(E)?](#why-dbsce)
-  - [How does it integrate with DBSC?](#how-does-it-integrate-with-dbsc)
-  - [Terminology](#terminology)
-    - [Browser](#browser)
-    - [Relying Party (RP)](#relying-party-rp)
-    - [Identity Provider (IdP)](#identity-provider-idp)
-    - [Device Registration Client](#device-registration-client)
-    - [Device Registration](#device-registration)
-    - [Local Key Helper](#local-key-helper)
-      - [Platform Requirements](#platform-requirements)
-    - [Attestation Service](#attestation-service)
-      - [Key Generation Specifics](#key-generation-specifics)
-        - [Binding Key](#binding-key)
-        - [Attestation Key](#attestation-key)
-        - [Binding Statement](#binding-statement)
-  - [High-Level Design](#high-level-design)
-    - [DBSC(E) use cases](#dbsce-use-cases)
-      - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
-      - [IDP Calls Public Local Key Helper](#idp-calls-public-local-key-helper)
-      - [IDP Calls Private Local Key Helper](#idp-calls-private-local-key-helper)
-    - [Cleanup of the binding keys and their artifacts](#cleanup-of-the-binding-keys-and-their-artifacts)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Device Bound Session Credentials for Enterprise - explainer
 
 This is the repository for Device Bound Session Credentials for Enterprise. You're welcome to
@@ -58,6 +26,35 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 
 - [Issue tracker]()
 - [Discussion forum]
+
+## Table of Contents
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+  - [Overview](#overview)
+  - [Why DBSC(E)?](#why-dbsce)
+  - [How does it integrate with DBSC?](#how-does-it-integrate-with-dbsc)
+  - [Terminology](#terminology)
+    - [Browser](#browser)
+    - [Relying Party (RP)](#relying-party-rp)
+    - [Identity Provider (IdP)](#identity-provider-idp)
+    - [Device Registration Client](#device-registration-client)
+    - [Local Key Helper](#local-key-helper)
+      - [Platform Requirements](#platform-requirements)
+    - [Attestation Service](#attestation-service)
+      - [Key Generation Specifics](#key-generation-specifics)
+        - [Attestation Key](#attestation-key)
+        - [Binding Key](#binding-key)
+        - [Binding Statement](#binding-statement)
+  - [High-Level Design](#high-level-design)
+    - [DBSC(E) use cases](#dbsce-use-cases)
+      - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
+      - [IDP Calls Public Local Key Helper](#idp-calls-public-local-key-helper)
+      - [IDP Calls Private Local Key Helper](#idp-calls-private-local-key-helper)
+    - [Cleanup of the binding keys and their artifacts](#cleanup-of-the-binding-keys-and-their-artifacts)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 ## Overview
 
