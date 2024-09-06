@@ -128,6 +128,12 @@ Sec-Session-Registration: (ES256 RS256);path="path1";challenge="challenge_value"
 Sec-Session-Registration: (ES256);path="path2";challenge="challenge_value"
 ```
 
+An equivalent way of writing this is:
+```http
+HTTP/1.1 200 OK
+Sec-Session-Registration: (ES256 RS256);path="path1";challenge="challenge_value";authorization="authcode", (ES256);path="path2";challenge="challenge_value"
+```
+
 The authorization value is optional for servers to send, but mandatory for clients to implement. If present, it will be sent to the registration endpoint in the `Authorization` header, and included in the registration JWT. This allows passing a bearer token that allows the server to link registration with some preceding sign in flow, as an alternative to the more traditional use of cookies. While this can also facilitate integration with some existing infrastructure, e.g. ones based on OAuth 2.0, this parameter is general and is not limited to the similarly named [Authorization Code](https://datatracker.ietf.org/doc/html/rfc6749#section-1.3.1) in OAuth 2.0.
 
 #### Session Registration JWT
