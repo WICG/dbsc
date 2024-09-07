@@ -38,6 +38,12 @@ spec:reporting; urlPrefix: https://w3c.github.io/reporting/
 spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   type: dfn
     text: sf-dictionary; url: dictionary
+  type: dfn
+    text: sf-item; url: item
+  type: dfn
+    text: sf-string; url: string
+  type: dfn
+    text: sf-inner-list; url: inner-list
 </pre>
 
 <section>
@@ -69,8 +75,8 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       <div class="example">
         A user logs in to his social account, to protect the user's private
         data the site protects his logged in session wwith a DBSC session.
-        If the user tries to log with the same cookie file on a different device,
-        the site can detect and refuse this as an unathorized user.
+        If the user tries to log with the same cookie file on a different
+        device, the site can detect and refuse this as an unathorized user.
       </div>
 
       <h4 id="example-device-integrity">Device integrity</h4>
@@ -97,7 +103,8 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       <h4 id="example-enterprise-continuity">Enterprise example</h4>
       <div class="example">
         In an enterprise scenario, the user session can be attested
-        to be bound to the same TPM as a the device owner has in inventory management.
+        to be bound to the same TPM as a the device owner has in inventory
+        management.
       </div>
 
     <h3 id="goals">Goals</h3>
@@ -111,36 +118,41 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
 
 <section>
   <h2 id="framework">Framework</h2>
-  This document uses ABNF grammar to specify syntax, as defined in [[!RFC5234]] and updated in
-  [[!RFC7405]], along with the `#rule` extension defined in
-  <a href="https://tools.ietf.org/html/rfc7230#section-7">Section 7</a> of [[!RFC9112]], and the
-  `quoted-string` rule defined in
-  <a href="https://tools.ietf.org/html/rfc7230#section-3.2.6">Section 3.2.6</a> of the same
-  document.
+  This document uses ABNF grammar to specify syntax, as defined in [[!RFC5234]]
+  and updated in [[!RFC7405]], along with the `#rule` extension defined in
+  <a href="https://tools.ietf.org/html/rfc7230#section-7">Section 7</a> of
+  [[!RFC9112]], and the `quoted-string` rule defined in
+  <a href="https://tools.ietf.org/html/rfc7230#section-3.2.6">Section 3.2.6</a>
+  of the same document.
 
-  This document depends on the Infra Standard for a number of foundational concepts used in its
-  algorithms and prose [[!INFRA]].
+  This document depends on the Infra Standard for a number of foundational
+  concepts used in its algorithms and prose [[!INFRA]].
 
     <h3 id="framework-sessions-origin">Sessions by registrable domain</h3>
-    <p>A <dfn>registrable domain sessions</dfn> is a [=ordered map=] from [=host/registrable domain=]
-    to [=session by id=]</p>
+    <p>A <dfn>registrable domain sessions</dfn> is a [=ordered map=] from
+    [=host/registrable domain=] to [=session by id=]</p>
 
-    <h3 id="framework-sessions-origin">Sessions by id</h3>
-    <p>A <dfn>session by id</dfn> is an [=ordered map=] from [=device bound session/session identifier=]
-    to [=device bound session=]s for a given [=host/registrable domain=]</p>
+    <h3 id="framework-sessions-id">Sessions by id</h3>
+    <p>A <dfn>session by id</dfn> is an [=ordered map=] from
+    [=device bound session/session identifier=] to [=device bound session=]s for
+    a given [=host/registrable domain=]</p>
 
     <h3 id="framework-session">Device bound session</h3>
     <p>A <dfn>device bound session</dfn> is a [=struct=] with the following
     [=struct/items=]:</p>
     <dl dfn-for="device bound session">
       : <dfn>session identifier</dfn>
-      :: an [=string=] that is a unique identifier of a session on an [=host/registrable domain=]
+      :: an [=string=] that is a unique identifier of a session on an
+        [=host/registrable domain=]
       : <dfn>refresh url</dfn>
-      :: an [=string=] that is representing the [=url=] to be used to refresh the session
+      :: an [=string=] that is representing the [=url=] to be used to refresh
+        the session
       : <dfn>defer requests</dfn>
-      :: an OPTIONAL [=boolean=] defining if the browser should defer other requests while refreshing a session
+      :: an OPTIONAL [=boolean=] defining if the browser should defer other
+        requests while refreshing a session
       : <dfn>cached challenge</dfn>
-      :: an [=string=] that is to be used as the next challenge for this session [=origin=]
+      :: an [=string=] that is to be used as the next challenge for this session
+        [=origin=]
       : [=session scope=]
       :: a [=struct=] defining which [=url=]'s' are in scope for this session
       : [=session credential=]
@@ -154,7 +166,9 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       : <dfn>origin</dfn>
       :: an [=string=] representing the [=origin=] of the session (|origin|)
       : <dfn>include site</dfn>
-      :: a [=boolean=] that indicates if all subdomains of [=session scope/origin=] are included by default. This can only be true if [=session scope/origin=] is an eTLD+1
+      :: a [=boolean=] that indicates if all subdomains of
+        [=session scope/origin=] are included by default. This can only be true
+        if [=session scope/origin=] is an eTLD+1
       : [=scope specification=]
       :: a [=list=] of [=scope specification=] used by the session
     </dl>
@@ -164,9 +178,12 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
     [=struct/items=]:</p>
     <dl dfn-for="scope specification">
       : <dfn>type</dfn>
-      :: a [=string=] to be either "include" or "exclude", defining if the item defined in this struct should be added or removed from the scope
+      :: a [=string=] to be either "include" or "exclude", defining if the item
+        defined in this struct should be added or removed from the scope
       : <dfn>domain</dfn>
-      :: a [=string=] that defines the [=origin=] of this struct. This needs to be the [=scope specification/domain=] or a subdomain of [=scope specification/domain=]
+      :: a [=string=] that defines the [=origin=] of this struct. This needs to
+        be the [=scope specification/domain=] or a subdomain of
+        [=scope specification/domain=]
       : <dfn>path</dfn>
       :: a [=string=] that defines the path part of this scope item
     </dl>
@@ -190,12 +207,12 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       <div class="algorithm" data-algorithm="identify-session">
         Given a [=url=] and [=device bound session/session identifier=]
         (|session identifier|), this algorithm returns a
-        [=device bound session=].
+        [=device bound session=] or null if no such session exists.
 
         1. Let |site| be the [=host/registrable domain=] of the [=url=]
-        1. Let |domain sessions| be [=registrable domain sessions=][|site|]
-        1. Let |policy| be the result of executing <a abstract-op>Construct policy
-          from dictionary and origin</a> on |parsed header| and |origin|.
+        1. Let |domain sessions| be [=registrable domain sessions=][|site|] as a
+          [=/session by id=]
+        1. Return |domain sessions|[[=device bound session/session identifier=]]
       </div>
   </section>
 
@@ -216,65 +233,211 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       </div>
   </section>
 
-    <h3 id="algorithm-register-session">Registering a new session</h2>
+  <section>
+    ## <dfn export abstract-op id="create-session">Create a new session</dfn> ## {#algo-create-session}
+  </section>
+
     <h3 id="algorithm-refresh-session">Refreshing an existing session</h2>
     <h3 id="algorithm-closing-session">Closing an existing session</h2>
 </section>
 
 <section>
   <h2 id="format">DBSC Formats</h2>
-    <h3 id="header-sec-session-registration">`Sec-Session-Registration` HTTP Header Field</h3>
+    <h3 id="header-sec-session-registration">\``Sec-Session-Registration`\` HTTP Header Field</h3>
+    <p>The \`<dfn export http-header id="sec-session-registration-header">
+    <code>Sec-Session-Registration</code></dfn>\` header field can be used in a
+    [=response=] by the server to start a new [=/device bound session=] on the
+    client.</p>
+    <p>\`<a http-header><code>Sec-Session-Registration</code></a>\` is a
+    structured header. Its value must be an inner list. It's ABNF is:</p>
+    <pre class="abnf">Sec-Session-Registration = <a>sf-inner-list</a></pre>
+    The semantics of the item are defined in
+    [[#registration-structured-header-serialization]].
+    The processing steps are defined in [[#algo-create-session]].
+
+    <section>
+      <h4 id="registration-structured-header-serialization">Sec-Session-Registration structured header serialization</h4>
+      The [=sec-session-registration-header=] is represented as a Structured
+      Field.[[!RFC8941]]
+
+      In this representation, a registration is represented by an inner list of
+      tokens with two mandatory and one optional parameter of the inner-list.
+
+      The tokens inside the inner-list MUST be either RS256 or ES256, any other
+      items inside the inner-list MUST be ignored. Any paramters to the items in
+      the inner-list MUST be ignored. These tokens represents crypto algorithms
+      the client MAY use to create the device bound key pair. The order of the
+      tokens is not significant.
+
+      The registration inner list MUST have a Parameter named `"path"`, whose
+      value must be a String representing a url to an endpoint sharing the same
+      [=host/registrable domain=] as the [=url=] for this [=response=]. This
+      [=url=] MAY be relative to the current [=response=].
+
+      The registration inner list MUST have a Parameter named `"challenge"`,
+      whose value must be a String representing a challenge to be used when
+      registering a new session with device bound key pair.
+
+      The registration inner list MAY have a Parameter named `"authorization"`,
+      whose value must be a String. If this parameter is present, this string
+      will be in the [=DBSC proof=] sent to the server during session
+      registration in the field called [=DBSC proof/authorization=].
+
+      Any other parameters will be ignored.
+    </section>
+
+    <div class="example">
+    Some examples of [=sec-session-registration-header=] from
+    https://example.com/login.html:
+
+    ```html
+    HTTP/1.1 200 OK
+    Sec-Session-Registration: (ES256);path="reg";challenge="cv";authorization="ac"
+    ```
+    ```html
+    HTTP/1.1 200 OK
+    Sec-Session-Registration: (ES256 RS256);path="reg";challenge="cv"
+    ```
+    ```html
+    HTTP/1.1 200 OK
+    Sec-Session-Registration: (ES256);path="reg1";challenge="cv1";authorization="a"
+    Sec-Session-Registration: (RS256);path="reg2";challenge="cv2";authorization="b"
+    ```
+    ```html
+    HTTP/1.1 200 OK
+    Sec-Session-Registration: (ES256);path="reg1";challenge="cv1";authorization="a", (RS256);path="reg2";challenge="cv2";authorization="b"
+    ```
+    </div>
 
     <h3 id="header-sec-session-challenge">\``Sec-Session-Challenge`\` HTTP Header Field</h3>
     <p>The \`<dfn export http-header id="sec-session-challenge-header">
-    <code>Sec-Session-Challenge</code></dfn>\` header field can be used in the
+    <code>Sec-Session-Challenge</code></dfn>\` header field can be used in a
     [=response=] by the server to send a challenge to the client that it expects
-    to be used in future Sec-Session-Request headers inside the DBSC proof
-    JWT.</p>
-    <p>\`<a http-header><code>Permissions-Policy</code></a>\` is a structured
-    header. Its value must be a dictionary. It's ABNF is:</p>
-    <pre class="abnf">SecSessionChallange = <a>sf-dictionary</a></pre>
-    The semantics of the dictionary are defined in
-    [[#structured-header-serialization]].
+    to be used in future Sec-Session-Response headers inside the [=DBSC proof=].
+    </p>
+    <p>\`<a http-header><code>Sec-Session-Challenge</code></a>\` is a structured
+    header. Its value must be a string. It's ABNF is:</p>
+    <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
+    The semantics of the item are defined in
+    [[#challenge-structured-header-serialization]].
 
     The processing steps are defined in [[#algo-process-challenge]].
 
     <section>
-      <h4 id="structured-header-serialization">Structured header serialization</h4>
-      <a>Policy Directives</a> in HTTP headers are represented as Structured
-      Fields. [[!RFC8941]]
+      <h4 id="challenge-structured-header-serialization">Sec-Session-Challenge structured header serialization</h4>
+      The [=sec-session-challenge-header=] is represented as a Structured Field.
+      [[!RFC8941]]
 
-      In this representation, a <a>policy directive</a> is represented by a
-      Dictionary.
+      In this representation, a challenge is represented by a string.
 
-      Each Dictionary Member associates a
-      <a data-lt="policy-controlled feature">feature</a> with an
-      <a>allowlist</a>. The Member Names must be Tokens. If a token does not
-      name one of the user agent's [=supported features=], then the Dictionary
-      Member will be ignored by the processing steps.
-
-      The Member Values represent <a>allowlists</a>, and must be one of:
-      * a String containing the ASCII <a>permissions-source-expression</a>
-      * the Token `*`
-      * the Token `self`
-      * an Inner List containing zero or more of the above items.
-
-      Member Values may have a Parameter named `"report-to"`, whose value must
-      be a String. Any other parameters will be ignored.
-
-      Any other items inside of an Inner List will be ignored by the processing
-      steps, and the Member Value will be processed as if they were not present.
-      Member Values of any other form will cause the entire Dictionary Member to
-      be ignored by the processing steps.
+      Challenges MAY have a Parameter named `"id"`, whose value must
+      be a String representing a [=device bound session/session identifier=].
+      Any other parameters will be ignored.
     </section>
 
+    Note: The server might need to use this header to request the [=DBSC proof=]
+    to be signed with a new challenge before a session id has been
+    assigned. In this case the session ID is optional.
+
     <h3 id="header-sec-session-response">`Sec-Session-Response` HTTP Header Field</h3>
+    <p>The \`<dfn export http-header id="sec-session-response-header">
+    <code>Sec-Session-Response</code></dfn>\` header field can be used in the
+    [=request=] by the user agent to send a [=DBSC proof=] to the server to
+    prove that the client is still in possesion of the private key of the
+    session key.</p>
+    <p>\`<a http-header><code>Sec-Session-Response</code></a>\` is a structured
+    header. Its value must be a string. It's ABNF is:</p>
+    <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
+    This string MUST only contain the [=DBSC proof=] JWT.
+    <section>
+      <h4 id="structured-header-serialization">Structured header serialization</h4>
+    </section>
 
     <h3 id="header-sec-session-id">`Sec-Session-Id` HTTP Header Field</h3>
+    <p>The \`<dfn export http-header id="sec-session-id-header">
+    <code>Sec-Session-Id</code></dfn>\` header field can be used in the
+    [=request=] by the user agent to request the current session is refreshed, 
+    with the current session identifier as a string argument.
+    <p>\`<a http-header><code>Sec-Session-Id</code></a>\` is a structured
+    header. Its value must be a string. It's ABNF is:</p>
+    <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
+    This string MUST only contain the session identifier.
+    <section>
+      <h4 id="structured-header-serialization">Structured header serialization</h4>
+    </section>
 
     <h3 id="format-session-instructions">DBSC Session Instruction Format</h3>
 
-    <h3 id="format-jwt">DBSC Proof JWTs</h3>
+    <h3 id="format-jwt">DBSC Proof JWT Syntax</h3>
+    <p>
+    A <dfn>DBSC proof</dfn> proof is a JWT that is signed (using JSON Web Signature (JWS)), with
+    a private key chosen by the client. The header of a [=DBSC proof=] MUST
+    contain at least the following parameters:
+    <dl dfn-for="DBSC proof">
+      : <dfn>typ</dfn>
+      :: a [=string=] MUST be "dbsc+jwt"
+      : <dfn>alg</dfn>
+      :: a [=string=] defining the algorithm used to sign this JWT. It MUST be
+        either "RS256" or "ES256" from [IANA.JOSE.ALGS].
+    </dl>
+
+    The payload of [=DBSC proof=] MUST contain at least the following claims:
+    <dl dfn-for="DBSC proof">
+      : <dfn>aud</dfn>
+      :: a [=string=], MUST be the [=url=] this JWT was originally sent to.
+        Example: "https://example.com/refresh.html"
+      : <dfn>jti</dfn>
+      :: a [=string=], a copy of the challenge value sent in the registration
+        header.
+      : <dfn>iat</dfn>
+      :: a [=string=], this claim identifies the time at which the JWT was
+        issued.  This claim can be used to determine the age of the JWT.  Its
+        value MUST be a number containing a NumericDate value.
+      : <dfn>jwk</dfn>
+      :: a [=string=] defining a JWK as specified in [rfc7517].
+    </dl>
+
+    In addition the following claims MUST be present if present
+    [=header-sec-session-registration=]:
+    <dl dfn-for="DBSC proof">
+      : <dfn>authorization</dfn>
+      :: a [=string=], direct copy of the string from
+        [=header-sec-session-registration=], if set there. Note that this string
+        is OPTIONAL to include in the header, but if it is present it is
+        MANDATORY for clients to add the claim in the [=DBSC proof=].
+    </dl>
+
+    <div class="example">
+    An example [=DBSC proof=] sent to https://example.com/reg:
+
+    ```json
+    // Header
+    {
+      "alg": "ES256",
+      "typ": "dbsc+jwt"
+    }
+    // Payload
+    {
+      "aud": "https://example.com/reg",
+      "jti": "cv",
+      "iat": "1725579055",
+      "jwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "6_GB2voQ0qroMh6OlDFCFS_SJriQi1PTvvBOhGZ3bHI",
+        "y": "IegOJULyE7SxH_Cd1KCER7lWBvGFHQ-h0xyjzUjEIWE"
+      },
+      "authorization": "ac"
+    }
+    ```
+
+    Based on this response header from the server:
+    ```html
+    HTTP/1.1 200 OK
+    Sec-Session-Registration: (ES256);path="reg";challenge="cv";authorization="ac"
+    ```
+    recieved on a response from ```http://example.com/page.html```
+    </div>
 </section>
 
 <section>
