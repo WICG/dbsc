@@ -19,6 +19,7 @@ spec:dom; type:interface; for:/; text:Document
 spec:dom; type:dfn; for:/; text:element
 spec:url; type:dfn; for:/; text:url
 spec:fetch; type:dfn; for:Response; text:response
+spec:fetch; type:dfn; for:Request; text:request
 spec:html; type:element; text:script
 spec:html; type:element; text:link
 spec:fetch; type:dfn; text:name
@@ -28,13 +29,6 @@ spec:permissions; type:dfn; text:feature
 </pre>
 
 <pre class="anchors">
-spec:payment-request; urlPrefix: https://w3c.github.io/payment-request/
-  type: dfn
-    text: PaymentRequest; url: dom-paymentrequest
-spec:reporting; urlPrefix: https://w3c.github.io/reporting/
-  type: dfn
-    text: report type
-    text: visible to reportingobservers
 spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   type: dfn
     text: sf-dictionary; url: dictionary
@@ -204,9 +198,8 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   [=struct/items=]:</p>
   <dl dfn-for="session scope">
     : <dfn>include site</dfn>
-    :: a [=boolean=] that indicates if all subdomains of
-      [=session scope/origin=] are included by default. This can only be true if
-      [=session scope/origin=] is an [=host/registrable domain=]
+    :: a [=boolean=] that indicates if all subdomains of are included by
+      default.
     : [=scope specification=]
     :: a [=list=] of [=scope specification=] used by the session
   </dl>
@@ -246,7 +239,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       1. Let |site| be the [=host/registrable domain=] of the [=url=]
       1. Let |domain sessions| be [=registrable domain sessions=][|site|] as a
         [=/session by id=]
-      1. Return |domain sessions|[[|session identifier|]]
+      1. Return |domain sessions|[|session identifier|]
     </div>
   </section>
 
@@ -264,16 +257,33 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
         field value</a> given |header name| and "list" from |response|’s
         [=response/header list=].
       1. [=list/For each=] |challenge entry| of |challenge list|:
-      
+        1. Get the new |challenge| and |session id| from |challenge entry| as
+          described in [:Sec-Session-Challenge:].
+        1. If [=response/status=] is 401, resend this request as is with updated
+          |challenge| in [=DBSC proof=]
+        1. Otherwise:
+          1. Identify session as described in [[#algo-identify-session]] given
+            |response| and |session id| and store as |session object|.
+          1. Store |challenge| in |session object| to be used next time a
+            [=DBSC proof=] is to be sent from this [=device bound session=].
     </div>
+  </section>
+
+  <section>
+    ## <dfn export abstract-op id="refresh-session">Refreshing an existing session</dfn> ## {#algo-refresh-session}
   </section>
 
   <section>
     ## <dfn export abstract-op id="create-session">Create a new session</dfn> ## {#algo-create-session}
   </section>
 
-    <h3 id="algorithm-refresh-session">Refreshing an existing session</h2>
-    <h3 id="algorithm-closing-session">Closing an existing session</h2>
+  <section>
+    ## <dfn export abstract-op id="close-session">Close a session</dfn> ## {#algo-close-session}
+  </section>
+
+  <section>
+    ## <dfn export abstract-op id="fetch-integration">Fetch Integration</dfn> ## {#algo-fetch-integration}
+  </section>
 </section>
 
 <section>
@@ -318,7 +328,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
     be in the [=DBSC proof=] sent to the server during session registration in
     the field called [=DBSC proof/authorization=].
 
-    Any other parameters will be ignored.
+    Any other parameters SHOULD be ignored.
   </section>
 
   <div class="example">
@@ -408,9 +418,15 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   <p>\`<a http-header><code>Sec-Session-Response</code></a>\` is a structured
   header. Its value must be a string. It's ABNF is:</p>
   <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
-  This string MUST only contain the [=DBSC proof=] JWT.
+  This string MUST only contain the [=DBSC proof=] JWT. Any parameters SHOULD be
+  ignored.
 
-  <h4 id="response-structured-header-serialization">Structured header serialization</h4>
+  <div class="example">
+  ```html
+  POST example.com/refresh
+  Sec-Session-Response: "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRic2Mrand0In0.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3JlZyIsImp0aSI6ImN2IiwiaWF0IjoiMTcyNTU3OTA1NSIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IjZfR0Iydm9RMHFyb01oNk9sREZDRlNfU0pyaVFpMVBUdnZCT2hHWjNiSEkiLCJ5IjoiSWVnT0pVTHlFN1N4SF9DZDFLQ0VSN2xXQnZHRkhRLWgweHlqelVqRUlXRSJ9LCJhdXRob3JpemF0aW9uIjoiYWMifQ.6Fb_vVBDmfNghQiBmIGe8o7tBfYPbPCywhQruP0vIhxgmcJmuNTaMHeVn_M8ZnOm1_bzIitbZqCWEn-1Qzmtyw"
+  ```
+  </div>  
 
   <h3 id="header-sec-session-id">`Sec-Session-Id` HTTP Header Field</h3>
   <p>The \`<dfn export http-header id="sec-session-id-header">
@@ -420,88 +436,169 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   <p>\`<a http-header><code>Sec-Session-Id</code></a>\` is a structured header.
   Its value must be a string. It's ABNF is:</p>
   <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
-  This string MUST only contain the session identifier.
-  <section>
-    <h4 id="id-structured-header-serialization">Structured header serialization</h4>
-  </section>
+  This string MUST only contain the session identifier. Any paramters SHOULD be
+  ignored.
 
-    <h3 id="format-session-instructions">DBSC Session Instruction Format</h3>
+  <div class="example">
+  ```html
+  POST example.com/refresh
+  Sec-Session-Response: "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRic2Mrand0In0.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3JlZyIsImp0aSI6ImN2IiwiaWF0IjoiMTcyNTU3OTA1NSIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IjZfR0Iydm9RMHFyb01oNk9sREZDRlNfU0pyaVFpMVBUdnZCT2hHWjNiSEkiLCJ5IjoiSWVnT0pVTHlFN1N4SF9DZDFLQ0VSN2xXQnZHRkhRLWgweHlqelVqRUlXRSJ9LCJhdXRob3JpemF0aW9uIjoiYWMifQ.6Fb_vVBDmfNghQiBmIGe8o7tBfYPbPCywhQruP0vIhxgmcJmuNTaMHeVn_M8ZnOm1_bzIitbZqCWEn-1Qzmtyw"
+  ```
+  </div>
 
-    <h3 id="format-jwt">DBSC Proof JWT Syntax</h3>
-    <p>
-    A <dfn>DBSC proof</dfn> proof is a JWT that is signed (using JSON Web Signature (JWS)), with
-    a private key chosen by the client. The header of a [=DBSC proof=] MUST
-    contain at least the following parameters:
-    <dl dfn-for="DBSC proof">
-      : <dfn>typ</dfn>
-      :: a [=string=] MUST be "dbsc+jwt"
-      : <dfn>alg</dfn>
-      :: a [=string=] defining the algorithm used to sign this JWT. It MUST be
-        either "RS256" or "ES256" from [IANA.JOSE.ALGS].
-    </dl>
+  <h3 id="format-session-instructions">DBSC Session Instruction Format</h3>
+  The server sends <dfn>session instructions</dfn> during session registration and
+  optionally during session refresh. If the response contains session
+  instructions it MUST be in JSON format.
 
-    The payload of [=DBSC proof=] MUST contain at least the following claims:
-    <dl dfn-for="DBSC proof">
-      : <dfn>aud</dfn>
-      :: a [=string=], MUST be the [=url=] this JWT was originally sent to.
-        Example: "https://example.com/refresh.html"
-      : <dfn>jti</dfn>
-      :: a [=string=], a copy of the challenge value sent in the registration
-        header.
-      : <dfn>iat</dfn>
-      :: a [=string=], this claim identifies the time at which the JWT was
-        issued.  This claim can be used to determine the age of the JWT.  Its
-        value MUST be a number containing a NumericDate value.
-      : <dfn>jwk</dfn>
-      :: a [=string=] defining a JWK as specified in [rfc7517].
-    </dl>
+  At the root of the JSON object the following keys can exist:
+  <dl dfn-for="session instructions">
+    : <dfn>session identifier</dfn>
+    :: a [=string=] representing a [=device bound session/session identifier=].
+      If this [=session instructions=] is sent during a refresh request this
+      MUST be the [=device bound session/session identifier=] for the current
+      session. If not these instructions SHOULD be ignored.
+      If this [=session instructions=] is sent during a registration it MUST
+      either be a unique iditifier for this [=host/registrable domain=], or it
+      will overwrite the current [=device bound session=] with this identifier
+      for the current [=host/registrable domain=].
+      This key MUST be present.
 
-    In addition the following claims MUST be present if present in
-    [:Sec-Session-Registration:]:
-    <dl dfn-for="DBSC proof">
-      : <dfn>authorization</dfn>
-      :: a [=string=], direct copy of the string from
-        [:Sec-Session-Registration:], if set there. Note that this string is
-        OPTIONAL to include in the header, but if it is present it is
-        MANDATORY for clients to add the claim in the [=DBSC proof=].
-    </dl>
+    : <dfn>refresh_url</dfn>
+    :: a [=string=] representing the [=url=] used for future refresh requests.
+      This can be a full url, or relative to the current [=request=].
+      This key is OPTIONAL, if not present the registration url will be used for
+      future refresh requests.
 
-    <div class="example">
-    An example [=DBSC proof=] sent to https://example.com/reg:
+    : <dfn>continue</dfn>
+    :: a [=boolean=] representing if the current session should continue, or be
+      closed on the client. This key is OPTIONAL, and if not present the default
+      value will be true.
 
-    ```json
-    // Header
-    {
-      "alg": "ES256",
-      "typ": "dbsc+jwt"
-    }
-    // Payload
-    {
-      "aud": "https://example.com/reg",
-      "jti": "cv",
-      "iat": "1725579055",
-      "jwk": {
-        "kty": "EC",
-        "crv": "P-256",
-        "x": "6_GB2voQ0qroMh6OlDFCFS_SJriQi1PTvvBOhGZ3bHI",
-        "y": "IegOJULyE7SxH_Cd1KCER7lWBvGFHQ-h0xyjzUjEIWE"
-      },
-      "authorization": "ac"
-    }
-    ```
+    : <dfn>defer_requests</dfn>
+    :: a [=boolean=] describing the wanted session behavior during a session
+      refresh. If this value is true all requests related to this session will
+      be deferred while the session is refreshed. If instead the value is false
+      every request will instead be sent as normal, but with a
+      [:Sec-Session-Response:] header containing the [=DBSC proof=].
+      This key is OPTIONAL, and if not present a value of true is default.
+  </dl>
 
-    Based on this response header from the server:
-    ```html
-    HTTP/1.1 200 OK
-    Sec-Session-Registration: (ES256);path="reg";challenge="cv";authorization="ac"
-    ```
-    recieved on a response from ```http://example.com/page.html```
-    </div>
+  <div class="example">
+  ```json
+  {
+    "session_identifier": "session_id",
+    "refresh_url": "/RefreshEndpoint",
+
+    "scope": {
+      // Origin-scoped by default (i.e. https://example.com)
+      // Specifies to include https://*.example.com except excluded subdomains.
+      // This can only be true if the origin's host is the root eTLD+1.
+      "origin": "example.com",
+      "include_site": true,
+      "continue": false,
+      "defer_requests": true, // optional and true by default
+
+      "scope_specification" : [
+        { "type": "include", "domain": "trusted.example.com", "path": "/only_trusted_path" },
+        { "type": "exclude", "domain": "untrusted.example.com", "path": "/" },
+        { "type": "exclude", "domain": "*.example.com", "path": "/static" }
+      ]
+    },
+
+    "credentials": [{
+      "type": "cookie",
+      // This specifies the exact cookie that this config applies to. Attributes
+      // match the cookie attributes in RFC 6265bis and are parsed similarly to
+      // a normal Set-Cookie line, using the same default values.
+      // These SHOULD be equivalent to the Set-Cookie line accompanying this 
+      // response.
+      "name": "auth_cookie",
+      "attributes": "Domain=example.com; Path=/; Secure; SameSite=None"
+      // Attributes Max-Age, Expires and HttpOnly are ignored
+    }]
+  }
+  ```
+  </div>
+
+  <h3 id="format-jwt">DBSC Proof JWT Syntax</h3>
+  A <dfn>DBSC proof</dfn> proof is a JWT that is signed (using JSON Web
+  Signature (JWS)), with a private key chosen by the client. The header of a
+  [=DBSC proof=] MUST contain at least the following parameters:
+  <dl dfn-for="DBSC proof">
+    : <dfn>typ</dfn>
+    :: a [=string=] MUST be "dbsc+jwt"
+    : <dfn>alg</dfn>
+    :: a [=string=] defining the algorithm used to sign this JWT. It MUST be
+      either "RS256" or "ES256" from [IANA.JOSE.ALGS].
+  </dl>
+
+  The payload of [=DBSC proof=] MUST contain at least the following claims:
+  <dl dfn-for="DBSC proof">
+    : <dfn>aud</dfn>
+    :: a [=string=], MUST be the [=url=] this JWT was originally sent to.
+      Example: "https://example.com/refresh.html"
+    : <dfn>jti</dfn>
+    :: a [=string=], a copy of the challenge value sent in the registration
+      header.
+    : <dfn>iat</dfn>
+    :: a [=string=], this claim identifies the time at which the JWT was
+      issued.  This claim can be used to determine the age of the JWT.  Its
+      value MUST be a number containing a NumericDate value.
+    : <dfn>jwk</dfn>
+    :: a [=string=] defining a JWK as specified in [rfc7517].
+  </dl>
+
+  In addition the following claims MUST be present if present in
+  [:Sec-Session-Registration:]:
+  <dl dfn-for="DBSC proof">
+    : <dfn>authorization</dfn>
+    :: a [=string=], direct copy of the string from
+      [:Sec-Session-Registration:], if set there. Note that this string is
+      OPTIONAL to include in the header, but if it is present it is
+      MANDATORY for clients to add the claim in the [=DBSC proof=].
+  </dl>
+
+  <div class="example">
+  An example [=DBSC proof=] sent to https://example.com/reg:
+
+  ```json
+  // Header
+  {
+    "alg": "ES256",
+    "typ": "dbsc+jwt"
+  }
+  // Payload
+  {
+    "aud": "https://example.com/reg",
+    "jti": "cv",
+    "iat": "1725579055",
+    "jwk": {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "6_GB2voQ0qroMh6OlDFCFS_SJriQi1PTvvBOhGZ3bHI",
+      "y": "IegOJULyE7SxH_Cd1KCER7lWBvGFHQ-h0xyjzUjEIWE"
+    },
+    "authorization": "ac"
+  }
+  ```
+
+  Based on this response header from the server:
+  ```html
+  HTTP/1.1 200 OK
+  Sec-Session-Registration: (ES256);path="reg";challenge="cv";authorization="ac"
+  ```
+  recieved on a response from ```http://example.com/page.html```
+  </div>
 </section>
 
 <section>
   <h2 id="changes-to-other-specifications">Changes to other specifications</h2>
+  <h3 id="changes-to-fetch">Changes to the Fetch specification</h3>
+  --> Check if session should be refreshed before sending request
+      - Alternatively add proof with Sec-Session-Response
   <h3 id="changes-to-html">Changes to the HTML specification</h3>
+  --> Clear Site Data: Clear the session if this is received
 </section>
 
 <section>
@@ -585,6 +682,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
 
 <section>
   <h2 id="changelog">Changelog</h2>
+  This is an early draft of the spec.
 </section>
 
 <section>
