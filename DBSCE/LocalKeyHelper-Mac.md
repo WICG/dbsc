@@ -31,7 +31,6 @@ Here is an example of the Local Key Helper XPC service plist:
 
 Please refer to Apple documentation for building and configuring XPC services.
 
-
 When the browser (e.g. Chrome) communicates with this service, it needs to establish a service connection first.
 Here is an example of starting a new connection with the Local Key Helper:
 
@@ -51,7 +50,7 @@ The browser (e.g. Chrome) can then call the methods defined in the LocalKeyHelpe
 - The input and output parameters of the XPC service should follow the `NSSecureCoding` protocol.
 - Un-sandboxed applications can communicate directly to the XPC service.
 
-#### Browser discovery process
+#### Deployment of a 3rd party local key helper
 To inform the browser about the Local Key Helper to use, the manifest file is created within the browser's root folder during the LocalKeyHelper's installation (e.g. `/Library/Google/Chrome/LocalKeyHelpers`). This folder contains the following 2 types of files:
 
 **1st type: files that define the Local Key Helpers**
