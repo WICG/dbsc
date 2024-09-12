@@ -5,9 +5,7 @@
 
 On macOS, a Local Key Helper is a protocol (`LocalKeyHelper.h`), and its implementation (`LocalKeyHelperImpl.h`/`LocalKeyHelperImpl.m`) is yet to be determined.
 
-Each _Local key helper_ vendor will implement and ship as an XPC service on macOS. It will be signed with app sandbox entitlement for security requirement.
-
-To start the Local Key Helper XPC service, the service plist (property list) needs to be defined and registered in the launchAgent. This will ensure the service starts up when a idP sends a service connections.
+Each _Local key helper_ vendor will implement and ship as an XPC service on macOS. It will be signed with app sandbox entitlement for security requirement. Each vendor will also manage their own lifecycle of the XPC service depending on their specific and other functionality provided by the service. Each XPC service needs to be defined and registered with launchd as a launch agent. Vendors can decided whether to start XPC service on machine startup or on demand. 
 
 Here is an example of the Local Key Helper XPC service plist:
 
@@ -31,6 +29,9 @@ Here is an example of the Local Key Helper XPC service plist:
 </plist>
 ```
 
+Please refer to Apple documentation for building and configuring XPC services.
+
+
 When the browser (e.g. Chrome) communicates with this service, it needs to establish a service connection first.
 Here is an example of starting a new connection with the Local Key Helper:
 
@@ -50,7 +51,7 @@ The browser (e.g. Chrome) can then call the methods defined in the LocalKeyHelpe
 - The input and output parameters of the XPC service should follow the `NSSecureCoding` protocol.
 - Un-sandboxed applications can communicate directly to the XPC service.
 
-#### Define Available Local Key Helpers
+#### Browser discovery process
 To inform the browser about the Local Key Helper to use, the manifest file is created within the browser's root folder during the LocalKeyHelper's installation (e.g. `/Library/Google/Chrome/LocalKeyHelpers`). This folder contains the following 2 types of files:
 
 **1st type: files that define the Local Key Helpers**
