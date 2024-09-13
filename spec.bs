@@ -3,12 +3,11 @@ Title: Device Bound Session Credentials
 Shortname: dbsc
 Level: 1
 Indent: 2
-Status: ED
-TR: https://www.w3.org/TR/dbsc/
-Group: WebAppSec
+Status: CG-DRAFT
+Group: WICG
 URL: https://wicg.github.io/dbsc/
 Editor: Kristian Monsen 76841, Google, kristianm@google.com
-Abstract: The Device Bound Sessions Credentials (DBSC) aims to prevent hijacking via cookie theft by building a protocol and infrastructure that allows a user agent to assert possession of a securely-stored private key. DBSC is a Web API and protocol between user agents and servers to achieve this binding.
+Abstract: The Device Bound Sessions Credentials (DBSC) aims to prevent hijacking via cookie theft by building a protocol and infrastructure that allows a user agent to assert possession of a securely-stored private key. DBSC is a Web API and a protocol between user agents and servers to achieve this binding.
 Repository: https://github.com/WICG/dbsc/
 Markup Shorthands: css no, markdown yes
 Mailing List:
@@ -66,9 +65,11 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   leaked by this protocol.
 
   <h3 id="examples">Examples</h3>
+  Device Bound Session Credentials are designed to make users more secure in
+  different situations. Some of the use cases of DBSC are:
 
   <h4 id="example-signin">Signed in session</h4>
-  <div class="example">
+  <div class="example" id="1">
   A user logs in to his social account, to protect the user's private data the
   site protects his logged in session wwith a DBSC session. If the user tries to
   log with the same cookie file on a different device, the site can detect and
@@ -76,14 +77,14 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   </div>
 
   <h4 id="example-device-integrity">Device integrity</h4>
-  <div class="example">
+  <div class="example" id="2">
   A commercial site has different ways of detecting unahtorized log-in attempts.
   A DBSC session on device could be used to see which users has logged on to
   this device before.
   </div>
 
   <h4 id="example-device-reputation">Device reputation</h4>
-  <div class="example">
+  <div class="example" id="3">
   A payment company hosted at site `payment.example` could create a session
   bound to when users visit commercial site `shopping.example`. It could track
   the reliability of the device over time to decide how likely a transaction is
@@ -91,34 +92,49 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   </div>
 
   <h4 id="example-enterprise-sso">Enterprise example</h4>
-  <div class="example">
+  <div class="example" id="4">
   Describe some enterprise scenario
   </div>
 
   <h4 id="example-enterprise-continuity">Enterprise example</h4>
-  <div class="example">
+  <div class="example" id="5">
   In an enterprise scenario, the user session can be attested to be bound to the
   same TPM as a the device owner has in inventory management.
   </div>
+</section>
 
-  <h3 id="goals">Goals</h3>
-  Reduce session theft by offering an alternative to long-lived cookie bearer
-  tokens, that allows session authentication that is bound to the user's device.
-  This makes the internet safer for users in that it is less likely their
-  identity is abused, since malware is forced to act locally and thus becomes
-  easier to detect and mitigate. At the same time the goal is to disrupt the
-  cookie theft ecosystem and force it to adapt to new protections.
+<section>
+  <h2 id="privacy">Security Considerations</h2>
+  The goal of DBSC is to reduce session theft by offering an alternative to
+  long-lived cookie bearer tokens, that allows session authentication that is
+  bound to the user's device. This makes the internet safer for users in that it
+  is less likely their identity is abused, as malware is forced to act
+  locally and thus becomes easier to detect and mitigate. At the same time the
+  goal is to disrupt the cookie theft ecosystem and force it to adapt to new
+  protections long term.
+
+  As long as the session is valid a host can know with cryptographic certainty
+  that it is on the same device as the session was originally bound to if the
+  session was registered to a secure device.
 
   <h3 id="non-goals">Non-goals</h3>
   DBSC will not prevent temporary access to the browser session while the
   attacker is resident on the user's device. The private key should be stored as
-  safe as modern desktop operating systems allow, preventing exfiltration of the
-  session private key, but the signing capability will still be available for
-  any program running as the user on the user's device.
+  safe as modern operating systems allow, preventing exfiltration of the session
+  private key, but the signing capability will still be available for any
+  program running as the user on the user's device.
+
+  DBSC will also not prevent an attack if the attacker is replacing or injecting
+  into the user agent at the time of session registration as the attacker can
+  bind the session either to keys that are not TPM bound, or to a TPM that the
+  attacker controls permanently.
+
+  DBSC is not designed to give hosts any sort of guarantee about the device a
+  session is registered to, or the state of this device.
 </section>
 
 <section>
-  <h2 id="privacy">Privacy</h2>
+  <h2 id="privacy-considerations">Privacy Considerations</h2>
   The goal of the DBSC protocol is to introduce no additional surface for user
   tracking: implementing this API (for a browser) or enabling it (for a website)
   should not entail any significant user privacy tradeoffs.
@@ -138,7 +154,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
     to detect that different sessions are from the same device unless the user
     allows this by policy.
 
-  <h3 id="privacy-cookies">Cookies and privacy</h3>
+  <h3 id="privacy-cookies">Cookies considerations</h3>
   Cross-site/cross-origin data leakage: It should be impossible for a site to
   use this API to circumvent the same origin policy, 3P cookie policies, etc.
 
@@ -149,6 +165,28 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   settings, applied policies or user agent implementation details, neither would
   any of the DBSC heuristics. This ensures no new privacy behavior due to
   implementing DBSC.
+
+  <h3 id="privacy-side-channel-leak">Current timing side channel leak</h3>
+  If third party cookies are enabled it is possible for an attacker to leak
+  whether or not a user is authenticated by measuring how long the request takes
+  as the refresh is quite slow, partially due to the latency of TPM operations. 
+
+  This only applies if the site to be leaked about has enabled third party
+  cookies, if an attacker does have third-party cookie access there are often
+  attackes and leaks.
+
+  This is not a very reliable leak as the user needs to have a session on the
+  site that is currently out of date and would need to be refreshed. The leak
+  cannot be trivially repeated as the first request will renew the session that
+  would likely not expire again for some time.
+
+  It is important websites think about this privacy leak before adopting DBSC,
+  even more so if the plan is to use sessions with third party cookies.
+</section>
+
+<section>
+  <h2 id="alternatives">Alternatives considered</h2>
+  <h3 id="alternatives-webauthn">WebAuthn and silent mediation</h3>
 </section>
 
 <section>
@@ -227,62 +265,66 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
 </section>
 
 <section>
-  <h2 id="algorithm">Algorithms</h2>
+  # <dfn export id="algorithms">Algorithms</dfn> # {#algorithm}
+  ## Identify session ## {#algo-identify-session}
+  <div class="algorithm" data-algorithm="identify-session">
+    This algorithm describes how to
+    <dfn export dfn-for="algorithms">identify a session</dfn> out of all the
+    sessions that exist on a user agent. The
+    [=device bound session/session identifier=] is unique within a
+    [=host/registrable domain=].
+
+    Given a [=url=] and [=device bound session/session identifier=]
+    (|session identifier|), this algorithm returns a [=device bound session=] or
+    null if no such session exists.
+
+    1. Let |site| be the [=host/registrable domain=] of the [=url=]
+    1. Let |domain sessions| be [=registrable domain sessions=][|site|] as a
+      [=/session by id=]
+    1. Return |domain sessions|[|session identifier|]
+  </div>
+
+  ## Process challenge ## {#algo-process-challenge}
+  <div class="algorithm" data-algorithm="process-challenge">
+    This algorithm describes how to
+    <dfn export dfn-for="algorithms">process a challenge</dfn> received in an
+    HTTP header.
+
+    Given a [=response=] (|response|), a [=registrable domain sessions=], this
+    algorithm updates the [=device bound session/cached challenge=] for a
+    [=device bound session=], or immediatly resends the [=DBSC proof=] signed
+    with the new challenge.
+
+    1. Let |header name| be "<code>Sec-Session-Challenge</code>".
+    1. Let |challenge list| be the result of executing <a>get a structured
+      field value</a> given |header name| and "list" from |response|’s
+      [=response/header list=].
+    1. [=list/For each=] |challenge entry| of |challenge list|:
+      1. Get the new |challenge| and |session id| from |challenge entry| as
+        described in [:Sec-Session-Challenge:].
+      1. If [=response/status=] is 401, resend this request as is with updated
+        |challenge| in [=DBSC proof=]
+      1. Otherwise:
+        1. Identify session as described in [=identify a session=] given
+          |response| and |session id| and store as |session object|.
+        1. Store |challenge| in |session object| to be used next time a
+          [=DBSC proof=] is to be sent from this [=device bound session=].
+  </div>
+
   <section>
-    ## <dfn export abstract-op id="identify-session">Identify session</dfn> ## {#algo-identify-session}
-
-    <div class="algorithm" data-algorithm="identify-session">
-      Given a [=url=] and [=device bound session/session identifier=]
-      (|session identifier|), this algorithm returns a [=device bound session=]
-      or null if no such session exists.
-
-      1. Let |site| be the [=host/registrable domain=] of the [=url=]
-      1. Let |domain sessions| be [=registrable domain sessions=][|site|] as a
-        [=/session by id=]
-      1. Return |domain sessions|[|session identifier|]
-    </div>
+    ## <dfn export id="refresh-session">Refreshing an existing session</dfn> ## {#algo-refresh-session}
   </section>
 
   <section>
-    ## <dfn export abstract-op id="process-challenge">Process challenge</dfn> ## {#algo-process-challenge}
-
-    <div class="algorithm" data-algorithm="process-challenge">
-      Given a [=response=] (|response|), a [=registrable domain sessions=],
-      this algorithm updates the [=device bound session/cached challenge=] for a
-      [=device bound session=], or immediatly resends the [=DBSC proof=] signed
-      with the new challenge.
-
-      1. Let |header name| be "<code>Sec-Session-Challenge</code>".
-      1. Let |challenge list| be the result of executing <a>get a structured
-        field value</a> given |header name| and "list" from |response|’s
-        [=response/header list=].
-      1. [=list/For each=] |challenge entry| of |challenge list|:
-        1. Get the new |challenge| and |session id| from |challenge entry| as
-          described in [:Sec-Session-Challenge:].
-        1. If [=response/status=] is 401, resend this request as is with updated
-          |challenge| in [=DBSC proof=]
-        1. Otherwise:
-          1. Identify session as described in [[#algo-identify-session]] given
-            |response| and |session id| and store as |session object|.
-          1. Store |challenge| in |session object| to be used next time a
-            [=DBSC proof=] is to be sent from this [=device bound session=].
-    </div>
+    ## <dfn export id="create-session">Create a new session</dfn> ## {#algo-create-session}
   </section>
 
   <section>
-    ## <dfn export abstract-op id="refresh-session">Refreshing an existing session</dfn> ## {#algo-refresh-session}
+    ## <dfn export id="close-session">Close a session</dfn> ## {#algo-close-session}
   </section>
 
   <section>
-    ## <dfn export abstract-op id="create-session">Create a new session</dfn> ## {#algo-create-session}
-  </section>
-
-  <section>
-    ## <dfn export abstract-op id="close-session">Close a session</dfn> ## {#algo-close-session}
-  </section>
-
-  <section>
-    ## <dfn export abstract-op id="fetch-integration">Fetch Integration</dfn> ## {#algo-fetch-integration}
+    ## <dfn export id="fetch-integration">Fetch Integration</dfn> ## {#algo-fetch-integration}
   </section>
 </section>
 
@@ -331,7 +373,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
     Any other parameters SHOULD be ignored.
   </section>
 
-  <div class="example">
+  <div class="example" id="6">
     Some examples of [:Sec-Session-Registration:] from
     https://example.com/login.html:
 
@@ -382,7 +424,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   to be signed with a new challenge before a session id has been assigned.
   In this case the session ID is optional.
 
-  <div class="example">
+  <div class="example" id="7">
   Some examples of [:Sec-Session-Challenge:] from
   https://example.com/login.html:
 
@@ -421,7 +463,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   This string MUST only contain the [=DBSC proof=] JWT. Any parameters SHOULD be
   ignored.
 
-  <div class="example">
+  <div class="example" id="8">
   ```html
   POST example.com/refresh
   Sec-Session-Response: "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRic2Mrand0In0.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3JlZyIsImp0aSI6ImN2IiwiaWF0IjoiMTcyNTU3OTA1NSIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IjZfR0Iydm9RMHFyb01oNk9sREZDRlNfU0pyaVFpMVBUdnZCT2hHWjNiSEkiLCJ5IjoiSWVnT0pVTHlFN1N4SF9DZDFLQ0VSN2xXQnZHRkhRLWgweHlqelVqRUlXRSJ9LCJhdXRob3JpemF0aW9uIjoiYWMifQ.6Fb_vVBDmfNghQiBmIGe8o7tBfYPbPCywhQruP0vIhxgmcJmuNTaMHeVn_M8ZnOm1_bzIitbZqCWEn-1Qzmtyw"
@@ -439,7 +481,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
   This string MUST only contain the session identifier. Any paramters SHOULD be
   ignored.
 
-  <div class="example">
+  <div class="example" id="9">
   ```html
   POST example.com/refresh
   Sec-Session-Response: "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRic2Mrand0In0.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tL3JlZyIsImp0aSI6ImN2IiwiaWF0IjoiMTcyNTU3OTA1NSIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6IjZfR0Iydm9RMHFyb01oNk9sREZDRlNfU0pyaVFpMVBUdnZCT2hHWjNiSEkiLCJ5IjoiSWVnT0pVTHlFN1N4SF9DZDFLQ0VSN2xXQnZHRkhRLWgweHlqelVqRUlXRSJ9LCJhdXRob3JpemF0aW9uIjoiYWMifQ.6Fb_vVBDmfNghQiBmIGe8o7tBfYPbPCywhQruP0vIhxgmcJmuNTaMHeVn_M8ZnOm1_bzIitbZqCWEn-1Qzmtyw"
@@ -484,7 +526,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       This key is OPTIONAL, and if not present a value of true is default.
   </dl>
 
-  <div class="example">
+  <div class="example" id="10">
   ```json
   {
     "session_identifier": "session_id",
@@ -559,7 +601,7 @@ spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
       MANDATORY for clients to add the claim in the [=DBSC proof=].
   </dl>
 
-  <div class="example">
+  <div class="example" id="11">
   An example [=DBSC proof=] sent to https://example.com/reg:
 
   ```json
