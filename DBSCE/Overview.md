@@ -65,7 +65,7 @@ While the original DBSC proposal enables browsers to bind session cookies to a d
 
 DBSC(E) aims to mitigate this risk by introducing the concept of `one-time protected` [device registration](#device-registration) operation and binds all the future sessions to binding keys that can be cryptographically proven to be on the same device. DBSC(E) is able to provide this risk mitigation if the device registration is a `protected` operation, meaning it is performed in a ["clean room"](#device-registration-client)) enviroment e.g. an organization registering a device before giving a device to an employee. As device registration is expected to be a `one-time` operation, the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. 
 
-If device registration is executed in a clean room and precedes any sign in sessions malware would not be able to bind session cookies to malicious binding keys during a sign in operation that implements DBSC(E). 
+If device registration is executed in a clean room and precedes any sign in sessions, malware would not be able to bind session cookies to malicious binding keys during a sign in operation that implements DBSC(E). 
 
 Note: While DBSC(E) hardens security against temporary malware attacks, if the malware is persistent on the device, the malware can still exfiltrate data.
 
@@ -109,7 +109,7 @@ The device registration client can be owned and supported by:
 - Operating system - the device gets registered when the OS is installed.
 - Browser - the device gets registered when the browser is installed.
 - Device management software (MDM provider) - the device gets registered when the MDM is enrolled.
-- Third-party software vendor - the device gets registered according to the vendor rules.
+- Third-party software vendor - the device gets registered according to the vendor rules. 
 
 DBSC(E) aims to support most of these scenarios. DBSC(E) does not define the device registration protocol, but is only concerned that the device registration is executed in a "clean room" and the management of the generated keys to prove device binding.
 
@@ -146,7 +146,7 @@ Note: Above are platform specifications for Local Key Helpers that can be used f
 
 ### Attestation Service
 
-Attestation service is responsible for providing the attestation statement for the binding key. The attestation service can be owned by the IdP or a third party. DBSC(E) relies on the attestation service to enable the IDP to validate the binding statement and ensure that the binding key and the device key belong to the same device. An attestation service can be part of the IdP, or a separate service. 
+Attestation service is responsible for providing the attestation statement for the binding key. DBSC(E) relies on the attestation service to enable the IDP to validate the binding statement and ensure that the binding key and the device key belong to the same device. An attestation service can be part of the IdP, or a separate service. 
 
 This document does not define the implementation details of the Attestation Service. It defines the artifacts which are generated during the [Device Registration](#device-registration-client) and are necessary to validate the binding statement.
 
@@ -175,13 +175,13 @@ This _binding key_ for DBSC(E) is similar to the artifact defined in the DBSC pr
 
 ##### Binding Statement
 
-Additional to the _binding key_, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the device key. Details on how this statement is issued are out of scope for this document. However, the validation of the binding statement is a key building block of the DBSC(E) protocol.
-
-The validation of the _binding statement_ authenticates the device by using device ID to find the corresponding _attestation key_. The validation component verifies the _binding statement_, and it can understand that such a statement cannot be generated unless the private key resides in the same secure enclave when signed by the _attestation key_. Hence, a valid _binding statement_ means that both the _attestation key_ and the _binding key_ belong to the same device. 
+Additional to the _binding key_, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the device key. Details on how this statement is issued are out of scope for this document. However, the validation of the binding statement is a key building block of the DBSC(E) protocol. The validation of the _binding statement_ authenticates the device by using device ID to find the corresponding _attestation key_. The validation component verifies the _binding statement_, and it can understand that such a statement cannot be generated unless the private key resides in the same secure enclave when signed by the _attestation key_. Hence, a valid _binding statement_ means that both the _attestation key_ and the _binding key_ belong to the same device. 
 
 Binding statements can be long-lived or short-lived. 
 - If an IdP performs fresh device authentication outside of DBSC(E) integration at the time of _binding key_ validation, then the _binding statement_ can be long lived, as the IdP ensures the device identity through other mechanisms. 
 - IdPs that do not perform proof of possession of the device, the ones that use public local key helpers, must use short-lived binding statements. Otherwise, the attacker will be able to bind the victim's cookies to malicious keys from a different machine. A short-lived binding statement must have an embedded nonce sent by the IdP to validate that it is a fresh binding statement, minimizing the attack window. 
+
+Since there could be multiple devices supported by a [device registration client](#device-registration-client) and since it is possible for a device to be unknown when the local key helper is invoked during authentication, multiple binding keys can be issued for a single binding key. This is especially true for [private local key helpers](#idp-calls-private-local-key-helper).
 
 ## High-Level Design
 
@@ -198,7 +198,7 @@ DBSC(E) (in contrast with DBSC):
 
 ![DBSC(E) Highlevel Design](<./DBSC(E).svg>)
 
-[Link to editable diagram](https://sequencediagram.org/index.html#initialData=FABwhgTgLglgxjcA7KACARAHjgewDY4QBcAxAEZ4CuApgHwCCUU1AzlGLDkqgMrUQA3eNXSowLVC1CRYCZGiy4CxclToAZHHDB4A0tQCeACWp4Q-VAAoAStRB4wcVqgAqABQCyASlHjUUaWh4RDAUDAAhCBwAdxZ+XwkyQNkQsPQ+QX4AHSRsfEJSChpaazcAegBJABE3BNRo4GAwSiguSgBbMgsARmAyAFpaaKJUPOVCtVpUSjiIVBgkGFgOZ0wypUIplhgAcyR+hdQAMwJo0Y2VIrp57igAC2pUMijYizWLqeBowbIRsYLVMUAMwABgATDk+HB+nwWNsuP0AOLUJD8Fb6AwjHKlACqEDwABpUNU3HjCag4HcdHgUTtqABeJBcJxE6gADygEDAbkgYHaLAAdEKcpDqNDYfD9iYzPwKgATdQwNhYpAAbWl5gg8u6RI1srlYKJQoAurrTJqAMKOB4uGDtajAJnMVA4AQWX7-S6TZ4xWY3AQ4ADWzgI2jwqGDBlQDxlcxyrVQIAg1H6dNRXOdkYkT3E1DlLu4VXCPAtlgAol5o9QwHL+CwRbkLhNinBKBBkyg9Vq5fSctQBDpKCtE-h4FGjoRUDlLBk3RAAN4kslE3H4gC+RPV5v1OtQXflYKFAuNXj6gygI2TAEcaGwKcnh5HwDA4438l7ipZZnOyYuasvUFXPANwpKk8BpJA6VZDkuR5Ll+QAfi8HJE2TVA0zRZgJEjMQkHzDgsPYTgkGAKBzz+JtAToDCM2oDFLFPJ1HldCwL1QAAxScyxQfgkyVagiXuJUKWpeoYHAp5HnsDgJwgdocjIXN8wAMnQlFMOcWshCcMQmFYIiYC4UjBhYCj32baj1No8IFjlBYdh4IjqHtFBpxASgKHgDEiXoCpdCJSlqVpahTxYcjznMqjaBsvD7MclYXKgHJ50C8DgsEu4OjIPiUEsdzPLgDEvGgzkwAtBw7RYNdjNoX5UGTKA224fK8HgCNDAi8YossDF5UrZSck9CzotsuKnMS5LUogqD-EyzocqgPKPNawrDGK1B2VK8qwEqhChWqpiXTnJ4zK6q5aCtSlHnuR4cNkyR+DnM8hlOgFzs0GtJF2fYFlFcVWElfoMVM1BerlAkchiuzIN4caUSSpAUrA6aBNmrKFqWgqipKrltsqo9qu+F7OreyYB1auVh22PYODbZjbgeKckDIUaYbYBL4dw-MpuCnI2EIa65uyiAFigIkwa+H4RjBEEQXqMpqdROUDm4XAeJQIlkxYEAuDiG44CoWsJAeGtWJwSR2GgB7WzQuI4UMpABVQJmTFN4gMHSMUYQBh3+lsHYlVK4iRjtyUAH0YFrFAYCOGB+HpI8AuR4KE6FdB0Aht8zsmMGce5Xl+Xed9aGnHnIMea9KBfPNjknPiB0zDqkxwHAjhdNudbhH2uEYnBnRYuY6p9V45gWJYYBWCRQ4dp5WZ2BSlILKs3dQ1gUScR0++Y466rgB9nQAKQAdRceWy7pZ6L0r-Svr2VBj9Ppmhu68-UdzjaYPz+CWD2oVTzI2ql5qCNQgNwB+t8kC02TM9YYqA3AAHkeCnwVmKOm08uAK0tlAdB3AGzp3nOgHQOx0BEEThgKABgQAkPQA-DOqACbzkTugSM1DMAtXgGHSMtB0BrnTqgTe-djqwP5mhdhcB2oGFZOzTyLA7gPXtlwQalFzrk0jsOG698T6S0AagGWctojrBboGOOXN5GSmJFUBSOA5RRgWAbSgRtJC4HMO3CkRi44SEsIQXYhwADUiYOB3GQkgHIJtazu3TnwMiFp3HUBGM0e4YdcBBjjunKxNiRj4PQDgiOUdYCx3iKQ-a6dgD0npDwHA9p-B2ikuIO2R4ykCO3u6EYMwLAG3gIGCQrUkCBlrnMcA9xUAK0qWKLgzAUDPV3g8OAfSY4uhFgHJAvjBlyMrtXRIOBKB4TcSkh0Og0BkC2Ts5JxjHhOnqtQG81c5QwJGIiMsyCWCjLVhMgIRM6p6LPuM+GwBTB6yOds7msTLnXOTLcgYOirqzPmG3dZ4LdlnIkOyQOTQ8BoHhTXU5JikxrzCKEfMFz2QgBuXc1ADynkvJ+ZMj50tZbfPVgEf5FcrlVwRdix47QlTbBhpOYlpLDoDxOqC28aBaxHH4Ai6IdxxKPGiI8OkaAOWCiFGSilwy4g2zXgopAZRkxHC1nI0J1ZwmZM9v9HV-R5QjFVDgixxoSm0oACwgm6A2V2pqPZQm9pai0ydy4h27kgXJ8MY5xwgKnAUScgrl0jWkrOpNijoE2rBAuLASHYBmK0doQpaC8NEE0o6LT7zVkPifM+-qL6Qqvqym+itNEuCUZFc6lhX7i0MPKPOcE+Q-yPP-KWlyQFgPLYrKBDpIWwPVSgrVOC9XUANawI1SAwn8DNd6iUvtbDa11nE1AqoH4OvQIWoVsDVGU2dM3VurjO52wdto34XyDEctMXa6o6TbFIHsY4lgzjmJt2VVYbxSzUD+NWcE41bs13AP6DEvZ8SWh3CSbE+NRyMkewITkyOoaCkQBIQTEpgqd6Bq1WYme+kwAyIeODS5LAOjUByEBhYOgRX6TVY8jVVLGX3rpfokZVTXm-JRLcoTQA)
+[Link to editable diagram](https://sequencediagram.org/index.html#initialData=FABwhgTgLglgxjcA7KACARAHjgewDY4QBcAxAEZ4CuApgHwCCUU1AzlGLDkqgMrUQA3eNXSowLVC1CRYCZGiy4CxclToAZHHDB4A0tQCeACWp4Q-VAAoAStRB4wcVqgAqABQCyASlHjUUaWh4RDAUDAAhCBwAdxZ+XwkyQNkQsPQ+QX4AHSRsfEJSChpaazcAegBJABE3BNRo4GAwSiguSgBbMgsARmAyAFpaaKJUPOVCtVpUSjiIVBgkGFgOZ0wypUIplhgAcyR+hdQAMwJo0Y2VIrp57igAC2pUMijYizWLqeBowbIRsYLVMUAMwABgATDk+HB+nwWNsuP0AOLUJD8Fb6AwjHKlACqEDwABpUNU3HjCag4HcdHgUTtqABeJBcJxE6gADygEDAbkgYHaLAAdEKcpDqNDYfD9iYzPwKgATdQwNhYpAAbWl5gg8u6RI1srlYKJQoAurrTJqAMKOB4uGDtajAJnMVA4AQWX7-S6TZ4xWY3AQ4ADWzgI2jwqGDBlQDxlcxyrVQIAg1H6dNRXOdkYkT3E1DlLu4VXCPAtlgAol5o9QwHL+CwRbkLhNinBKBBkyg9Vq5fSctQBDpKCtE-h4FGjoRUDlLBk3RAAN4kslE3H4gC+RPV5v1OtQXflYKFAuNXj6gygI2TAEcaGwKcnh5HwDA4438l7ipZZnOyYuasvUFXPANwpKk8BpJA6VZDkuR5Ll+QAfi8HJE2TVA0zRZgJEjMQkHzDgsPYTgkGAKBzz+JtAToDCM2oDFLFPJ1HldCwL1QAAxScyxQfgkyVagiXuJUKWpeoYHAp5HnsDgJwgdocjIXN8wAMnQlFMOcWshCcMQmFYIiYC4UjBhYCj32baj1No8IFjlBYdh4IjqHtFBpxASgKHgDEiXoCpdCJSlqVpahTxYcjznMqjaBsvD7MclYXKgHJ50C8DgsEu4OjIPiUEsdzPLgDEvGgzkwAtBw7RYNdjNoX5UGTKA224fK8HgCNDAi8YossDF5UrZSck9CzotsuKnMS5LUogqD-EyzocqgPKPNawrDGK1B2VK8qwEqhChWqpiXTnJ4zK6q5aCtSlHnuR4cNkyR+DnM8hlOgFzs0GtJF2fYFlFcVWElfoMVM1BerlAkchiuzIN4caUSSpAUrA6aBNmrKFqWgqipKrltsqo9qu+F7OreyYB1auVh22PYODbZjbgeKckDIUaYbYBL4dw-MpuCnI2EIa65uyiAFigIkwa+H4RjBEEQXqMpqdROUDm4XAeJQIlkxYEAuDiG44CoWsJAeGtWJwSR2GgB7WzQuI4UMpABVQJmTFN4gMHSMUYQBh3+lsHYlVK4iRjtyUAH0YFrFAYCOGB+HpI8AuR4KE6FdB0Aht8zsmMGce5Xl+Xed9aGnHnIMea9KBfPNjknPiB0zDqkxwHAjhdNudbhH2uEYnBnRYuY6p9V45gWJYYBWCRQ4dp5WZ2BSlILKs3dQ1gUScR0++Y466rgB9nQAKQAdRceWy7pZ6L0r-Svr2VBj9Ppmhu68-UdzjaYPz+CWD2oVTzI2ql5qCNQgNwB+t8kC02TM9YYqA3AAHkeCnwVmKOm08uAK0tlAdB3AGzp3nOgHQOx0BEEThgKABgQAkPQA-DOqACbzkTugSM1DMAtXgGHSMtB0BrnTqgTe-djqwP5mhdhcB2oGFZOzTyLA7gPXtlwQalFzrk0jsOG698T5KMiionQajnT3A4BbAW+Z7joxFmEJUOR2gcCuqY82GixESJuLNCu1Abz6QFJLQBqAZZy2iOsFugY45c3kZKYkVQFI4DlFGBYBtKBG0kLgcw7cKRBLjhISwhBdiHAANSJg4HcZCSAcgm1rO7dOfAyIWnSdQEYzR7hh1wEGOO6cokxJGPg9AOCI5R1gLHeIpD9rp2APSekPAcD2n8HaKS4g7ZHjGQI7e7oRgzAsAbeAgYJCtSQIGWucxwD3FQArSZYouDMBQM9XeDw4B7Jji6EWAckC5MOXIyu1dEg4EoHhNJLSHQ6DQGQL5PzmnBMeE6eq7iq7JjlDAkYiIyzIJYKctWFyAhEzqn4s+5z4bAFMHrIF3zua1MhTeausKBg+Kurc+Ybd3kwt+WCiQ7JA5NDwGgelNdQUhKTGvMIoR8wQvZCAclcLUAIqRSinFlyMXS1lti9WAR8VuLJQy7ljx2hKm2DDScwrRWHQHidUlt40C1iOPwBl0Q7jiUeNER4dI0DqsFEKMVErjlxBtmvBRSAyjJiOFrORpTqzlM6Z7f63r+jyhGKqHBETjQjNlQAFhBN0BsrsQ0eyhN7CNFpk7lxDt3JAvT4YxzjhAVOAok5BXLhWtpWdSbFHQJtWCBcWAkOwDMVo7QhS0F4aIJZR0Vn3mrIfE+Z880X0pVfKFN9FaaJcNo7On5X7i0MPKPOcE+Q-yPP-KWkKQFgLHYrKBDpKWwLdSgz1ODfXUH9awQNSAyn8FDVmiUvtbDa11nU1AqoH7xvQAOw1sDVGU2dM3VuqTO52wdt434WKAnqtCbG6o7TYlIHiYklgyTmJtydVYbJTzUD5NecUoNbsX3AP6DUv59SWh3CabUutQKOkewIT0yOJaBkQBIQTEZBqd4Fs9WEme+kwAyIeODSFLAOjUByARhYOhjX6VdYi91UrFWwblf4k5UzUW4pRLCgzQA)
 
 Highlights:
 
@@ -207,7 +207,7 @@ Note: All references to RP, IDP are equivalent to `server` in the original [DBSC
 1. **Pre-Session initiation with special headers (steps 1-2):** When a user starts a sign-in process, or initiates a session, the webpage initiating the session sends special headers `Sec-Session-GenerateKey` and `Sec-Session-HelperIdList` to the browser in response, to indicate that the session is expected to be DBSC(E) compliant.
 
    - The `Sec-Session-GenerateKey` header contains the URL of the server(RP), the URL of the IdP (authentication service in most cases - which is optional for consumer use cases), a `nonce` and any extra parameters that the IdP wants to send to the Local Key Helper. `nonce` is essential to prevent replay of cached binding key/binding statements from a different device (proof of possession) and to prevent the clock-skew between the IdP and the Local Key Helper. 
-      - For all _public local key helpers_, e.g., Contoso's IDP calling Fabrikam's Local key helper, `nonce`  must be _short lived_. If _binding statement_ is not shortlived, it is possible for the attacker to generate the _binding statement_ and the _binding key_ from a device controlled by the attacker and use them to bind the victim's cookies to the malicious _binding key_. The enforcement of a shortlived binding statement is achieved through `nonce`. 
+      - For all _public local key helpers_, e.g., Contoso's IDP calling Fabrikam's Local key helper, `nonce` must be _short lived_. If _binding statement_ is not shortlived, it is possible for the attacker to generate the _binding statement_ and the _binding key_ from a device controlled by the attacker and use them to bind the victim's cookies to the malicious _binding key_. The enforcement of a shortlived binding statement is achieved through `nonce`. 
       - The allowance for long lived _binding statement_ is possible with _private local key helpers_ where the IDP can use other means to establish fresh proof of possession of the device. This is covered in detail in [later sections](#idp-calls-private-local-key-helper).
       - `nonce` also helps prevent the clock skew between servers where IDP and Attestation servers are from different vendors. Since the `nonce` sent by the IDP is embedded in the _binding statement_, the IDP will be able to validate `nonce` to ensure the _binding statement_ is issued recently.
       - `nonce` is generated by the IdP/RP as a part of the request, is a random number that MUST be unique, MUST be time sensitive and MUST be verifiable by the issuer. 
@@ -218,7 +218,7 @@ Note: All references to RP, IDP are equivalent to `server` in the original [DBSC
    - The [_attestation service_](#attestation-service) is also separate from the IDP in this diagram.
    - The `extra claims` is a provision added for specific IdPs or Local Key Helper vendors to add any additional information to the _binding statement_. It is intentionally left undefined, and can be customized.
 
-1. **Sign In/Session Initiation (steps 8-9):** The _binding statement_, with the `KeyId` is expected to be returned to the IdP with a new header, `Sec-Session-Keys`. The IdP [validates](#binding-statement) the signature on the _binding statement_, `nonce` and stores the thumbprint of the publicKey. Once the validation succeeds, the IdP will proceed with the sign-in ceremony. It can optionally generate auth tokens if the RP and IdP are separate, illustrated [below](#idp-is-rp-and-calls-public-local-key-helper), that embed the publicKey or a thumbprint of the publicKey.  
+1. **Sign In/Session Initiation (steps 8-9):** The _binding statement_, with the `KeyId` is expected to be returned to the IdP with a new header, `Sec-Session-Keys`. The IdP [validates](#binding-statement) the signature on the _binding statement_, `nonce` and stores the thumbprint of the publicKey. Once the validation succeeds, the IdP will proceed with the sign-in ceremony. It can optionally generate auth tokens as illustrated [below](#idp-is-rp-and-calls-public-local-key-helper), that embed the publicKey or a thumbprint of the publicKey.  
 
 1. **SignIn Succeeds with binding (steps 10-14)**: At this point, all DBSC(E) specific steps are completed. The server returns signed in content with a special header response to the browser: `Sec-Session-Registration` indicated the session is expected to be DBSC compliant. All steps further are as per the original DBSC proposal with two caveats: The _local key helper_ is called for JWT generation and the additional params introduced for DBSC(E) customization can be optionally added.
 
@@ -228,7 +228,7 @@ This section expands on the [generic design](#high-level-design) to address diff
 
 #### IDP is RP and Calls Public Local Key Helper
 
-This is the same use case elaborated in the high level design [above](#high-level-design). However, we have separated the IdP/RP components of the server that applies to certain enterprise and consumer use cases in the below diagram.
+This is the similar use case elaborated in the high level design [above](#high-level-design). This use case covers where an IDP/RP calls a [_public Local Key Helper_](#local-key-helper). The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
 
 ![IDPSameAsRP-CallsPublicLocalKeyHelper](./IDPSameAsRP-CallsPublicLocalKeyHelper.svg)
 
@@ -236,17 +236,18 @@ This is the same use case elaborated in the high level design [above](#high-leve
 
 Highlights:
 
+- The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
 - Auth tokens are not mentioned in the DBSC(E) high level design to simplify the over all scenario. However, most signin/access operations will often make use of auth tokens and issue cookies based on those tokens. In such case, the IdP can generate the auth tokens and embed the thumbprint of the publicKey in the token.
-- The tokens can be delivered to the RP directly through an API instead of a header based response.
+- The tokens can be delivered to the RP directly through an API instead of a header based response since they are the same server in this use case.
 - The tokens also contain the thumbprint of the publicKey, and the RP must validate the thumbprint from the token against the thumbprint from the JWT. The RP will also embed the thumbprint in the cookie for subsequent session validation.
 
 #### IDP Calls Public Local Key Helper
 
-In many use cases, it is also a valid to have separate servers as [RP](#relying-party-rp) and [IdP](#identity-provider-idp). We address the use case where the IdP calls a _public Local Key Helper_ and is a separate service from the RP below.
+In many use cases, it is also a valid to have separate servers as [RP](#relying-party-rp) and [IdP](#identity-provider-idp). We address the use case where the IdP calls a [_public Local Key Helper_](#local-key-helper) and is a separate service from the RP below. 
 
 For easy mapping with the existing DBSC proposal, please note:
 
-- Steps 1-16 specify the key generation process for a public local key helper. Please note the `nonce` properties for this use case are elaborated in the previous [section](#high-level-design).
+- Steps 1-16 specify the key generation process for a public local key helper. The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
 - Steps 17-29 are [DBSC](https://github.com/wicg/dbsc) with additional parameters introduced with DBSC(E).
 
 ![IDPCallsPublicLocalKeyHelper](./IDPCallsPublicLocalKeyHelper.svg)
