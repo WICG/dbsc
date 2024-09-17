@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 82ce88815, updated Thu Sep 7 16:33:55 2023 -0700" name="generator">
   <link href="https://wicg.github.io/dbsc/" rel="canonical">
-  <meta content="fb0a4a7f6183d0d9104c8ea4ee1c37bf76801658" name="document-revision">
+  <meta content="6d4e2d67f0e1e468b4b9a1cfd507ea99d5616215" name="document-revision">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -990,12 +990,12 @@ defined in this struct should be added or removed from the scope</p>
       <p>Let <var>header name</var> be "<code>Sec-Session-Challenge</code>".</p>
      <li data-md>
       <p>Let <var>challenge list</var> be the result of executing <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-list-get-structured-header" id="ref-for-concept-header-list-get-structured-header">get a structured
-field value</a> given <var>header name</var> and "list" from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list">header list</a>. <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#text-parse" id="ref-for-text-parse">parsing structured fields</a></p>
+field value</a> given <var>header name</var> and "list" from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list">header list</a>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>challenge entry</var> of <var>challenge list</var>:</p>
       <ol>
        <li data-md>
-        <p>Parse <var>challenge entry</var> according to <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#text-parse" id="ref-for-text-parse①">parsing structured fields</a>.</p>
+        <p>Parse <var>challenge entry</var> according to <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#text-parse" id="ref-for-text-parse">parsing structured fields</a>.</p>
        <li data-md>
         <p>If the type of <var>challenge entry</var> is not string <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue">continue</a>.</p>
        <li data-md>
@@ -1003,16 +1003,18 @@ field value</a> given <var>header name</var> and "list" from <var>response</var>
        <li data-md>
         <p>Let <var>session id</var> be null.</p>
        <li data-md>
-        <p>If params["id"] exists and is a string, Set <var>session id</var> to params["id"]</p>
+        <p>If params["id"] exists and is a string, Set <var>session id</var> to params["id"].</p>
        <li data-md>
-        <p>If <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status①">status</a> is 401, resend this request as is with updated <var>challenge</var> in <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof①">DBSC proof</a></p>
+        <p>If <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status①">status</a> is 401, resend this request as is with updated <var>challenge</var> in <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof①">DBSC proof</a>.</p>
        <li data-md>
         <p>Otherwise:</p>
         <ol>
          <li data-md>
-          <p>If <var>session id</var> is null, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue①">continue</a></p>
+          <p>If <var>session id</var> is null, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue①">continue</a>.</p>
          <li data-md>
           <p>Identify session as described in <a data-link-type="dfn" href="#algorithms-identify-a-session" id="ref-for-algorithms-identify-a-session">identify a session</a> given <var>response</var> and <var>session id</var> and store as <var>session object</var>.</p>
+         <li data-md>
+          <p>If <var>session object</var> is null, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue②">continue</a>.</p>
          <li data-md>
           <p>Store <var>challenge</var> in <var>session object</var> to be used next time a <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof②">DBSC proof</a> is to be sent from this <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session③">device bound session</a>.</p>
         </ol>
@@ -1036,21 +1038,33 @@ field value</a> given <var>header name</var> and "list" from <var>response</var>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate①">For each</a> <var>registration entry</var>, <var>params</var> → <var>registration list</var>:</p>
       <ol>
        <li data-md>
-        <p>Parse <var>registration entry</var> as an innner list. Let <var>algorithm list</var> be a
-list of tokens from the inner list where only algorithms supported on this
-client should be added. If this list is empty return failure.</p>
+        <p>Parse <var>registration entry</var> according to <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#text-parse" id="ref-for-text-parse①">parsing structured fields</a>.</p>
        <li data-md>
-        <p>If <var>params</var>["path"] exists and is a string let <var>path</var> be <var>params</var>["path"]</p>
+        <p>If <var>registration entry</var> is not an <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#inner-list" id="ref-for-inner-list">sf-inner-list</a>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue③">continue</a>.</p>
        <li data-md>
-        <p>Otherwise return failure.</p>
+        <p>Let <var>algorithm list</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②">list</a>.</p>
        <li data-md>
-        <p>Let <var>challenge</var> be null and Let <var>authorization</var> be null.</p>
+        <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate②">For each</a> <var>algorithm</var> → <var>registration entry</var></p>
+        <ol>
+         <li data-md>
+          <p>If <var>algorithm</var> is not a <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#token" id="ref-for-token">sf-token</a>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue④">continue</a>.</p>
+         <li data-md>
+          <p>If <var>algorithm</var> represents a crypto algorithm supported in <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header①">Sec-Session-Registration</a></code>`</span>, and is supported on this client, add <var>algorithm</var> to <var>algorithm list</var></p>
+        </ol>
        <li data-md>
-        <p>If <var>params</var>["challenge"] exists and is a string Set <var>challenge</var> to <var>params</var>["challenge"].</p>
+        <p>If <var>algorithm list</var> is empty, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue⑤">continue</a>.</p>
+       <li data-md>
+        <p>If <var>params</var>["path"] does not exist, or is not of type <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string⑦">sf-string</a>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue⑥">continue</a>.</p>
+       <li data-md>
+        <p>Let <var>path</var> be <var>params</var>["path"].</p>
+       <li data-md>
+        <p>Let <var>challenge</var> be null, and Let <var>authorization</var> be null.</p>
+       <li data-md>
+        <p>If <var>params</var>["challenge"] exists and is of type <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string⑧">sf-string</a> Set <var>challenge</var> to <var>params</var>["challenge"].</p>
        <li data-md>
         <p>If <var>params</var>["authorization"] exists and is a string Set <var>authorization</var> to <var>params</var>["authorization"].</p>
        <li data-md>
-        <p>Call <a href="#algo-session-request">§ 6.4 Send request</a> with <var>registration list</var>, <var>path</var>, <var>challenge</var> and <var>authorization</var> parameters.</p>
+        <p>Call <a href="#algo-session-request">§ 6.4 Send request</a> with <var>algorithm list</var>, <var>path</var>, <var>challenge</var> and <var>authorization</var> parameters.</p>
       </ol>
     </ol>
    </div>
@@ -1062,28 +1076,29 @@ client should be added. If this list is empty return failure.</p>
    <h3 class="heading settled" data-level="7.1" id="header-sec-session-registration"><span class="secno">7.1. </span><span class="content">`<code>Sec-Session-Registration</code>` HTTP header field</span><a class="self-link" href="#header-sec-session-registration"></a></h3>
     The `<dfn class="dfn-paneled" data-dfn-type="http-header" data-export data-lt="Sec-Session-Registration" id="sec-session-registration-header"> <code>Sec-Session-Registration</code></dfn>` header field can be used in a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response①">response</a> by the server to start a new <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session④">device bound session</a> on the
 client. 
-   <p><span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header①">Sec-Session-Registration</a></code>`</span> is a List Structured Header <a data-link-type="biblio" href="#biblio-rfc8941" title="Structured Field Values for HTTP">[RFC8941]</a>. Its ABNF
+   <p><span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header②">Sec-Session-Registration</a></code>`</span> is a List Structured Header <a data-link-type="biblio" href="#biblio-rfc8941" title="Structured Field Values for HTTP">[RFC8941]</a>. Its ABNF
 is:</p>
-<pre class="abnf">Sec-Session-Registration = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#list" id="ref-for-list②">sf-list</a></pre>
+<pre class="abnf">Sec-Session-Registration = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#list" id="ref-for-list③">sf-list</a></pre>
    <p>Each item in the list must be an inner list, and each item in the inner list
-MUST be a <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#token" id="ref-for-token">sf-token</a> representing a supported algorithm (ES256, RS256).
+MUST be a <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#token" id="ref-for-token①">sf-token</a> representing a supported algorithm (ES256, RS256).
 Only these two values are currently supported.</p>
    <p>The following parameters are defined:</p>
    <ul>
     <li data-md>
+     <p>A parameter whose key is "path", and whose value is a String (Section 3.3.3 of <a data-link-type="biblio" href="#biblio-rfc8941" title="Structured Field Values for HTTP">[RFC8941]</a>), conveying the path to the registration endpoint. This may be
+relative to the current <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url④">url</a>, or a full <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑤">url</a>. Entries without this
+parameter will be ignored in <a data-link-type="dfn">algo-create-session</a>.</p>
+    <li data-md>
      <p>A parameter whose key is "challenge", and whose value is a String (Section
 3.3.3 of <a data-link-type="biblio" href="#biblio-rfc8941" title="Structured Field Values for HTTP">[RFC8941]</a>), conveying the challenge to be used in the session
 registration.</p>
-    <li data-md>
-     <p>A parameter whose key is "path", and whose value is a String (Section 3.3.3 of <a data-link-type="biblio" href="#biblio-rfc8941" title="Structured Field Values for HTTP">[RFC8941]</a>), conveying the path to the registration endpoint. This may be
-relative to the current <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url④">url</a>, or a full <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑤">url</a>.</p>
     <li data-md>
      <p>A parameter whose key is "authorization", and whose value is a String (Section
 3.3.3 of <a data-link-type="biblio" href="#biblio-rfc8941" title="Structured Field Values for HTTP">[RFC8941]</a>), this parameter will be copied into the registration
 JWT.</p>
    </ul>
    <div class="example" id="sec-session-registration-example">
-    <a class="self-link" href="#sec-session-registration-example"></a> Some examples of <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header②">Sec-Session-Registration</a></code>`</span> from
+    <a class="self-link" href="#sec-session-registration-example"></a> Some examples of <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header③">Sec-Session-Registration</a></code>`</span> from
   https://example.com/login.html: 
 <pre class="language-html highlight">HTTP/1.1 200 OK
 Sec-Session-Registration: (ES256);path="reg";challenge="cv";authorization="ac"
@@ -1105,7 +1120,7 @@ be used in future Sec-Session-Response headers inside the <a data-link-type="dfn
 request a newly signed <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof④">DBSC proof</a> right away if the 
    <p><span>`<code><a data-link-type="http-header" href="#sec-session-challenge-header" id="ref-for-sec-session-challenge-header">Sec-Session-Challenge</a></code>`</span> is a structured header. Its value must be a string.
 Its ABNF is: </p>
-<pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string⑦">sf-string</a></pre>
+<pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string⑨">sf-string</a></pre>
     The semantics of the item are defined in <a href="#challenge-structured-header-serialization">§ 7.2.1 Sec-Session-Challenge structured header serialization</a>.
    <p></p>
    <p>The processing steps are defined in <a href="#algo-process-challenge">§ 6.2 Process challenge</a>.</p>
@@ -1143,7 +1158,7 @@ Sec-Session-Challenge: "c1";id="session 1", "c2";id="session 2"
 that the client is still in possesion of the private key of the session key. 
    <p>`<a data-link-type="http-header" href="#sec-session-response-header" id="ref-for-sec-session-response-header"><code>Sec-Session-Response</code></a>` is a structured
 header. Its value must be a string. It’s ABNF is:</p>
-<pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string⑧">sf-string</a></pre>
+<pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string①⓪">sf-string</a></pre>
    <p>This string MUST only contain the <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof⑦">DBSC proof</a> JWT. Any parameters SHOULD be
 ignored.</p>
    <div class="example" id="sec-session-response-example">
@@ -1157,7 +1172,7 @@ Sec-Session-Response: "eyJhbGciOiJFUzI1NiIsInR5cCI6ImRic2Mrand0In0.eyJhdWQiOiJod
 with the current session identifier as a string argument. 
    <p>`<a data-link-type="http-header" href="#sec-session-id-header" id="ref-for-sec-session-id-header"><code>Sec-Session-Id</code></a>` is a structured header.
 Its value must be a string. It’s ABNF is:</p>
-<pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string⑨">sf-string</a></pre>
+<pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string①①">sf-string</a></pre>
    <p>This string MUST only contain the session identifier. Any paramters SHOULD be
 ignored.</p>
    <div class="example" id="sec-session-id-example">
@@ -1174,7 +1189,7 @@ it MUST be in JSON format.
    <dl>
     <dt data-md><dfn data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-session-identifier">session identifier<a class="self-link" href="#session-instructions-session-identifier"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⓪">string</a> representing a <a data-link-type="dfn" href="#device-bound-session-session-identifier" id="ref-for-device-bound-session-session-identifier④">session identifier</a>.
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①②">string</a> representing a <a data-link-type="dfn" href="#device-bound-session-session-identifier" id="ref-for-device-bound-session-session-identifier④">session identifier</a>.
 If this <a data-link-type="dfn" href="#session-instructions" id="ref-for-session-instructions">session instructions</a> is sent during a refresh request this MUST be
 the <a data-link-type="dfn" href="#device-bound-session-session-identifier" id="ref-for-device-bound-session-session-identifier⑤">session identifier</a> for the current session. If
 not these instructions SHOULD be ignored.
@@ -1185,7 +1200,7 @@ current <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registra
 This key MUST be present.</p>
     <dt data-md><dfn data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-refresh_url">refresh_url<a class="self-link" href="#session-instructions-refresh_url"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①①">string</a> representing the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑥">url</a> used for future refresh requests.
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①③">string</a> representing the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑥">url</a> used for future refresh requests.
 This can be a full url, or relative to the current <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request②">request</a>.
 This key is OPTIONAL, if not present the registration url will be used for
 future refresh requests.</p>
@@ -1244,36 +1259,36 @@ This key is OPTIONAL, and if not present a value of true is default.</p>
    <dl>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-typ">typ<a class="self-link" href="#dbsc-proof-typ"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①②">string</a> MUST be "dbsc+jwt"</p>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①④">string</a> MUST be "dbsc+jwt"</p>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-alg">alg<a class="self-link" href="#dbsc-proof-alg"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①③">string</a> defining the algorithm used to sign this JWT. It MUST be
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑤">string</a> defining the algorithm used to sign this JWT. It MUST be
 either "RS256" or "ES256" from [IANA.JOSE.ALGS].</p>
    </dl>
    <p>The payload of <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof①⓪">DBSC proof</a> MUST contain at least the following claims:</p>
    <dl>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-aud">aud<a class="self-link" href="#dbsc-proof-aud"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①④">string</a>, MUST be the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑦">url</a> this JWT was originally sent to.
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑥">string</a>, MUST be the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑦">url</a> this JWT was originally sent to.
 Example: "https://example.com/refresh.html"</p>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-jti">jti<a class="self-link" href="#dbsc-proof-jti"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑤">string</a>, a copy of the challenge value sent in the registration
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑦">string</a>, a copy of the challenge value sent in the registration
 header.</p>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-iat">iat<a class="self-link" href="#dbsc-proof-iat"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑥">string</a>, this claim identifies the time at which the JWT was
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑧">string</a>, this claim identifies the time at which the JWT was
 issued.  This claim can be used to determine the age of the JWT.  Its
 value MUST be a number containing a NumericDate value.</p>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-jwk">jwk<a class="self-link" href="#dbsc-proof-jwk"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑦">string</a> defining a JWK as specified in [rfc7517].</p>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑨">string</a> defining a JWK as specified in [rfc7517].</p>
    </dl>
-   <p>In addition the following claims MUST be present if present in <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header③">Sec-Session-Registration</a></code>`</span>:</p>
+   <p>In addition the following claims MUST be present if present in <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header④">Sec-Session-Registration</a></code>`</span>:</p>
    <dl>
     <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-authorization">authorization<a class="self-link" href="#dbsc-proof-authorization"></a></dfn>
     <dd data-md>
-     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑧">string</a>, direct copy of the string from <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header④">Sec-Session-Registration</a></code>`</span>, if set there. Note that this string is
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②⓪">string</a>, direct copy of the string from <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header⑤">Sec-Session-Registration</a></code>`</span>, if set there. Note that this string is
 OPTIONAL to include in the header, but if it is present it is
 MANDATORY for clients to add the claim in the <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof①①">DBSC proof</a>.</p>
    </dl>
@@ -1473,6 +1488,7 @@ registrations: <a data-link-type="biblio" href="#biblio-rfc3864" title="Registra
     <a data-link-type="biblio">[RFC8941]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="c6b25c6b">parsing structured fields</span>
+     <li><span class="dfn-paneled" id="b38eaac9">sf-inner-list</span>
      <li><span class="dfn-paneled" id="b93af9cf">sf-list</span>
      <li><span class="dfn-paneled" id="e7aabcb5">sf-string</span>
      <li><span class="dfn-paneled" id="bb423dc4">sf-token</span>
@@ -1820,17 +1836,18 @@ window.dfnpanelData['162d2b51'] = {"dfnID": "162d2b51", "url": "https://fetch.sp
 window.dfnpanelData['e3201629'] = {"dfnID": "e3201629", "url": "https://fetch.spec.whatwg.org/#concept-response-response", "dfnText": "response", "refSections": [{"refs": [{"id": "ref-for-concept-response-response"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-concept-response-response\u2460"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-concept-response-response\u2461"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}], "external": true};
 window.dfnpanelData['a1d47575'] = {"dfnID": "a1d47575", "url": "https://fetch.spec.whatwg.org/#concept-response-status", "dfnText": "status", "refSections": [{"refs": [{"id": "ref-for-concept-response-status"}, {"id": "ref-for-concept-response-status\u2460"}], "title": "6.2. Process challenge"}], "external": true};
 window.dfnpanelData['36858240'] = {"dfnID": "36858240", "url": "https://infra.spec.whatwg.org/#boolean", "dfnText": "boolean", "refSections": [{"refs": [{"id": "ref-for-boolean"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-boolean\u2460"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-boolean\u2461"}, {"id": "ref-for-boolean\u2462"}], "title": "7.5. DBSC Session Instruction Format"}], "external": true};
-window.dfnpanelData['f937b7b6'] = {"dfnID": "f937b7b6", "url": "https://infra.spec.whatwg.org/#iteration-continue", "dfnText": "continue", "refSections": [{"refs": [{"id": "ref-for-iteration-continue"}, {"id": "ref-for-iteration-continue\u2460"}], "title": "6.2. Process challenge"}], "external": true};
-window.dfnpanelData['16d07e10'] = {"dfnID": "16d07e10", "url": "https://infra.spec.whatwg.org/#list-iterate", "dfnText": "for each", "refSections": [{"refs": [{"id": "ref-for-list-iterate"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-list-iterate\u2460"}], "title": "6.5. Create session"}], "external": true};
+window.dfnpanelData['f937b7b6'] = {"dfnID": "f937b7b6", "url": "https://infra.spec.whatwg.org/#iteration-continue", "dfnText": "continue", "refSections": [{"refs": [{"id": "ref-for-iteration-continue"}, {"id": "ref-for-iteration-continue\u2460"}, {"id": "ref-for-iteration-continue\u2461"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-iteration-continue\u2462"}, {"id": "ref-for-iteration-continue\u2463"}, {"id": "ref-for-iteration-continue\u2464"}, {"id": "ref-for-iteration-continue\u2465"}], "title": "6.5. Create session"}], "external": true};
+window.dfnpanelData['16d07e10'] = {"dfnID": "16d07e10", "url": "https://infra.spec.whatwg.org/#list-iterate", "dfnText": "for each", "refSections": [{"refs": [{"id": "ref-for-list-iterate"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-list-iterate\u2460"}, {"id": "ref-for-list-iterate\u2461"}], "title": "6.5. Create session"}], "external": true};
 window.dfnpanelData['c88f3887'] = {"dfnID": "c88f3887", "url": "https://infra.spec.whatwg.org/#struct-item", "dfnText": "item", "refSections": [{"refs": [{"id": "ref-for-struct-item"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-struct-item\u2460"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-struct-item\u2461"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-struct-item\u2462"}], "title": "5.6. Session credential"}], "external": true};
-window.dfnpanelData['649608b9'] = {"dfnID": "649608b9", "url": "https://infra.spec.whatwg.org/#list", "dfnText": "list", "refSections": [{"refs": [{"id": "ref-for-list"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-list\u2460"}], "title": "5.4. Session scope"}], "external": true};
+window.dfnpanelData['649608b9'] = {"dfnID": "649608b9", "url": "https://infra.spec.whatwg.org/#list", "dfnText": "list", "refSections": [{"refs": [{"id": "ref-for-list"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-list\u2460"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-list\u2461"}], "title": "6.5. Create session"}], "external": true};
 window.dfnpanelData['84b454ff'] = {"dfnID": "84b454ff", "url": "https://infra.spec.whatwg.org/#ordered-map", "dfnText": "ordered map", "refSections": [{"refs": [{"id": "ref-for-ordered-map"}], "title": "5.1. Sessions by registrable domain"}, {"refs": [{"id": "ref-for-ordered-map\u2460"}], "title": "5.2. Sessions by id"}], "external": true};
-window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}, {"id": "ref-for-string\u2460"}, {"id": "ref-for-string\u2461"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-string\u2462"}, {"id": "ref-for-string\u2463"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-string\u2464"}, {"id": "ref-for-string\u2465"}], "title": "5.6. Session credential"}, {"refs": [{"id": "ref-for-string\u2460\u24ea"}, {"id": "ref-for-string\u2460\u2460"}], "title": "7.5. DBSC Session Instruction Format"}, {"refs": [{"id": "ref-for-string\u2460\u2461"}, {"id": "ref-for-string\u2460\u2462"}, {"id": "ref-for-string\u2460\u2463"}, {"id": "ref-for-string\u2460\u2464"}, {"id": "ref-for-string\u2460\u2465"}, {"id": "ref-for-string\u2460\u2466"}, {"id": "ref-for-string\u2460\u2467"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": true};
+window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}, {"id": "ref-for-string\u2460"}, {"id": "ref-for-string\u2461"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-string\u2462"}, {"id": "ref-for-string\u2463"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-string\u2464"}, {"id": "ref-for-string\u2465"}], "title": "5.6. Session credential"}, {"refs": [{"id": "ref-for-string\u2460\u2461"}, {"id": "ref-for-string\u2460\u2462"}], "title": "7.5. DBSC Session Instruction Format"}, {"refs": [{"id": "ref-for-string\u2460\u2463"}, {"id": "ref-for-string\u2460\u2464"}, {"id": "ref-for-string\u2460\u2465"}, {"id": "ref-for-string\u2460\u2466"}, {"id": "ref-for-string\u2460\u2467"}, {"id": "ref-for-string\u2460\u2468"}, {"id": "ref-for-string\u2461\u24ea"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": true};
 window.dfnpanelData['984221ca'] = {"dfnID": "984221ca", "url": "https://infra.spec.whatwg.org/#struct", "dfnText": "struct", "refSections": [{"refs": [{"id": "ref-for-struct"}, {"id": "ref-for-struct\u2460"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-struct\u2461"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-struct\u2462"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-struct\u2463"}], "title": "5.6. Session credential"}], "external": true};
-window.dfnpanelData['c6b25c6b'] = {"dfnID": "c6b25c6b", "url": "https://datatracker.ietf.org/doc/html/rfc8941#text-parse", "dfnText": "parsing structured fields", "refSections": [{"refs": [{"id": "ref-for-text-parse"}, {"id": "ref-for-text-parse\u2460"}], "title": "6.2. Process challenge"}], "external": true};
-window.dfnpanelData['b93af9cf'] = {"dfnID": "b93af9cf", "url": "https://datatracker.ietf.org/doc/html/rfc8941#list", "dfnText": "sf-list", "refSections": [{"refs": [{"id": "ref-for-list\u2461"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": true};
-window.dfnpanelData['e7aabcb5'] = {"dfnID": "e7aabcb5", "url": "https://datatracker.ietf.org/doc/html/rfc8941#string", "dfnText": "sf-string", "refSections": [{"refs": [{"id": "ref-for-string\u2466"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}, {"refs": [{"id": "ref-for-string\u2467"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-string\u2468"}], "title": "7.4. Sec-Session-Id HTTP Header Field"}], "external": true};
-window.dfnpanelData['bb423dc4'] = {"dfnID": "bb423dc4", "url": "https://datatracker.ietf.org/doc/html/rfc8941#token", "dfnText": "sf-token", "refSections": [{"refs": [{"id": "ref-for-token"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": true};
+window.dfnpanelData['c6b25c6b'] = {"dfnID": "c6b25c6b", "url": "https://datatracker.ietf.org/doc/html/rfc8941#text-parse", "dfnText": "parsing structured fields", "refSections": [{"refs": [{"id": "ref-for-text-parse"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-text-parse\u2460"}], "title": "6.5. Create session"}], "external": true};
+window.dfnpanelData['b38eaac9'] = {"dfnID": "b38eaac9", "url": "https://datatracker.ietf.org/doc/html/rfc8941#inner-list", "dfnText": "sf-inner-list", "refSections": [{"refs": [{"id": "ref-for-inner-list"}], "title": "6.5. Create session"}], "external": true};
+window.dfnpanelData['b93af9cf'] = {"dfnID": "b93af9cf", "url": "https://datatracker.ietf.org/doc/html/rfc8941#list", "dfnText": "sf-list", "refSections": [{"refs": [{"id": "ref-for-list\u2462"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": true};
+window.dfnpanelData['e7aabcb5'] = {"dfnID": "e7aabcb5", "url": "https://datatracker.ietf.org/doc/html/rfc8941#string", "dfnText": "sf-string", "refSections": [{"refs": [{"id": "ref-for-string\u2466"}, {"id": "ref-for-string\u2467"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-string\u2468"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}, {"refs": [{"id": "ref-for-string\u2460\u24ea"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-string\u2460\u2460"}], "title": "7.4. Sec-Session-Id HTTP Header Field"}], "external": true};
+window.dfnpanelData['bb423dc4'] = {"dfnID": "bb423dc4", "url": "https://datatracker.ietf.org/doc/html/rfc8941#token", "dfnText": "sf-token", "refSections": [{"refs": [{"id": "ref-for-token"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-token\u2460"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": true};
 window.dfnpanelData['bc9d7803'] = {"dfnID": "bc9d7803", "url": "https://url.spec.whatwg.org/#host-registrable-domain", "dfnText": "registrable domain", "refSections": [{"refs": [{"id": "ref-for-host-registrable-domain"}], "title": "5.1. Sessions by registrable domain"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2460"}], "title": "5.2. Sessions by id"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2461"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2462"}, {"id": "ref-for-host-registrable-domain\u2463"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2464"}, {"id": "ref-for-host-registrable-domain\u2465"}], "title": "7.5. DBSC Session Instruction Format"}], "external": true};
 window.dfnpanelData['dcffbccd'] = {"dfnID": "dcffbccd", "url": "https://url.spec.whatwg.org/#concept-url", "dfnText": "url", "refSections": [{"refs": [{"id": "ref-for-concept-url"}, {"id": "ref-for-concept-url\u2460"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-concept-url\u2461"}, {"id": "ref-for-concept-url\u2462"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-concept-url\u2463"}, {"id": "ref-for-concept-url\u2464"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-concept-url\u2465"}], "title": "7.5. DBSC Session Instruction Format"}, {"refs": [{"id": "ref-for-concept-url\u2466"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": true};
 window.dfnpanelData['registrable-domain-sessions'] = {"dfnID": "registrable-domain-sessions", "url": "#registrable-domain-sessions", "dfnText": "registrable domain sessions", "refSections": [{"refs": [{"id": "ref-for-registrable-domain-sessions"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-registrable-domain-sessions\u2460"}], "title": "6.2. Process challenge"}], "external": false};
@@ -1842,7 +1859,7 @@ window.dfnpanelData['session-scope'] = {"dfnID": "session-scope", "url": "#sessi
 window.dfnpanelData['scope-specification'] = {"dfnID": "scope-specification", "url": "#scope-specification", "dfnText": "scope specification", "refSections": [{"refs": [{"id": "ref-for-scope-specification"}, {"id": "ref-for-scope-specification\u2460"}], "title": "5.4. Session scope"}], "external": false};
 window.dfnpanelData['session-credential'] = {"dfnID": "session-credential", "url": "#session-credential", "dfnText": "session credential", "refSections": [{"refs": [{"id": "ref-for-session-credential"}, {"id": "ref-for-session-credential\u2460"}], "title": "5.3. Device bound session"}], "external": false};
 window.dfnpanelData['algorithms-identify-a-session'] = {"dfnID": "algorithms-identify-a-session", "url": "#algorithms-identify-a-session", "dfnText": "identify a session", "refSections": [{"refs": [{"id": "ref-for-algorithms-identify-a-session"}], "title": "6.2. Process challenge"}], "external": false};
-window.dfnpanelData['sec-session-registration-header'] = {"dfnID": "sec-session-registration-header", "url": "#sec-session-registration-header", "dfnText": "\nSec-Session-Registration", "refSections": [{"refs": [{"id": "ref-for-sec-session-registration-header"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-sec-session-registration-header\u2460"}, {"id": "ref-for-sec-session-registration-header\u2461"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-sec-session-registration-header\u2462"}, {"id": "ref-for-sec-session-registration-header\u2463"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": false};
+window.dfnpanelData['sec-session-registration-header'] = {"dfnID": "sec-session-registration-header", "url": "#sec-session-registration-header", "dfnText": "\nSec-Session-Registration", "refSections": [{"refs": [{"id": "ref-for-sec-session-registration-header"}, {"id": "ref-for-sec-session-registration-header\u2460"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-sec-session-registration-header\u2461"}, {"id": "ref-for-sec-session-registration-header\u2462"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-sec-session-registration-header\u2463"}, {"id": "ref-for-sec-session-registration-header\u2464"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": false};
 window.dfnpanelData['sec-session-challenge-header'] = {"dfnID": "sec-session-challenge-header", "url": "#sec-session-challenge-header", "dfnText": "\nSec-Session-Challenge", "refSections": [{"refs": [{"id": "ref-for-sec-session-challenge-header"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}, {"refs": [{"id": "ref-for-sec-session-challenge-header\u2460"}, {"id": "ref-for-sec-session-challenge-header\u2461"}], "title": "7.2.1. Sec-Session-Challenge structured header serialization"}], "external": false};
 window.dfnpanelData['sec-session-response-header'] = {"dfnID": "sec-session-response-header", "url": "#sec-session-response-header", "dfnText": "\nSec-Session-Response", "refSections": [{"refs": [{"id": "ref-for-sec-session-response-header"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-sec-session-response-header\u2460"}], "title": "7.5. DBSC Session Instruction Format"}], "external": false};
 window.dfnpanelData['sec-session-id-header'] = {"dfnID": "sec-session-id-header", "url": "#sec-session-id-header", "dfnText": "\nSec-Session-Id", "refSections": [{"refs": [{"id": "ref-for-sec-session-id-header"}], "title": "7.4. Sec-Session-Id HTTP Header Field"}], "external": false};
