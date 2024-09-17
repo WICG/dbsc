@@ -28,15 +28,14 @@ spec:permissions; type:dfn; text:feature
 </pre>
 
 <pre class="anchors">
-spec: RFC8941; urlPrefix: https://datatracker.ietf.org/doc/html/rfc8941#
-  type: dfn
-    text: sf-dictionary; url: dictionary
-  type: dfn
-    text: sf-item; url: item
-  type: dfn
-    text: sf-string; url: string
-  type: dfn
-    text: sf-inner-list; url: inner-list
+spec: RFC8941;urlPrefix:https://datatracker.ietf.org/doc/html/rfc8941#;type:dfn
+  text: sf-dictionary; url: dictionary
+  text: sf-inner-list; url: inner-list
+  text: sf-item; url: item
+  text: sf-list; url: list
+  text: sf-string; url: string
+  text: sf-token; url: token
+  url:text-parse;text:parsing structured fields
 </pre>
 
 # Introduction # {#intro}
@@ -149,7 +148,7 @@ cookie credential would not apply to a network request, based on user settings,
 applied policies or user agent implementation details, neither would any of the
 DBSC heuristics. This ensures no new privacy behavior due to implementing DBSC.
 
-## Current timing side channel leak ## {#privacy-side-channel-leak}
+## Timing side channel leak ## {#privacy-side-channel-leak}
 If third party cookies are enabled it is possible for an attacker to leak
 whether or not a user is authenticated by measuring how long the request takes
 as the refresh is quite slow, partially due to the latency of TPM operations. 
@@ -270,18 +269,22 @@ The <dfn>session credential</dfn> is a [=struct=] with the following
   Given a [=response=] (|response|), a [=registrable domain sessions=], this
   algorithm updates the [=device bound session/cached challenge=] for a
   [=device bound session=], or immediatly resends the [=DBSC proof=] signed with
-  the new challenge.
+  the new challenge if the [=response/status=] is 401.
 
   1. Let |header name| be "<code>Sec-Session-Challenge</code>".
   1. Let |challenge list| be the result of executing <a>get a structured
     field value</a> given |header name| and "list" from |response|’s
-    [=response/header list=].
+    [=response/header list=]. <a>parsing structured fields</a>
   1. [=list/For each=] |challenge entry| of |challenge list|:
-    1. Get the new |challenge| and |session id| from |challenge entry| as
-      described in [:Sec-Session-Challenge:].
+    1. Parse |challenge entry| according to <a>parsing structured fields</a>.
+    1. If the type of |challenge entry| is not string [=iteration/continue=].
+    1. Let |challenge| be the parsed item.
+    1. Let |session id| be null.
+    1. If params["id"] exists and is a string, Set |session id| to params["id"]
     1. If [=response/status=] is 401, resend this request as is with updated
       |challenge| in [=DBSC proof=]
     1. Otherwise:
+      1. If |session id| is null, [=iteration/continue=]
       1. Identify session as described in [=identify a session=] given
         |response| and |session id| and store as |session object|.
       1. Store |challenge| in |session object| to be used next time a
@@ -291,8 +294,31 @@ The <dfn>session credential</dfn> is a [=struct=] with the following
 ## Session refresh ## {#algo-session-refresh}
 To <dfn export id="refresh-session">Refreshing an existing session</dfn>
 
+## Send request ## {#algo-session-request}
+
 ## Create session ## {#algo-create-session}
-To <dfn export id="create-session">Create a new session</dfn>
+To <dfn export id="create-session">Create a new session</dfn>, start with
+parsing the registration structured header defined in
+[:Sec-Session-Registration:]:
+<div class="algorithm" data-algorithm="process-registration">
+  1. Let |header name| be "<code>Sec-Session-Registration</code>".
+  1. Let |registration list| be the result of executing <a>get a structured
+    field value</a> given |header name| and "list" from |response|’s
+    [=response/header list=].
+  1. [=list/For each=] |registration entry|, |params| → |registration list|:
+    1. Parse |registration entry| as an innner list. Let |algorithm list| be a
+      list of tokens from the inner list where only algorithms supported on this
+      client should be added. If this list is empty return failure.
+    1. If |params|["path"] exists and is a string let |path| be |params|["path"]
+    1. Otherwise return failure.
+    1. Let |challenge| be null and Let |authorization| be null.
+    1. If |params|["challenge"] exists and is a string Set |challenge| to
+      |params|["challenge"].
+    1. If |params|["authorization"] exists and is a string Set |authorization|
+      to |params|["authorization"].
+    1. Call [[#algo-session-request]] with |registration list|, |path|,
+      |challenge| and |authorization| parameters.
+</div>
 
 ## Closing session ## {#algo-close-session}
 To <dfn export id="close-session">close a session</dfn>
@@ -307,42 +333,25 @@ The \`<dfn export http-header id="sec-session-registration-header">
 [=response=] by the server to start a new [=/device bound session=] on the
 client.
 
-\`<a http-header><code>Sec-Session-Registration</code></a>\` is a structured
-header. Its value must be an inner list. It's ABNF is:
+[:Sec-Session-Registration:] is a List Structured Header [[RFC8941]]. Its ABNF
+is:
 
-<pre class="abnf">Sec-Session-Registration = <a>sf-inner-list</a></pre>
-The semantics of the item are defined in
-[[#registration-structured-header-serialization]].
-The processing steps are defined in [[#algo-create-session]].
+<pre class="abnf">Sec-Session-Registration = <a>sf-list</a></pre>
 
-### Sec-Session-Registration structured header serialization ### {#registration-structured-header-serialization}
-The [:Sec-Session-Registration:] is represented as a Structured Field.
-[[!RFC8941]]
+Each item in the list must be an inner list, and each item in the inner list
+MUST be a <a>sf-token</a> representing a supported algorithm (ES256, RS256).
+Only these two values are currently supported.
 
-In this representation, a registration is represented by an inner list of tokens
-with two mandatory and one optional parameter of the inner-list.
-
-The tokens inside the inner-list MUST be either RS256 or ES256, any other items
-inside the inner-list MUST be ignored. Any paramters to the items in the
-inner-list MUST be ignored. These tokens represents crypto algorithms the client
-MAY use to create the device bound key pair. The order of the tokens is not
-significant.
-
-The registration inner list MUST have a Parameter named `"path"`, whose value
-must be a String representing a url to an endpoint sharing the same
-[=host/registrable domain=] as the [=url=] for this [=response=]. This [=url=]
-MAY be relative to the current [=response=].
-
-The registration inner list MUST have a Parameter named `"challenge"`, whose
-value must be a String representing a challenge to be used when registering a
-new session with device bound key pair.
-
-The registration inner list MAY have a Parameter named `"authorization"`, whose
-value must be a String. If this parameter is present, this string will be in the
-[=DBSC proof=] sent to the server during session registration in the field
-called [=DBSC proof/authorization=].
-
-Any other parameters SHOULD be ignored.
+The following parameters are defined:
+- A parameter whose key is "challenge", and whose value is a String (Section 
+  3.3.3 of [[RFC8941]]), conveying the challenge to be used in the session
+  registration.
+- A parameter whose key is "path", and whose value is a String (Section 3.3.3 of
+  [[RFC8941]]), conveying the path to the registration endpoint. This may be
+  relative to the current [=url=], or a full [=url=].
+- A parameter whose key is "authorization", and whose value is a String (Section
+  3.3.3 of [[RFC8941]]), this parameter will be copied into the registration
+  JWT.
 
 <div class="example" id="sec-session-registration-example">
   Some examples of [:Sec-Session-Registration:] from
@@ -371,11 +380,11 @@ Any other parameters SHOULD be ignored.
 The \`<dfn export http-header id="sec-session-challenge-header">
 <code>Sec-Session-Challenge</code></dfn>\` header field can be used in a
 [=response=] by the server to send a challenge to the client that it expects to
-be used in future Sec-Session-Response headers inside the [=DBSC proof=].
+be used in future Sec-Session-Response headers inside the [=DBSC proof=], or to
+request a newly signed [=DBSC proof=] right away if the 
 
-\`<a http-header><code>Sec-Session-Challenge</code></a>\` is a structured
-header. Its value must be a string. It's ABNF is:
-<pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
+[:Sec-Session-Challenge:] is a structured header. Its value must be a string.
+Its ABNF is: <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
 The semantics of the item are defined in
 [[#challenge-structured-header-serialization]].
 
