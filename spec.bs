@@ -277,19 +277,20 @@ The <dfn>session credential</dfn> is a [=struct=] with the following
     [=response/header list=].
   1. [=list/For each=] |challenge entry| of |challenge list|:
     1. Parse |challenge entry| according to <a>parsing structured fields</a>.
-    1. If the type of |challenge entry| is not string [=iteration/continue=].
+    1. If the type of |challenge entry| is not an <a>sf-string</a>,
+      [=iteration/continue=].
     1. Let |challenge| be the parsed item.
     1. Let |session id| be null.
-    1. If params["id"] exists and is a string, Set |session id| to params["id"].
+    1. If params["id"] exists and is a <a>sf-string</a>, Set |session id| to
+      params["id"].
     1. If [=response/status=] is 401, resend this request as is with updated
-      |challenge| in [=DBSC proof=].
-    1. Otherwise:
-      1. If |session id| is null, [=iteration/continue=].
-      1. Identify session as described in [=identify a session=] given
-        |response| and |session id| and store as |session object|.
-      1. If |session object| is null, [=iteration/continue=].
-      1. Store |challenge| in |session object| to be used next time a
-        [=DBSC proof=] is to be sent from this [=device bound session=].
+      |challenge| in [=DBSC proof=] and [=iteration/continue=].
+    1. If |session id| is null, [=iteration/continue=].
+    1. Identify session as described in [=identify a session=] given
+      |response| and |session id| and store as |session object|.
+    1. If |session object| is null, [=iteration/continue=].
+    1. Store |challenge| in |session object| to be used next time a
+      [=DBSC proof=] is to be sent from this [=device bound session=].
 </div>
 
 ## Session refresh ## {#algo-session-refresh}
@@ -355,7 +356,7 @@ The following parameters are defined:
 - A parameter whose key is "path", and whose value is a String (Section 3.3.3 of
   [[RFC8941]]), conveying the path to the registration endpoint. This may be
   relative to the current [=url=], or a full [=url=]. Entries without this
-  parameter will be ignored in [=algo-create-session=].
+  parameter will be ignored in [=Create a new session=].
 - A parameter whose key is "challenge", and whose value is a String (Section 
   3.3.3 of [[RFC8941]]), conveying the challenge to be used in the session
   registration.
