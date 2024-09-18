@@ -6,15 +6,15 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 ## Authors
 
 - [Sameera Gajjarapu](sameera.gajjarapu@microsoft.com), Microsoft
-- [Aleksander Tokarev](alextok@microsoft.com), Microsoft
+- [Aleksandr Tokarev](alextok@microsoft.com), Microsoft
 
 ## Contributors
 
 - [Olga Dalton](), Microsoft
 - [Kristian Monsen](), Google
 - [Phil Leblanc](), Google
-- [Sebastian](), Google
 - [Arnar Birgisson](), Google
+- [Sebastian](), Google
 - [Pamela Dingle](), Microsoft
 - [Paul Garner](), Microsoft
 - [Erik Anderson](), Microsoft
@@ -61,7 +61,7 @@ Device Bound Session Credentials for Enterprise - DBSC(E), is an enhancement to 
 
 ## Why DBSC(E)?
 
-While the original DBSC proposal enables browsers to bind session cookies to a device providing protection from network based attacks, it still remains vulnerable to "on device" malware. Temporary malware on the device can inject its own binding keys when the DBSC session is established during any signin operaton. If a DBSC session is already established when the malware gains access to the system, the malware can force a new signin operation, and potentially hijack all subsequent sessions. 
+While the original DBSC proposal enables browsers to bind session cookies to a device providing protection from network based attacks, it still remains vulnerable to "on device" malware. Temporary malware on the device can inject its own binding keys when the DBSC session is being established during any signin operaton. If a DBSC session is already established when the malware gains access to the system, the malware can force a new signin operation, and potentially hijack all subsequent sessions. 
 
 DBSC(E) aims to mitigate this risk by introducing the concept of `one-time protected` [device registration](#device-registration) operation and binds all the future sessions to binding keys that can be cryptographically proven to be on the same device. DBSC(E) is able to provide this risk mitigation if the device registration is a `protected` operation, meaning it is performed in a ["clean room"](#device-registration-client)) enviroment e.g. an organization registering a device before giving a device to an employee. As device registration is expected to be a `one-time` operation, the user will not be required to perform this operation again, reducing opportunities for malware to compromise a user session. 
 
@@ -146,7 +146,7 @@ Note: Above are platform specifications for Local Key Helpers that can be used f
 
 ### Attestation Service
 
-Attestation service is responsible for providing the attestation statement for the binding key. DBSC(E) relies on the attestation service to enable the IDP to validate the binding statement and ensure that the binding key and the device key belong to the same device. An attestation service can be part of the IdP, or a separate service. 
+Attestation service is responsible for providing the attestation statement for the binding key. DBSC(E) relies on the attestation service to enable the IDP to validate the binding statement and ensure that the binding key and the attestation key belong to the same device. An attestation service can be part of the IdP, or a separate service. 
 
 This document does not define the implementation details of the Attestation Service. It defines the artifacts which are generated during the [Device Registration](#device-registration-client) and are necessary to validate the binding statement.
 
@@ -163,7 +163,7 @@ An _attestation key_ is generated during the device registration process and has
 
 In addition, the _attestation key_ can be uploaded only once to the backend at the moment of device registration, in the clean room, and is seldom changed unless the device loses it.
 
-The _attestation key_, hence, can be used to attest that the [binding key](#binding-key) belongs to the same device as the _attestation key_, by signing the public part of the _binding key_ (with the _attestation key_) and generating an _attestation statement_. Depending on the specific implementation, this _attestation statement_ itself can be a _binding statement_, or it can be sent to an [attestation service](#attestation-service) to produce the final _binding statement_. 
+The _attestation key_, hence, can be used to attest that the [binding key](#binding-key) belongs to the same device as the _attestation key_ by signing the public part of the _binding key_ (with the _attestation key_) if it finds a corresponding private key in the same secure enclave, and generating an _attestation statement_. Depending on the specific implementation, this _attestation statement_ itself can be a _binding statement_, or it can be sent to an [attestation service](#attestation-service) to produce the final _binding statement_. 
 
 Note: _Attestation Key_ is also referred as _AIK_ in the document in some of the flow diagrams below.
 
@@ -175,7 +175,12 @@ This _binding key_ for DBSC(E) is similar to the artifact defined in the DBSC pr
 
 ##### Binding Statement
 
-Additional to the _binding key_, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the device key. Details on how this statement is issued are out of scope for this document. However, the validation of the binding statement is a key building block of the DBSC(E) protocol. The validation of the _binding statement_ authenticates the device by using device ID to find the corresponding _attestation key_. The validation component verifies the _binding statement_, and it can understand that such a statement cannot be generated unless the private key resides in the same secure enclave when signed by the _attestation key_. Hence, a valid _binding statement_ means that both the _attestation key_ and the _binding key_ belong to the same device. 
+Additional to the _binding key_, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the attestation key. Details on how this statement is issued and its format is specific to each local key helper. 
+
+- For a _public local key helper_, the _binding statement_ is usually signed by an asymmetric key from the attestation service, and should not include any device identifying information, like device id etc. The validation of the _binding statement_ is a simple signature validation of public service.
+- For a _private local key helper_, The _binding statement_ is usually signed by the _attestation key_. The validation of the _binding statement_ authenticates the device to find the deviceId, and by using deviceId to find the corresponding _attestation key_. 
+
+The validation component verifies the _binding statement_, and it can understand that such a statement cannot be generated unless the private key resides in the same secure enclave when signed by the _attestation key_. Hence, a valid _binding statement_ means that both the _attestation key_ and the _binding key_ belong to the same device. 
 
 Binding statements can be long-lived or short-lived. 
 - If an IdP performs fresh device authentication outside of DBSC(E) integration at the time of _binding key_ validation, then the _binding statement_ can be long lived, as the IdP ensures the device identity through other mechanisms. 
@@ -195,6 +200,8 @@ The high-level design is divided into two parts:
 Since we want to integrate DBSC(E) with the original design and make it as widely applicable as possible for all enterprise users, we are adding high-level design for the most possible combinations in this document. The intent is to have a specification that can be implemented by any browser vendor, and can be used by any IdP, and any Local Key Helper. As we cover different use cases DBSC(E) can be applied for, we differentiate between private and public local key helpers, since there are implications to the protocol based on the type of local key helper. For example, we expect well establised IdPs like Microsoft, Github to ship their own private local key helpers. DBSC(E) protocol also provides multiple extension points that simplify and improve performance for specific scenarios. The [DBSC(E) use cases](#dbsce-use-cases) section expands on some of these scenarios.
 
 DBSC(E) (in contrast with DBSC):
+
+Note: In this case, IDP is same as RP, calls a Public Local Key Helper.
 
 ![DBSC(E) Highlevel Design](<./DBSC(E).svg>)
 
@@ -262,10 +269,10 @@ In DBSC(E), the use of private local key helper for specific IDPs enables the be
 
 - An IDP can specify its preferred ordered list of `HelperId`s in any response, and can request the browser to cache its preference for a specific duration (`HelperCacheTime`). The IDP which is capable of DBSC(E) can specify its `HelperIdList` in any communication(request/response) within the browser context. 
 - The caching of `HelperId` is more beneficial for private local key helper for two reasons:
-  - Since the IDP is associated mostly with the same local key helper, it us unlikely to change often.
+  - Since the IDP is associated mostly with the same local key helper, it is unlikely to change often.
   - `long lived` binding statements are possible with private key local helper (more below), eliminating the need for an additional redirect to fetch the IDP nonce for the binding statement.
-- The IDP and the private local key helper can also leverage `long lived` binding statements. If the IdP can establish the proof of possession of the device by its own proprietary mechanism for a given request, then it can accept binding statements without requiring fresh `nonce` challenge for those. Once the device authentication is complete, the IDP can use the long lived binding statements for binding proof. Browser can cache those binding statements for further performance optimization.
-- RP can combine the request for a DBSC(E) startsession as a part of the IDP redirection during sign-in. If the key generation and sign in are successful, the browser must intercept the response for the sign-in flow and append the new JWT proof (which is generated by the local key helper) on navigation to the RP. This allows the RP to avoid an additional round trip to initiate the DBSC(E) session. 
+- The IDP and the private local key helper can also leverage `long lived` binding statements. If the IdP can establish the proof of possession of the device by its own proprietary mechanism for a given request, then it can accept binding statements without requiring fresh `nonce` challenge for those. Once the device authentication is complete, the IDP can use the long lived binding statements for binding proof. Browser can cache those binding statements for further performance optimization with an optional signal from the local key helper.
+- RP can combine the request for a DBSC(E) startsession as a part of the IDP redirection during sign-in. If the key generation and sign in are successful, the browser must intercept the response for the sign-in flow and append the new JWT proof (which is generated by the local key helper) on navigation to the RP. This allows the RP to avoid an additional round trip to initiate the DBSC(E) session, based on the URL (and optionally KeyId).
 
 
 ![IDPCallsPrivateLocalKeyHelper](./IDPCallsPrivateLocalKeyHelper.svg)
@@ -280,4 +287,3 @@ The cleanup can occur:
 
 - When cookies are expired.
 - On demand, when the user decides to clear browser cookies.
-- Automatically, when a key hasn't been used for a long time (N days) to keep the OS healthy.
