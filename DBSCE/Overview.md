@@ -177,7 +177,7 @@ This _binding key_ for DBSC(E) is similar to the artifact defined in the DBSC pr
 ##### Binding Statement
 
 Additional to the _binding key_, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the attestation key. Details on how this statement is issued and its format is specific to each local key helper. 
-- For a _public local key helper_, the _binding statement_ must be signed by an asymmetric key from the _attestation service_, and should not include any device identifying information, like device id etc. The validation of the _binding statement_ is a simple signature validation by the _attestation service_.
+- For a _public local key helper_, the _binding statement_ must be signed by an asymmetric key from the _attestation service_, and should not include any device identifying information, like device id etc. The validation of the _binding statement_ is a simple signature validation that ensures that it is signed by the same key from the _attestation service_.
 - For a _private local key helper_, The _binding statement_ must be signed by the _attestation key_. During the validation of the _binding statement_, the IDP authenticates the device to find the deviceId, and uses the deviceId to find the corresponding _attestation key_ which helps with the validation. Device authentication with the IDP is out of scope of this protocol.
 
 The validation component verifies the _binding statement_, and it can understand that such a statement cannot be generated unless the private key resides in the same secure enclave when signed by the _attestation key_. Hence, a valid _binding statement_ means that both the _attestation key_ and the _binding key_ belong to the same device. 
@@ -186,7 +186,7 @@ Binding statements can be long-lived or short-lived.
 - If an IdP performs fresh device authentication outside of DBSC(E) integration at the time of _binding key_ validation, then the _binding statement_ can be long lived, as the IdP ensures the device identity through other mechanisms. 
 - IdPs that do not perform proof of possession of the device, the ones that use public local key helpers, must use short-lived binding statements. Otherwise, the attacker will be able to bind the victim's cookies to malicious keys from a different machine. A short-lived binding statement must have an embedded nonce sent by the IdP to validate that it is a fresh binding statement, minimizing the attack window. 
 
-Since there could be multiple devices supported by a [device registration client](#device-registration-client) and since it is possible for a device to be unknown when the local key helper is invoked during authentication, multiple binding keys can be issued for a single binding key. This is especially true for [private local key helpers](#idp-calls-private-local-key-helper).
+Since there could be multiple devices supported by a [device registration client](#device-registration-client) and since it is possible for a device to be unknown when the local key helper is invoked during authentication, multiple binding statements can be issued for a single binding key. This is especially true for [private local key helpers](#idp-calls-private-local-key-helper).
 
 ## High-Level Design
 
