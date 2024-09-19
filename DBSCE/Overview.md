@@ -24,34 +24,35 @@ This is the repository for Device Bound Session Credentials for Enterprise. You'
 
 ## Participate (TBD links)
 
-- [Issue tracker]()
+- [Issue tracker](https://github.com/WICG/dbsc/issues)
 - [Discussion forum]
 
 ## Table of Contents
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-  - [Overview](#overview)
-  - [Why DBSC(E)?](#why-dbsce)
-  - [How does it integrate with DBSC?](#how-does-it-integrate-with-dbsc)
-  - [Terminology](#terminology)
-    - [Browser](#browser)
-    - [Relying Party (RP)](#relying-party-rp)
-    - [Identity Provider (IdP)](#identity-provider-idp)
-    - [Device Registration Client](#device-registration-client)
-    - [Local Key Helper](#local-key-helper)
-      - [Platform Requirements](#platform-requirements)
-    - [Attestation Service](#attestation-service)
-      - [Key Generation Specifics](#key-generation-specifics)
-        - [Attestation Key](#attestation-key)
-        - [Binding Key](#binding-key)
-        - [Binding Statement](#binding-statement)
-  - [High-Level Design](#high-level-design)
-    - [DBSC(E) use cases](#dbsce-use-cases)
-      - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
-      - [IDP Calls Public Local Key Helper](#idp-calls-public-local-key-helper)
-      - [IDP Calls Private Local Key Helper](#idp-calls-private-local-key-helper)
-    - [Cleanup of the binding keys and their artifacts](#cleanup-of-the-binding-keys-and-their-artifacts)
+- [Overview](#overview)
+- [Why DBSC(E)?](#why-dbsce)
+- [How does it integrate with DBSC?](#how-does-it-integrate-with-dbsc)
+- [Terminology](#terminology)
+  - [Browser](#browser)
+  - [Relying Party (RP)](#relying-party-rp)
+  - [Identity Provider (IdP)](#identity-provider-idp)
+  - [Device Registration Client](#device-registration-client)
+  - [Local Key Helper](#local-key-helper)
+    - [Platform Requirements](#platform-requirements)
+  - [Attestation Service](#attestation-service)
+    - [Key Generation Specifics](#key-generation-specifics)
+      - [Attestation Key](#attestation-key)
+      - [Binding Key](#binding-key)
+      - [Binding Statement](#binding-statement)
+- [High-Level Design](#high-level-design)
+  - [DBSC(E) additional use cases](#dbsce-additional-use-cases)
+    - [IDP Calls Public Local Key Helper](#idp-calls-public-local-key-helper)
+    - [IDP Calls Private Local Key Helper](#idp-calls-private-local-key-helper)
+  - [Cleanup of the binding keys and their artifacts](#cleanup-of-the-binding-keys-and-their-artifacts)
+  - [Appendix](#appendix)
+    - [IDP is RP and Calls Public Local Key Helper](#idp-is-rp-and-calls-public-local-key-helper)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -176,9 +177,8 @@ This _binding key_ for DBSC(E) is similar to the artifact defined in the DBSC pr
 ##### Binding Statement
 
 Additional to the _binding key_, the local key helper also generates a _binding statement_, a statement that asserts the binding key was generated on the same device as the attestation key. Details on how this statement is issued and its format is specific to each local key helper. 
-
-- For a _public local key helper_, the _binding statement_ is usually signed by an asymmetric key from the attestation service, and should not include any device identifying information, like device id etc. The validation of the _binding statement_ is a simple signature validation of public service.
-- For a _private local key helper_, The _binding statement_ is usually signed by the _attestation key_. The validation of the _binding statement_ authenticates the device to find the deviceId, and by using deviceId to find the corresponding _attestation key_. 
+- For a _public local key helper_, the _binding statement_ must be signed by an asymmetric key from the _attestation service_, and should not include any device identifying information, like device id etc. The validation of the _binding statement_ is a simple signature validation by the _attestation service_.
+- For a _private local key helper_, The _binding statement_ must be signed by the _attestation key_. During the validation of the _binding statement_, the IDP authenticates the device to find the deviceId, and uses the deviceId to find the corresponding _attestation key_ which helps with the validation. Device authentication with the IDP is out of scope of this protocol.
 
 The validation component verifies the _binding statement_, and it can understand that such a statement cannot be generated unless the private key resides in the same secure enclave when signed by the _attestation key_. Hence, a valid _binding statement_ means that both the _attestation key_ and the _binding key_ belong to the same device. 
 
@@ -190,7 +190,7 @@ Since there could be multiple devices supported by a [device registration client
 
 ## High-Level Design
 
-DBSC(E), if enabled for a given enteprise, specifies the generation of the cryptographic artifacts (keys and binding info) before a sign in session is established. By enabling the browser to invoke specific APIs based on an enterprise policy, it allows enterprises to add to the existing key generation. It also allows them to place stricter restrictions on specific sessions, hence providing the flexibility to secure a session appropriately.
+DBSC(E), if enabled for a given enterprise, specifies the generation of the cryptographic artifacts (keys and binding info) before a sign in session is established. By enabling the browser to invoke specific APIs based on an enterprise policy, it allows enterprises to add to the existing key generation. It also allows them to place stricter restrictions on specific sessions, hence providing the flexibility to secure a session appropriately.
 
 The high-level design is divided into two parts:
 
@@ -218,7 +218,7 @@ Note: All references to RP, IDP are equivalent to `server` in the original [DBSC
       - The allowance for long lived _binding statement_ is possible with _private local key helpers_ where the IDP can use other means to establish fresh proof of possession of the device. This is covered in detail in [later sections](#idp-calls-private-local-key-helper).
       - `nonce` also helps prevent the clock skew between servers where IDP and Attestation servers are from different vendors. Since the `nonce` sent by the IDP is embedded in the _binding statement_, the IDP will be able to validate `nonce` to ensure the _binding statement_ is issued recently.
       - `nonce` is generated by the IdP/RP as a part of the request, is a random number that MUST be unique, MUST be time sensitive and MUST be verifiable by the issuer. 
-   - The `Sec-Session-HelperIdList` header contains an _ordered list_ of helper IDs that the browser can use to generate the key. The browser must prefer the first available and enabled `HelperId` from the list. The browser will then call the Local Key Helper with the `HelperId` to generate the key. There is also an optional `HelperCacheTime` which can cache a preferred `HelperId` for the IDP in the browser for a given time. 
+   - The `Sec-Session-HelperIdList` header contains an _ordered list_ of helper IDs that the browser can use to generate the key. The browser must prefer the first available and enabled `HelperId` from the list. The browser will then call the Local Key Helper with the `HelperId` to generate the key. There is also an optional `HelperCacheTime` which can cache a `HelperIdList` for the IDP in the browser for a given time. 
 
 1. **Key and Binding Statement Generation (steps 3-7):** The Local Key Helper generates the key and the binding statement. AIK refers to the `Attestation Key` described [above](#attestation-key). The binding statement is expected to contain `nonce`(challenge) sent by the IdP, the thumbprint(a cryptographic hash digest) of the `publicKey`(public part of the [binding key](#binding-key)), and any extra claims that the IdP wants to send.
 
@@ -229,24 +229,9 @@ Note: All references to RP, IDP are equivalent to `server` in the original [DBSC
 
 1. **SignIn Succeeds with binding (steps 10-14)**: At this point, all DBSC(E) specific steps are completed. The server returns signed in content with a special header response to the browser: `Sec-Session-Registration` indicated the session is expected to be DBSC compliant. All steps further are as per the original DBSC proposal with two caveats: The _local key helper_ is called for JWT generation and the additional params introduced for DBSC(E) customization can be optionally added.
 
-### DBSC(E) use cases
+### DBSC(E) additional use cases
 
 This section expands on the [generic design](#high-level-design) to address different enterprise use cases:
-
-#### IDP is RP and Calls Public Local Key Helper
-
-This is the similar use case elaborated in the high level design [above](#high-level-design). This use case covers where an IDP/RP calls a [_public Local Key Helper_](#local-key-helper). The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
-
-![IDPSameAsRP-CallsPublicLocalKeyHelper](./IDPSameAsRP-CallsPublicLocalKeyHelper.svg)
-
-[Link to editable diagram](https://sequencediagram.org/index.html#initialData=C4S2BsFMAIEkBMAK0DOBDAtjNLoCVEAaaAYzXHFzWgAcBXAI3BBOgBkB7M8aAaUgCe0ABKRwNSACcAUNLR1gHAHZ0MDKdACM0mmkmgSIXUuDQARHjECQSgObREe4ALPQc0AOo6nLI2hPmCIiu7rDe+r7GpmYAQpIcAO4oUiG4MeEGfgFmnNx8giJiEpKpDhmR-tEAgsDAkCjAaKDKAMpSAG4skKVVskocddAc7RoexFUAXNAtILZK0DYAdMvSHgC0AHwbMVMtjfqos-M20AAUAMwADABMAJTQADpKT20ka20oKCDKawDikEopE1IPwBFMngQAKqScDEWAAEUQ0NhpAAFuQoHZIABefpKEiQYiQAAewEkaEc5IwKGWiyeL0gbw+Xx+onEUgQbBADXBSgA2mzighNMRBRz4NcALqiopSADCaBIqMgABUQFhZDFNtspiQ6JJJADgGLJAhoNjHkoAKLtch0YG0DjMEhCABmHEkZyCxAFstN8BFhXZ-uuhFpktu0i1W0QU0QhrWtgB0AA1gV-PBLU06g0zlCYXDEcjiEqMQCk7jlASiaTycBKZgactI9JENrY9B-oC6zBQbI21tJp3IKYYjZ4DZ7HtgVgAk8zvQmCxQeNYLwS+iKOWcXiCZGqu2ppZgPr5gxx5PUI06rPTE8AN7QXeE6DAVGqBg0SQ2YCnRfO0FbhrMk0DlcA0HVJtFmgABfVttR2fIBAQYgIRHU9oHPJQJzsK8ZyNS1H2fYg3w-L8fz-RgAMEIDoBJECwIg6laVgqMEKPSAsDUDQ325VMCj491PQIM4M2gDA0AEdRaCaVFI2jDZYCmTg0EzL45jWE4GSZeoWSUNZQRQKZQRQy0x2wy8GnwuclCIqsX1fd81HIkxKKXEhAOA8lGMgli4NgbUlOgW1mHgB11KUJp9RgJ5lEcmAsJw+wrJvAixOIy0Gg9GBSOc78TFkAKtkQmY5gWeYCUNDBlAENitiC0r5ngZRIEK7UPCmKpEFgU4qgUVFXw4NMlFwBIwAG3LP3y4BiBM+AW36QZhlGcYplgJQwBAB14RiFo5WgWlVnY6BrkuS5oAAeV4S1XneXTvn0yxbG5EDmiUXldDfYgCDlTdMSTEihoBAB+WbBFM+jyQbak6o2DtLAARzoepTEa6AACkPBVM59RADcyyxQHhtB-jkPgEmACoKchik9EbWkqcjAcdXwdDJHmTHscaqLDVhjqHAulpsYAemSPVDWST4HtF-ZgElvSzk5omARQSN1i2fmADVyBAMLBiVy1TgSYXxKaJVHLI6byviwbhtVo7is6-q5Q4IaQFa6RFpgZbPTGaAh0sV0JYGna9sOhT+d+K0RbF6L5elw0g-qAbTnj5QETV47foJgHoCpmnoagqnYfhyAkZR6YjgxrGzjTpQEWIfPa1pqki4ppnjuPDDOcruYedaiOpijmPGTj+7lGFxPg8VrHM41qZtdCh0e6N4X-xYUmhnmV0QCgOeWb6t8Xbd1qgA)
-
-Highlights:
-
-- The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
-- Auth tokens are not mentioned in the DBSC(E) high level design to simplify the over all scenario. However, most signin/access operations will often make use of auth tokens and issue cookies based on those tokens. In such case, the IdP can generate the auth tokens and embed the thumbprint of the publicKey in the token.
-- The tokens can be delivered to the RP directly through an API instead of a header based response since they are the same server in this use case.
-- The tokens also contain the thumbprint of the publicKey, and the RP must validate the thumbprint from the token against the thumbprint from the JWT. The RP will also embed the thumbprint in the cookie for subsequent session validation.
 
 #### IDP Calls Public Local Key Helper
 
@@ -260,6 +245,12 @@ For easy mapping with the existing DBSC proposal, please note:
 ![IDPCallsPublicLocalKeyHelper](./IDPCallsPublicLocalKeyHelper.svg)
 
 [Link to editable diagram](https://sequencediagram.org/index.html#initialData=C4S2BsFMAIEkBMAK0DGBDc4DO03QA4CuARuCCtADID2640A0pAJ7QASk4+kATgFB80hYNQB2hALbFe0AIx98aHqBQhFo4NABEAJU7MQogObRES4My24cAdQXnyatBu0JEVtDlj3lj9Zq0AIR5qAHcsXg8cQJ8VJxctGjpGFnZObh4o01i-ZwCAQWBgSCxgNFAxAGVeADdySCz8gVFqYuhqGpkbABpofIAuaEqQI1FoQwA6Kb4bAFoAPnnAwcqy5WgsEbHDaAAKAGYABgAmAEo+QIX52EGaNHgNrdmd3YAzakww6GAACxgjs4CWBXZZDSAoWbVLCbMSzADikFEvHKkCYzEGAB1RDpEABVHjgXqwAAieIJvRQPwwUGMkAAvC1RChIL1IAAPYA8NBmLkSLBTCZYrHVCFQmGiWYcLi8BCUEClTGiADaUoyCFkvVVMvgxwAupr0rwAMJoSmQAAqIAkkAuIMGKEIPB4iOAWp4CGgdOgWIAojUMIQUQQPuRWO8eHs3L0VYb3fANWlpXHjt0BbrzpdFohBohnbMjIjoABrVLOB5Y8rFUp7HH4wlwUl13pYynUxEFhliZmsjlcnloPkC858RBXbPQBFIrltNECUeLAYTyCaQKGeCGEyrFHWlxY3ZEUjkNG9fKwBgUqmYdv0xnM875MeDPTAR1jYhrjcbMrFHeaLEAb2gW8WW+H5JGIfAeEMYB9xIMgUDRU4e05NAjXANArX5KZoAAXxHO0UmYBBm2xZdX2gd9RHXYwv23F1vVEQDgN6X5wMg6DYMPBCWCQ6B2RQtCMMHbC8MzJYn0ga0pBkX55WLVI5PDaAcT2MtoAkNBmGkAhyh+DMrhuMFRRKcVZjRLBBjRYiGNXKjP1KOjd0YoCuxA1ipHYjROPgxDkK5QTMIFXC+GBRZDP9Mh4CDTZRnKR0YDEUCYEo6iTAcn96KxAAyFymRA0pqGdUC2KgjQgQI4ZRnGMZmWdCQxGYW0wpWLZoHgMQbRCgj8mEH5vmoEtRBwXZQjAPr3Ig0rgF4rErPgJr5hsQYet+frBuG0bVomzzppIubmlaBLOgjHo+kGWBRDAEAg2JQJKiNaABRmCq1mAMUQESvdWyvWlOzyliBsRAB+Xo5pB6AACoIf4vslAHLCJih-SswkgBHQgSk0SqxgAKRsc0GN2R0QAvNtfuYrE1uB3oSyI+BwahmHuTh4TEYh8553E5SyJ4XH8aGLY4udBaltMAB5SoCYAegiB1nQiaEPtEGXXoV8U9jx80AfW845kWUWADUMBAKK2k1kiRql9TykpYqPKmhidl+GARB157FlBFafiNagBpATqWjaDouhPCTXnlvrbvup6xNFuEfWl2X4rVpWpedcOSj63YU7EEldYIo1LxpAtekZ3tmd5BGoYW8c9HRzGBaqzW9hz0QSVL6Hy-7Vmkfwj2JJfXnoGb7GhZtWPBnjxPwWTkzU-TiONfx-P9cGI3IqDZu91CKWD3g+TWES14QCgFeua9n2-ZtIA)
+
+Highlights:
+
+- The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
+- Auth tokens are not mentioned in the DBSC(E) high level design to simplify the over all scenario. However, most signin/access operations will often make use of auth tokens and issue cookies based on those tokens. In such case, the IdP can generate the auth tokens and embed the thumbprint of the publicKey in the token.
+- The tokens also contain the thumbprint of the publicKey, and the RP must validate the thumbprint from the token against the thumbprint from the JWT. The RP will also embed the thumbprint in the cookie for subsequent session validation.
 
 #### IDP Calls Private Local Key Helper
 
@@ -287,3 +278,15 @@ The cleanup can occur:
 
 - When cookies are expired.
 - On demand, when the user decides to clear browser cookies.
+
+### Appendix
+
+#### IDP is RP and Calls Public Local Key Helper
+
+This is the similar use case elaborated in the high level design [above](#high-level-design). This use case covers where an IDP/RP calls a [_public Local Key Helper_](#local-key-helper). The binding statement is expected to be short lived as elaborated in the [high level design](#high-level-design).
+
+![IDPSameAsRP-CallsPublicLocalKeyHelper](./IDPSameAsRP-CallsPublicLocalKeyHelper.svg)
+
+[Link to editable diagram](https://sequencediagram.org/index.html#initialData=C4S2BsFMAIEkBMAK0DOBDAtjNLoCVEAaaAYzXHFzWgAcBXAI3BBOgBkB7M8aAaUgCe0ABKRwNSACcAUNLR1gHAHZ0MDKdACM0mmkmgSIXUuDQARHjECQSgObREe4ALPQc0AOo6nLI2hPmCIiu7rDe+r7GpmYAQpIcAO4oUiG4MeEGfgFmnNx8giJiEpKpDhmR-tEAgsDAkCjAaKDKAMpSAG4skKVVskocddAc7RoexFUAXNAtILZK0DYAdMvSHgC0AHwbMVMtjfqos-M20AAUAMwADABMAJTQADpKT20ka20oKCDKawDikEopE1IPwBFMngQAKqScDEWAAEUQ0NhpAAFuQoHZIABefpKEiQYiQAAewEkaEc5IwKGWiyeL0gbw+Xx+onEUgQbBADXBSgA2mzighNMRBRz4NcALqiopSADCaBIqMgABUQFhZDFNtspiQ6JJJADgGLJAhoNjHkoAKLtch0YG0DjMEhCABmHEkZyCxAFstN8BFhXZ-uuhFpktu0i1W0QU0QhrWtgB0AA1gV-PBLU06g0zlCYXDEcjiEqMQCk7jlASiaTycBKZgactI9JENrY9B-oC6zBQbI21tJp3IKYYjZ4DZ7HtgVgAk8zvQmCxQeNYLwS+iKOWcXiCZGqu2ppZgPr5gxx5PUI06rPTE8AN7QXeE6DAVGqBg0SQ2YCnRfO0FbhrMk0DlcA0HVJtFmgABfVttR2fIBAQYgIRHU9oHPJQJzsK8ZyNS1H2fYg3w-L8fz-RgAMEIDoBJECwIg6laVgqMEKPSAsDUDQ325VMCj491PQIM4M2gDA0AEdRaCaVFI2jDZYCmTg0EzL45jWE4GSZeoWSUNZQRQKZQRQy0x2wy8GnwuclCIqsX1fd81HIkxKKXEhAOA8lGMgli4NgbUlOgW1mHgB11KUJp9RgJ5lEcmAsJw+wrJvAixOIy0Gg9GBSOc78TFkAKtkQmY5gWeYCUNDBlAENitiC0r5ngZRIEK7UPCmKpEFgU4qgUVFXw4NMlFwBIwAG3LP3y4BiBM+AW36QZhlGcYplgJQwBAB14RiFo5WgWlVnY6BrkuS5oAAeV4S1XneXTvn0yxbG5EDmiUXldDfYgCDlTdMSTEihoBAB+WbBFM+jyQbak6o2DtLAARzoepTEa6AACkPBVM59RADcyyxQHhtB-jkPgEmACoKchik9EbWkqcjAcdXwdDJHmTHscaqLDVhjqHAulpsYAemSPVDWST4HtF-ZgElvSzk5omARQSN1i2fmADVyBAMLBiVy1TgSYXxKaJVHLI6byviwbhtVo7is6-q5Q4IaQFa6RFpgZbPTGaAh0sV0JYGna9sOhT+d+K0RbF6L5elw0g-qAbTnj5QETV47foJgHoCpmnoagqnYfhyAkZR6YjgxrGzjTpQEWIfPa1pqki4ppnjuPDDOcruYedaiOpijmPGTj+7lGFxPg8VrHM41qZtdCh0e6N4X-xYUmhnmV0QCgOeWb6t8Xbd1qgA)
+
+
