@@ -16,21 +16,26 @@ This is the repository for Device Bound Session Credentials. You're welcome to
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Introduction](#introduction)
-  - [Goals [or Motivating Use Cases, or Scenarios]](#goals-or-motivating-use-cases-or-scenarios)
+  - [Goals](#goals)
   - [Non-goals](#non-goals)
-  - [What makes Device Bound Session Credentials different](#what-makes-device-bound-secure-credentials-different)
+  - [What makes Device Bound Session Credentials different](#what-makes-device-bound-session-credentials-different)
     - [Application-level binding](#application-level-binding)
     - [Browser-initiated refreshes](#browser-initiated-refreshes)
   - [TPM considerations](#tpm-considerations)
   - [Privacy considerations](#privacy-considerations)
+  - [Enterprise support](#enterprise-support)
 - [High level overview](#high-level-overview)
   - [Start Session](#start-session)
+    - [Session Registration Header](#session-registration-header)
+    - [Session Registration JWT](#session-registration-jwt)
+    - [Session Registration instructions JSON](#session-registration-instructions-json)
   - [Maintaining a session](#maintaining-a-session)
     - [Refresh procedure](#refresh-procedure)
     - [Ending a session](#ending-a-session)
 - [Interactions with other APIs](#interactions-with-other-apis)
   - [Login Status API](#login-status-api)
   - [Interaction with Inactive Documents (BFCache, Prerendering)](#interaction-with-inactive-documents-bfcache-prerendering)
+- [Alternative JavaScript API for StartSession](#alternative-javascript-api-for-startsession)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
