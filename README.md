@@ -236,7 +236,7 @@ The challenge applies to the current context if "id" is not present; otherwise i
 
 Subsequently, as long as the browser considers this session "active", it follows the steps above, namely by refreshing the auth_cookie whenever needed, as covered in the next section.
 
-Note if multiple cookies are required, the browser returns multiple Set-Cookie headers, with corresponding entries in the "credentials" array in the response body.  
+Note if multiple cookies are required, the server returns multiple Set-Cookie headers, with corresponding entries in the "credentials" array in the response body.  
 
 ### Maintaining a session
 As long as the named cookie is not expired the browser will keep sending requests as normal. Once the cookie is expired the browser will hold all requests for the scope of the cookie, except where the server excluded the paths in the registration, while refreshing the cookie. This is where the browser driven protocol makes a difference, if not for this there would be potentially many requests without the required cookie.
