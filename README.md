@@ -155,10 +155,10 @@ POST /securesession/startsession HTTP/1.1
 Host: auth.example.com
 Accept: application/json
 Cookie: whatever_cookies_apply_to_this_request=value;
-Sec-Session-Response: registration JWT
+Sec-Session-Response: JWT Proof
 
 ```
-The JWT is signed with the newly created private key, and needs to contain the following values (the public key is in the [JWK](https://datatracker.ietf.org/doc/html/rfc7517) format):
+The JWT proof is signed with the newly created private key, and needs to contain the following values (the public key is in the [JWK](https://datatracker.ietf.org/doc/html/rfc7517) format):
 ```jsonc
 // Header
 {
@@ -284,10 +284,10 @@ The browser replies to that response with a Sec-Session-Response header, contain
 
 ```http
 POST /securesession/refresh HTTP/1.1
-Sec-Session-Response: refresh JWT
+Sec-Session-Response: JWT proof
 ```
 
-The JWT contains:
+The JWT proof contains:
 ```json
 {
   "jti": "challenge_value",
