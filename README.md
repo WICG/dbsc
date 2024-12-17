@@ -46,12 +46,8 @@ DBSC offers an API for websites to control the lifetime of such keys, behind the
 
 DBSC is bound to a device with cryptographic keys that cannot be exported from the user’s device under normal circumstances, this is called device binding in the rest of this document. DBSC provides an API that servers can use to create a session bound to a device, and this session can periodically be refreshed with an optional cryptographic proof the session is still bound to the original device. At sign-in, the API informs the browser that a session starts, which triggers the key creation. It then instructs the browser that any time a request is made while that session is active, the browser should ensure the presence of certain cookies. If these cookies are not present, DBSC will hold network requests while querying the configured endpoint for updated cookies.
 
-DBSC does not define what is a device, but leaves that to operating system the user agent is running on. Different operating system can have different implementations of this, for example if the keys should migrated through backup and restore, as long as the threats in the goal section is protected against. This also means that new operating systems can decide what makes most sense for the users of these devices.
-
 ### Goals
 Reduce session theft by offering an alternative to long-lived cookie bearer tokens, that allows session authentication that is bound to the user's device. This makes the internet safer for users in that it is less likely their identity is abused, since malware is forced to act locally and thus becomes easier to detect and mitigate. At the same time the goal is to disrupt the cookie theft ecosystem and force it to adapt to new protections.
-
-The main threat DBSC is protecting against is an attacker that is running on the clients device, possibly with priviledged access, this includes the user agent itself. How the keys are stored is defined by the operating system, and different operating system can innovate with different solutions that for example are more reliable or with lower latency.
 
 ### Non-goals
 DBSC will not prevent temporary access to the browser session while the attacker is resident on the user’s device. The private key should be stored as safe as modern desktop operating systems allow, preventing exfiltration of the session private key, but the signing capability will still be available for any program running as the user on the user’s device. 
