@@ -340,12 +340,15 @@ It is important that the user is always in control and can delete the session ke
 ### Interaction with Inactive Documents (BFCache, Prerendering)
 When a session is ended for any reason, any inactive documents which had access to that session's credentials should be destroyed. This ensures that pages in BFCache or that are pre-rendering that contain information guarded by those credentials are not presented after the session has ended.
 
-## Alternative JavaScript API for StartSession
+## Future possibility: JavaScript API for StartSession
+
+The JavaScript API is not currently implemented, and not planned to be part of the iniital DBSC launch. The text below describes one possible future shape for that API.
+
 ![Start session diagram](dbsc_js_v2.svg)
 
 [Link to editable diagram](https://sequencediagram.org/index.html#initialData=A4QwTgLglgxloDsIAIDqBTARsgCiA5ugFCiSzwhLICqAzumMgIKFInjRyIoDKDAbgyJF8YAPYBXYMh4QOyerVpQxCIhmx5CAWgB8dBs1YQAXMgQh+UfCAhiwAOnowJYdIuWqncyAAoHAQCURAhiEOjIYoKMBows6EgAxADuABbotiYAwm62EQDW6ACeyKBQYESxRgkQenxg0SY4API8ACrIAPTOru7ungjdPhAhYRFRhlXxSAA09dEp6ZkA3gBEmFAIACab+NogADb4JgEOqwC+RPMMelPGJgASbW04yABMAAwfo+GR0TT0OLGOYCBiLDKmPi1LJiMT5KDoMwgCQQVIAfRgsPh6AAvPxDhJiBpcAR0AAebR3GpmYDiAC2UHoDjctDEB0E-iCRASWx+43+xK06BBDTBaQhJj4ShUCGQjPMYmSyBAMGggiIQA)
 
-The API consists of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface supports the following method:
+The API could consist of a new interface, SecureSession, an instance of which is obtained via the securesession property of the navigator object. The SecureSession interface would ideally support the following method:
 
 - **startSession():**
 - Parameters:
@@ -365,7 +368,7 @@ When called, this method must:
 Requirements:
 - The endpoint must have the same origin as the JavaScript.
 
-Below is an example of the API being used:
+Below is an example of the theoretical API being used:
 ```javascript
 let promise = navigator.secureSession.start({
   // Session start options
