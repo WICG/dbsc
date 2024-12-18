@@ -7,6 +7,7 @@ Status: CG-DRAFT
 Group: WICG
 URL: https://wicg.github.io/dbsc/
 Editor: Kristian Monsen 76841, Google, kristianm@google.com
+Editor: Daniel Rubery, Google, drubery@google.com
 Abstract: The Device Bound Sessions Credentials (DBSC) aims to prevent hijacking via cookie theft by building a protocol and infrastructure that allows a user agent to assert possession of a securely-stored private key. DBSC is a Web API and a protocol between user agents and servers to achieve this binding.
 Repository: https://github.com/WICG/dbsc/
 Markup Shorthands: css no, markdown yes
@@ -43,14 +44,14 @@ spec: RFC8941;urlPrefix:https://datatracker.ietf.org/doc/html/rfc8941#;type:dfn
 <em>This section is not normative.</em><br/>
 <em>Note this is a very early drafting for writing collaboration only</em>
 
-The web is built on a stateless protocol, to provide required functionality Web
-applications store data locally on a user's computer in order to provide
-functionality the are very common today. Primarily this is used for logged in
+The web is built on a stateless protocol. To provide required functionality, Web
+applications store data locally on a user's computer. This is used for logged in
 user sessions that can last for a long time.
 
-In general user agents do not have a secure way of storing files supporting
-these activities across commonly used operating systems, and actions may have
-serious consequences, for example transferring money from a bank account.
+In general user agents do not have a secure way of storing data supporting these
+activities across commonly used operating systems, and actions authenticated by
+this data may have serious consequences, for example transferring money from a
+bank account.
 
 This document defines a new API, Device Bound Sessions Credentials (DBSC), that
 enables the server to verify that a session cannot be exported from a device by
@@ -68,25 +69,25 @@ different situations. Some of the use cases of DBSC are:
 
 ### Signed in session ### {#example-signin}
 <div class="example" id="signin-example">
-  A user logs in to his social account, to protect the user's private data the
+  A user logs in to his social account. To protect the user's private data the
   site protects his logged in session wwith a DBSC session. If the user tries to
-  log with the same cookie file on a different device, the site can detect and
-  refuse this as an unathorized user.
+  log in with the same cookie file on a different device, the site can detect and
+  refuse this as an unauthorized user.
 </div>
 
 ### Device integrity ### {#example-device-integrity}
 <div class="example" id="device-integrity-example">
-  A commercial site has different ways of detecting unahtorized log-in attempts.
-  A DBSC session on device could be used to see which users has logged on to
+  A commercial site has different ways of detecting unauthorized login attempts.
+  A DBSC session on device could be used to see which users have logged on to
   this device before.
 </div>
 
 ### Device reputation ### {#example-device-reputation}
 <div class="example" id="device-reputation-example">
-  A payment company hosted at site `payment.example` could create a session bound
-  to when users visit commercial site `shopping.example`. It could track the
-  reliability of the device over time to decide how likely a transaction is
-  legitimate.
+  A payment company hosted at site `payment.example.com` could create a session
+  bound to when users visit commercial site `shopping.example.com`. It could
+  track the reliability of the device over time to decide how likely a
+  transaction is legitimate.
 </div>
 
 # Security Considerations # {#privacy}
@@ -104,7 +105,7 @@ session was registered to a secure device.
 
 ## Non-goals ## {#non-goals}
 DBSC will not prevent temporary access to the browser session while the attacker
-is resident on the user's device. The private key should be stored as safe as
+is resident on the user's device. The private key should be stored as safely as
 modern operating systems allow, preventing exfiltration of the session private
 key, but the signing capability will still be available for any program running
 as the user on the user's device.
@@ -180,7 +181,7 @@ This document depends on the Infra Standard for a number of foundational
 concepts used in its algorithms and prose [[!INFRA]].
 
 ## Sessions by registrable domain ## {#framework-sessions-origin}
-A <dfn>registrable domain sessions</dfn> is a [=ordered map=] from
+A <dfn>sessions by registrable domain</dfn> is an [=ordered map=] from
 [=host/registrable domain=] to [=session by id=].
 
 ## Sessions by id ## {#framework-sessions-id}
@@ -193,16 +194,16 @@ A <dfn>device bound session</dfn> is a [=struct=] with the following
 [=struct/items=]:
 <dl dfn-for="device bound session">
   : <dfn>session identifier</dfn>
-  :: an [=string=] that is a unique identifier of a session on an
+  :: a [=string=] that is a unique identifier of a session on an
     [=host/registrable domain=]
   : <dfn>refresh url</dfn>
-  :: an [=string=] that is representing the [=url=] to be used to refresh the
+  :: a [=string=] that is representing the [=url=] to be used to refresh the
     session
   : <dfn>defer requests</dfn>
   :: an OPTIONAL [=boolean=] defining if the browser should defer other
     requests while refreshing a session
   : <dfn>cached challenge</dfn>
-  :: an [=string=] that is to be used as the next challenge for this session
+  :: a [=string=] that is to be used as the next challenge for this session
   : [=session scope=]
   :: a [=struct=] defining which [=url=]'s' are in scope for this session
   : [=session credential=]
@@ -255,7 +256,7 @@ The <dfn>session credential</dfn> is a [=struct=] with the following
   null if no such session exists.
 
   1. Let |site| be the [=host/registrable domain=] of the [=url=]
-  1. Let |domain sessions| be [=registrable domain sessions=][|site|] as a
+  1. Let |domain sessions| be [=sessions by registrable domain=][|site|] as a
     [=/session by id=]
   1. Return |domain sessions|[|session identifier|]
 </div>
@@ -266,9 +267,9 @@ The <dfn>session credential</dfn> is a [=struct=] with the following
   <dfn export dfn-for="algorithms">process a challenge</dfn> received in an HTTP
   header.
 
-  Given a [=response=] (|response|), a [=registrable domain sessions=], this
+  Given a [=response=] (|response|) and a [=sessions by registrable domain=], this
   algorithm updates the [=device bound session/cached challenge=] for a
-  [=device bound session=], or immediatly resends the [=DBSC proof=] signed with
+  [=device bound session=], or immediately resends the [=DBSC proof=] signed with
   the new challenge if the [=response/status=] is 401.
 
   1. Let |header name| be "<code>Sec-Session-Challenge</code>".
@@ -392,7 +393,8 @@ The \`<dfn export http-header id="sec-session-challenge-header">
 <code>Sec-Session-Challenge</code></dfn>\` header field can be used in a
 [=response=] by the server to send a challenge to the client that it expects to
 be used in future Sec-Session-Response headers inside the [=DBSC proof=], or to
-request a newly signed [=DBSC proof=] right away if the 
+request a newly signed [=DBSC proof=] right away if the [=response/status=] is
+401.
 
 [:Sec-Session-Challenge:] is a structured header. Its value must be a string.
 Its ABNF is: <pre class="abnf">SecSessionChallenge = <a>sf-string</a></pre>
