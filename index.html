@@ -4,9 +4,11 @@
   <title>Device Bound Session Credentials</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 82ce88815, updated Thu Sep 7 16:33:55 2023 -0700" name="generator">
+  <meta content="Bikeshed version ac5ea272d, updated Fri Dec 6 15:45:15 2024 -0800" name="generator">
   <link href="https://wicg.github.io/dbsc/" rel="canonical">
-  <meta content="2e1687595711bf31080746e1ea6bc2cb50a84736" name="document-revision">
+  <meta content="7b9ff238f22fa0bc79c1d7d9af0ab51431e60354" name="revision">
+  <meta content="dark light" name="color-scheme">
+  <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
 .css.css, .property.property, .descriptor.descriptor {
     color: var(--a-normal-text);
@@ -78,7 +80,6 @@ pre .property::before, pre .property::after {
 }
 </style>
 <style>/* Boilerplate: style-colors */
-
 /* Any --*-text not paired with a --*-bg is assumed to have a transparent bg */
 :root {
     color-scheme: light dark;
@@ -332,11 +333,15 @@ figcaption:not(.no-marker)::before {
 :root {
     --dfnpanel-bg: #ddd;
     --dfnpanel-text: var(--text);
+    --dfnpanel-target-bg: #ffc;
+    --dfnpanel-target-outline: orange;
 }
 @media (prefers-color-scheme: dark) {
     :root {
         --dfnpanel-bg: #222;
         --dfnpanel-text: var(--text);
+        --dfnpanel-target-bg: #333;
+        --dfnpanel-target-outline: silver;
     }
 }
 .dfn-panel {
@@ -359,11 +364,13 @@ figcaption:not(.no-marker)::before {
 .dfn-panel > b { display: block; }
 .dfn-panel a { color: var(--dfnpanel-text); }
 .dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
+.dfn-panel a:focus {
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+}
 .dfn-panel > b + b { margin-top: 0.25em; }
 .dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
 .dfn-panel li a {
-    white-space: pre;
-    display: inline-block;
     max-width: calc(300px - 1.5em - 1em);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -372,67 +379,79 @@ figcaption:not(.no-marker)::before {
 .dfn-panel.activated {
     display: inline-block;
     position: fixed;
-    left: .5em;
+    left: 8px;
     bottom: 2em;
     margin: 0 auto;
     max-width: calc(100vw - 1.5em - .4em - .5em);
     max-height: 30vh;
+    transition: left 1s ease-out, bottom 1s ease-out;
 }
 
-.dfn-paneled[role="button"] { cursor: pointer; }
-</style>
-<style>/* Boilerplate: style-dfn-panel */
-:root {
-    --dfnpanel-bg: #ddd;
-    --dfnpanel-text: var(--text);
+.dfn-panel .link-item:hover {
+    text-decoration: underline;
 }
-@media (prefers-color-scheme: dark) {
-    :root {
-        --dfnpanel-bg: #222;
-        --dfnpanel-text: var(--text);
+.dfn-panel .link-item .copy-icon {
+    opacity: 0;
+}
+.dfn-panel .link-item:hover .copy-icon,
+.dfn-panel .link-item .copy-icon:focus {
+    opacity: 1;
+}
+
+.dfn-panel .copy-icon {
+    display: inline-block;
+    margin-right: 0.5em;
+    width: 0.85em;
+    height: 1em;
+    border-radius: 3px;
+    background-color: #ccc;
+    cursor: pointer;
+}
+
+.dfn-panel .copy-icon .icon {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.dfn-panel .copy-icon .icon::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    background-color: #ccc;
+    opacity: 0.25;
+    transform: translate(3px, -3px);
+}
+
+.dfn-panel .copy-icon:active .icon::before {
+    opacity: 1;
+}
+
+.dfn-paneled[role="button"] { cursor: help; }
+
+.highlighted {
+    animation: target-fade 3s;
+}
+
+@keyframes target-fade {
+    from {
+        background-color: var(--dfnpanel-target-bg);
+        outline: 5px solid var(--dfnpanel-target-outline);
+    }
+    to {
+        color: var(--a-normal-text);
+        background-color: transparent;
+        outline: transparent;
     }
 }
-.dfn-panel {
-    position: absolute;
-    z-index: 35;
-    width: 20em;
-    width: 300px;
-    height: auto;
-    max-height: 500px;
-    overflow: auto;
-    padding: 0.5em 0.75em;
-    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
-    background: var(--dfnpanel-bg);
-    color: var(--dfnpanel-text);
-    border: outset 0.2em;
-    white-space: normal; /* in case it's moved into a pre */
-}
-.dfn-panel:not(.on) { display: none; }
-.dfn-panel * { margin: 0; padding: 0; text-indent: 0; }
-.dfn-panel > b { display: block; }
-.dfn-panel a { color: var(--dfnpanel-text); }
-.dfn-panel a:not(:hover) { text-decoration: none !important; border-bottom: none !important; }
-.dfn-panel > b + b { margin-top: 0.25em; }
-.dfn-panel ul { padding: 0 0 0 1em; list-style: none; }
-.dfn-panel li a {
-    white-space: pre;
-    display: inline-block;
-    max-width: calc(300px - 1.5em - 1em);
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.dfn-panel.activated {
-    display: inline-block;
-    position: fixed;
-    left: .5em;
-    bottom: 2em;
-    margin: 0 auto;
-    max-width: calc(100vw - 1.5em - .4em - .5em);
-    max-height: 30vh;
-}
-
-.dfn-paneled[role="button"] { cursor: pointer; }
 </style>
 <style>/* Boilerplate: style-issues */
 a[href].issue-return {
@@ -453,8 +472,40 @@ a[href].issue-return {
     margin-bottom: 0;
 }
 </style>
-<style>/* Boilerplate: style-selflinks */
+<style>/* Boilerplate: style-ref-hints */
+:root {
+    --ref-hint-bg: #ddd;
+    --ref-hint-text: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ref-hint-bg: #222;
+        --ref-hint-text: var(--text);
+    }
+}
 
+.ref-hint {
+    display: inline-block;
+    position: absolute;
+    z-index: 35;
+    width: 20em;
+    width: 300px;
+    height: auto;
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em 0.5em;
+    font: small Helvetica Neue, sans-serif, Droid Sans Fallback;
+    background: var(--ref-hint-bg);
+    color: var(--ref-hint-text);
+    border: outset 0.2em;
+    white-space: normal; /* in case it's moved into a pre */
+}
+
+.ref-hint * { margin: 0; padding: 0; text-indent: 0; }
+
+.ref-hint ul { padding: 0 0 0 1em; list-style: none; }
+</style>
+<style>/* Boilerplate: style-selflinks */
 :root {
     --selflink-text: white;
     --selflink-bg: gray;
@@ -514,7 +565,6 @@ a.self-link::before            { content: "¶"; }
 dfn > a.self-link::before      { content: "#"; }
 </style>
 <style>/* Boilerplate: style-syntax-highlighting */
-
 code.highlight { padding: .1em; border-radius: .3em; }
 pre.highlight, pre > code.highlight { display: block; padding: 1em; margin: .5em 0; overflow: auto; border-radius: 0; }
 
@@ -571,7 +621,6 @@ c-[vc] { color: #0077aa } /* Name.Variable.Class */
 c-[vg] { color: #0077aa } /* Name.Variable.Global */
 c-[vi] { color: #0077aa } /* Name.Variable.Instance */
 c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
-
 
 @media (prefers-color-scheme: dark) {
     .highlight:not(.idl) { background: rgba(255, 255, 255, .05); }
@@ -647,29 +696,52 @@ D50 2deg illuminant, L in [0,100], a and b in [-128, 128]
 4 = lab(85,5,15)
 5 = lab(85,-10,-50)
 6 = lab(85,35,-15)
+
+For darkmode:
+0 = oklab(50%   0%  108%)
+1 = oklab(50% -51%   51%)
+2 = oklab(50% -64%  -20%)
+3 = oklab(50%   6%   19%)
+4 = oklab(50% -12%  -64%)
+5 = oklab(50%  44%  -19%)  
+6 = oklab(50% 102%   38%)
 */
-var { cursor: pointer; }
-var.selected0 { background-color: #F4D200; box-shadow: 0 0 0 2px #F4D200; }
-var.selected1 { background-color: #FF87A2; box-shadow: 0 0 0 2px #FF87A2; }
-var.selected2 { background-color: #96E885; box-shadow: 0 0 0 2px #96E885; }
-var.selected3 { background-color: #3EEED2; box-shadow: 0 0 0 2px #3EEED2; }
-var.selected4 { background-color: #EACFB6; box-shadow: 0 0 0 2px #EACFB6; }
-var.selected5 { background-color: #82DDFF; box-shadow: 0 0 0 2px #82DDFF; }
-var.selected6 { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBCF2; }
+
+[data-algorithm] var { cursor: pointer; }
+var[data-var-color] { background-color: var(--var-bg); box-shadow: 0 0 0 2px var(--var-bg); }
+
+var[data-var-color] { --var-bg: #F4D200; }
+var[data-var-color="1"] { --var-bg: #FF87A2; }
+var[data-var-color="2"] { --var-bg: #96E885; }
+var[data-var-color="3"] { --var-bg: #3EEED2; }
+var[data-var-color="4"] { --var-bg: #EACFB6; }
+var[data-var-color="5"] { --var-bg: #82DDFF; }
+var[data-var-color="6"] { --var-vg: #FFBCF2; }
+
+@media (prefers-color-scheme: dark) {
+	var[data-var-color] { --var-bg: #bc1a00; }
+	var[data-var-color="1"] { --var-bg: #007f00; }
+	var[data-var-color="2"] { --var-bg: #008698; }
+	var[data-var-color="3"] { --var-bg: #7f5b2b; }
+	var[data-var-color="4"] { --var-bg: #004df3; }
+	var[data-var-color="5"] { --var-bg: #a1248a; }
+	var[data-var-color="6"] { --var-vg: #ff0000; }
+}
 </style>
  <body class="h-entry">
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Device Bound Session Credentials</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-10-21">21 October 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-12-18">18 December 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
      <dd><a class="u-url" href="https://wicg.github.io/dbsc/">https://wicg.github.io/dbsc/</a>
      <dt>Issue Tracking:
      <dd><a href="https://github.com/WICG/dbsc/issues/">GitHub</a>
-     <dt class="editor">Editor:
+     <dt class="editor">Editors:
      <dd class="editor p-author h-card vcard" data-editor-id="76841"><a class="p-name fn u-email email" href="mailto:kristianm@google.com">Kristian Monsen</a> (<span class="p-org org">Google</span>)
+     <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:drubery@google.com">Daniel Rubery</a> (<span class="p-org org">Google</span>)
     </dl>
    </div>
    <div data-fill-with="warning"></div>
@@ -795,13 +867,13 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   <main>
    <h2 class="heading settled" data-level="1" id="intro"><span class="secno">1. </span><span class="content">Introduction</span><a class="self-link" href="#intro"></a></h2>
    <p><em>This section is not normative.</em><br> <em>Note this is a very early drafting for writing collaboration only</em></p>
-   <p>The web is built on a stateless protocol, to provide required functionality Web
-applications store data locally on a user’s computer in order to provide
-functionality the are very common today. Primarily this is used for logged in
+   <p>The web is built on a stateless protocol. To provide required functionality, Web
+applications store data locally on a user’s computer. This is used for logged in
 user sessions that can last for a long time.</p>
-   <p>In general user agents do not have a secure way of storing files supporting
-these activities across commonly used operating systems, and actions may have
-serious consequences, for example transferring money from a bank account.</p>
+   <p>In general user agents do not have a secure way of storing data supporting these
+activities across commonly used operating systems, and actions authenticated by
+this data may have serious consequences, for example transferring money from a
+bank account.</p>
    <p>This document defines a new API, Device Bound Sessions Credentials (DBSC), that
 enables the server to verify that a session cannot be exported from a device by
 using commonly available TPMs, or similar APIs, that are designed for this
@@ -814,19 +886,19 @@ this protocol.</p>
     Device Bound Session Credentials are designed to make users more secure in
 different situations. Some of the use cases of DBSC are: 
    <h4 class="heading settled" data-level="1.1.1" id="example-signin"><span class="secno">1.1.1. </span><span class="content">Signed in session</span><a class="self-link" href="#example-signin"></a></h4>
-   <div class="example" id="signin-example"><a class="self-link" href="#signin-example"></a> A user logs in to his social account, to protect the user’s private data the
+   <div class="example" id="signin-example"><a class="self-link" href="#signin-example"></a> A user logs in to his social account. To protect the user’s private data the
   site protects his logged in session wwith a DBSC session. If the user tries to
-  log with the same cookie file on a different device, the site can detect and
-  refuse this as an unathorized user. </div>
+  log in with the same cookie file on a different device, the site can detect and
+  refuse this as an unauthorized user. </div>
    <h4 class="heading settled" data-level="1.1.2" id="example-device-integrity"><span class="secno">1.1.2. </span><span class="content">Device integrity</span><a class="self-link" href="#example-device-integrity"></a></h4>
-   <div class="example" id="device-integrity-example"><a class="self-link" href="#device-integrity-example"></a> A commercial site has different ways of detecting unahtorized log-in attempts.
-  A DBSC session on device could be used to see which users has logged on to
+   <div class="example" id="device-integrity-example"><a class="self-link" href="#device-integrity-example"></a> A commercial site has different ways of detecting unauthorized login attempts.
+  A DBSC session on device could be used to see which users have logged on to
   this device before. </div>
    <h4 class="heading settled" data-level="1.1.3" id="example-device-reputation"><span class="secno">1.1.3. </span><span class="content">Device reputation</span><a class="self-link" href="#example-device-reputation"></a></h4>
-   <div class="example" id="device-reputation-example"><a class="self-link" href="#device-reputation-example"></a> A payment company hosted at site <code>payment.example</code> could create a session bound
-  to when users visit commercial site <code>shopping.example</code>. It could track the
-  reliability of the device over time to decide how likely a transaction is
-  legitimate. </div>
+   <div class="example" id="device-reputation-example"><a class="self-link" href="#device-reputation-example"></a> A payment company hosted at site <code>payment.example.com</code> could create a session
+  bound to when users visit commercial site <code>shopping.example.com</code>. It could
+  track the reliability of the device over time to decide how likely a
+  transaction is legitimate. </div>
    <h2 class="heading settled" data-level="2" id="privacy"><span class="secno">2. </span><span class="content">Security Considerations</span><a class="self-link" href="#privacy"></a></h2>
     The goal of DBSC is to reduce session theft by offering an alternative to
 long-lived cookie bearer tokens, that allows session authentication that is
@@ -840,7 +912,7 @@ that it is on the same device as the session was originally bound to if the
 session was registered to a secure device.</p>
    <h3 class="heading settled" data-level="2.1" id="non-goals"><span class="secno">2.1. </span><span class="content">Non-goals</span><a class="self-link" href="#non-goals"></a></h3>
     DBSC will not prevent temporary access to the browser session while the attacker
-is resident on the user’s device. The private key should be stored as safe as
+is resident on the user’s device. The private key should be stored as safely as
 modern operating systems allow, preventing exfiltration of the session private
 key, but the signing capability will still be available for any program running
 as the user on the user’s device. 
@@ -902,7 +974,7 @@ even more so if the plan is to use sessions with third party cookies.</p>
    <p>This document depends on the Infra Standard for a number of foundational
 concepts used in its algorithms and prose <a data-link-type="biblio" href="#biblio-infra" title="Infra Standard">[INFRA]</a>.</p>
    <h3 class="heading settled" data-level="5.1" id="framework-sessions-origin"><span class="secno">5.1. </span><span class="content">Sessions by registrable domain</span><a class="self-link" href="#framework-sessions-origin"></a></h3>
-    A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="registrable-domain-sessions">registrable domain sessions</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">ordered map</a> from <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain">registrable domain</a> to <a data-link-type="dfn" href="#session-by-id" id="ref-for-session-by-id">session by id</a>. 
+    A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="sessions-by-registrable-domain">sessions by registrable domain</dfn> is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">ordered map</a> from <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain">registrable domain</a> to <a data-link-type="dfn" href="#session-by-id" id="ref-for-session-by-id">session by id</a>. 
    <h3 class="heading settled" data-level="5.2" id="framework-sessions-id"><span class="secno">5.2. </span><span class="content">Sessions by id</span><a class="self-link" href="#framework-sessions-id"></a></h3>
     A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="session-by-id">session by id</dfn> is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">ordered map</a> from <a data-link-type="dfn" href="#device-bound-session-session-identifier" id="ref-for-device-bound-session-session-identifier">session identifier</a> to <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session">device bound session</a>s for a
 given <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain①">registrable domain</a>. 
@@ -911,18 +983,18 @@ given <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrabl
    <dl>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="device bound session" data-dfn-type="dfn" data-noexport id="device-bound-session-session-identifier">session identifier</dfn>
     <dd data-md>
-     <p>an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> that is a unique identifier of a session on an <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain②">registrable domain</a></p>
-    <dt data-md><dfn data-dfn-for="device bound session" data-dfn-type="dfn" data-noexport id="device-bound-session-refresh-url">refresh url<a class="self-link" href="#device-bound-session-refresh-url"></a></dfn>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string">string</a> that is a unique identifier of a session on an <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain②">registrable domain</a></p>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="device bound session" data-dfn-type="dfn" data-noexport id="device-bound-session-refresh-url">refresh url</dfn>
     <dd data-md>
-     <p>an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> that is representing the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url">url</a> to be used to refresh the
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①">string</a> that is representing the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url">url</a> to be used to refresh the
 session</p>
-    <dt data-md><dfn data-dfn-for="device bound session" data-dfn-type="dfn" data-noexport id="device-bound-session-defer-requests">defer requests<a class="self-link" href="#device-bound-session-defer-requests"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="device bound session" data-dfn-type="dfn" data-noexport id="device-bound-session-defer-requests">defer requests</dfn>
     <dd data-md>
      <p>an OPTIONAL <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean">boolean</a> defining if the browser should defer other
 requests while refreshing a session</p>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="device bound session" data-dfn-type="dfn" data-noexport id="device-bound-session-cached-challenge">cached challenge</dfn>
     <dd data-md>
-     <p>an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②">string</a> that is to be used as the next challenge for this session</p>
+     <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②">string</a> that is to be used as the next challenge for this session</p>
     <dt data-md><a data-link-type="dfn" href="#session-scope" id="ref-for-session-scope">session scope</a>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct①">struct</a> defining which <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url①">url</a>'s' are in scope for this session</p>
@@ -933,7 +1005,7 @@ requests while refreshing a session</p>
    <h3 class="heading settled" data-level="5.4" id="framework-scope"><span class="secno">5.4. </span><span class="content">Session scope</span><a class="self-link" href="#framework-scope"></a></h3>
     The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="session-scope">session scope</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct②">struct</a> with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item①">items</a>: 
    <dl>
-    <dt data-md><dfn data-dfn-for="session scope" data-dfn-type="dfn" data-noexport id="session-scope-include-site">include site<a class="self-link" href="#session-scope-include-site"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session scope" data-dfn-type="dfn" data-noexport id="session-scope-include-site">include site</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean①">boolean</a> that indicates if all subdomains of are included by
 default.</p>
@@ -944,21 +1016,21 @@ default.</p>
    <h3 class="heading settled" data-level="5.5" id="framework-scope-specification"><span class="secno">5.5. </span><span class="content">Scope specification</span><a class="self-link" href="#framework-scope-specification"></a></h3>
     The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="scope-specification">scope specification</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct③">struct</a> with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item②">items</a>: 
    <dl>
-    <dt data-md><dfn data-dfn-for="scope specification" data-dfn-type="dfn" data-noexport id="scope-specification-type">type<a class="self-link" href="#scope-specification-type"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="scope specification" data-dfn-type="dfn" data-noexport id="scope-specification-type">type</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string③">string</a> to be either "include" or "exclude", defining if the item
 defined in this struct should be added or removed from the scope</p>
-    <dt data-md><dfn data-dfn-for="scope specification" data-dfn-type="dfn" data-noexport id="scope-specification-path">path<a class="self-link" href="#scope-specification-path"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="scope specification" data-dfn-type="dfn" data-noexport id="scope-specification-path">path</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string④">string</a> that defines the path part of this scope item</p>
    </dl>
    <h3 class="heading settled" data-level="5.6" id="framework-session-credential"><span class="secno">5.6. </span><span class="content">Session credential</span><a class="self-link" href="#framework-session-credential"></a></h3>
     The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="session-credential">session credential</dfn> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct" id="ref-for-struct④">struct</a> with the following <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item③">items</a>: 
    <dl>
-    <dt data-md><dfn data-dfn-for="session credential" data-dfn-type="dfn" data-noexport id="session-credential-name">name<a class="self-link" href="#session-credential-name"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session credential" data-dfn-type="dfn" data-noexport id="session-credential-name">name</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑤">string</a> that defines the name of the credential cookie</p>
-    <dt data-md><dfn data-dfn-for="session credential" data-dfn-type="dfn" data-noexport id="session-credential-attributes">attributes<a class="self-link" href="#session-credential-attributes"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session credential" data-dfn-type="dfn" data-noexport id="session-credential-attributes">attributes</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string⑥">string</a> that defines the other attributes of the credential cookie</p>
    </dl>
@@ -973,17 +1045,17 @@ defined in this struct should be added or removed from the scope</p>
      <li data-md>
       <p>Let <var>site</var> be the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain④">registrable domain</a> of the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url③">url</a></p>
      <li data-md>
-      <p>Let <var>domain sessions</var> be <a data-link-type="dfn" href="#registrable-domain-sessions" id="ref-for-registrable-domain-sessions">registrable domain sessions</a>[<var>site</var>] as a <a data-link-type="dfn" href="#session-by-id" id="ref-for-session-by-id①">session by id</a></p>
+      <p>Let <var>domain sessions</var> be <a data-link-type="dfn" href="#sessions-by-registrable-domain" id="ref-for-sessions-by-registrable-domain">sessions by registrable domain</a>[<var>site</var>] as a <a data-link-type="dfn" href="#session-by-id" id="ref-for-session-by-id①">session by id</a></p>
      <li data-md>
       <p>Return <var>domain sessions</var>[<var>session identifier</var>]</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.2" id="algo-process-challenge"><span class="secno">6.2. </span><span class="content">Process challenge</span><a class="self-link" href="#algo-process-challenge"></a></h3>
    <div class="algorithm" data-algorithm="process-challenge">
-     This algorithm describes how to <dfn data-dfn-for="algorithms" data-dfn-type="dfn" data-export id="algorithms-process-a-challenge">process a challenge<a class="self-link" href="#algorithms-process-a-challenge"></a></dfn> received in an HTTP
+     This algorithm describes how to <dfn class="dfn-paneled" data-dfn-for="algorithms" data-dfn-type="dfn" data-export id="algorithms-process-a-challenge">process a challenge</dfn> received in an HTTP
   header. 
-    <p>Given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response">response</a> (<var>response</var>), a <a data-link-type="dfn" href="#registrable-domain-sessions" id="ref-for-registrable-domain-sessions①">registrable domain sessions</a>, this
-  algorithm updates the <a data-link-type="dfn" href="#device-bound-session-cached-challenge" id="ref-for-device-bound-session-cached-challenge">cached challenge</a> for a <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session②">device bound session</a>, or immediatly resends the <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof">DBSC proof</a> signed with
+    <p>Given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response">response</a> (<var>response</var>) and a <a data-link-type="dfn" href="#sessions-by-registrable-domain" id="ref-for-sessions-by-registrable-domain①">sessions by registrable domain</a>, this
+  algorithm updates the <a data-link-type="dfn" href="#device-bound-session-cached-challenge" id="ref-for-device-bound-session-cached-challenge">cached challenge</a> for a <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session②">device bound session</a>, or immediately resends the <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof">DBSC proof</a> signed with
   the new challenge if the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status">status</a> is 401.</p>
     <ol>
      <li data-md>
@@ -1019,7 +1091,7 @@ params["id"].</p>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.3" id="algo-session-refresh"><span class="secno">6.3. </span><span class="content">Session refresh</span><a class="self-link" href="#algo-session-refresh"></a></h3>
-    To <dfn data-dfn-type="dfn" data-export id="refresh-session">Refreshing an existing session<a class="self-link" href="#refresh-session"></a></dfn> 
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="refresh-session">Refreshing an existing session</dfn> 
    <h3 class="heading settled" data-level="6.4" id="algo-session-request"><span class="secno">6.4. </span><span class="content">Send request</span><a class="self-link" href="#algo-session-request"></a></h3>
    <h3 class="heading settled" data-level="6.5" id="algo-create-session"><span class="secno">6.5. </span><span class="content">Create session</span><a class="self-link" href="#algo-create-session"></a></h3>
     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="create-session">Create a new session</dfn>, start with
@@ -1066,9 +1138,9 @@ field value</a> given <var>header name</var> and "list" from <var>response</var>
     </ol>
    </div>
    <h3 class="heading settled" data-level="6.6" id="algo-close-session"><span class="secno">6.6. </span><span class="content">Closing session</span><a class="self-link" href="#algo-close-session"></a></h3>
-    To <dfn data-dfn-type="dfn" data-export id="close-session">close a session<a class="self-link" href="#close-session"></a></dfn> 
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="close-session">close a session</dfn> 
    <h3 class="heading settled" data-level="6.7" id="algo-fetch-integration"><span class="secno">6.7. </span><span class="content">Fetch Integration</span><a class="self-link" href="#algo-fetch-integration"></a></h3>
-    To <dfn data-dfn-type="dfn" data-export id="fetch-integration">fetch Integration<a class="self-link" href="#fetch-integration"></a></dfn> 
+    To <dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="fetch-integration">fetch Integration</dfn> 
    <h2 class="heading settled" data-level="7" id="format"><span class="secno">7. </span><span class="content">DBSC Formats</span><a class="self-link" href="#format"></a></h2>
    <h3 class="heading settled" data-level="7.1" id="header-sec-session-registration"><span class="secno">7.1. </span><span class="content">`<code>Sec-Session-Registration</code>` HTTP header field</span><a class="self-link" href="#header-sec-session-registration"></a></h3>
     The `<dfn class="dfn-paneled" data-dfn-type="http-header" data-export data-lt="Sec-Session-Registration" id="sec-session-registration-header"> <code>Sec-Session-Registration</code></dfn>` header field can be used in a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response①">response</a> by the server to start a new <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session④">device bound session</a> on the
@@ -1114,7 +1186,10 @@ Sec-Session-Registration: (ES256);path="reg1";challenge="cv1";authorization="a",
    <h3 class="heading settled" data-level="7.2" id="header-sec-session-challenge"><span class="secno">7.2. </span><span class="content">`<code>Sec-Session-Challenge</code>` HTTP Header Field</span><a class="self-link" href="#header-sec-session-challenge"></a></h3>
     The `<dfn class="dfn-paneled" data-dfn-type="http-header" data-export data-lt="Sec-Session-Challenge" id="sec-session-challenge-header"> <code>Sec-Session-Challenge</code></dfn>` header field can be used in a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response②">response</a> by the server to send a challenge to the client that it expects to
 be used in future Sec-Session-Response headers inside the <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof③">DBSC proof</a>, or to
-request a newly signed <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof④">DBSC proof</a> right away if the 
+request a newly signed <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof④">DBSC proof</a> right away if the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status②">status</a> is 
+   <ol start="401">
+    <li data-md>
+   </ol>
    <p><span>`<code><a data-link-type="http-header" href="#sec-session-challenge-header" id="ref-for-sec-session-challenge-header">Sec-Session-Challenge</a></code>`</span> is a structured header. Its value must be a string.
 Its ABNF is: </p>
 <pre class="abnf">SecSessionChallenge = <a data-link-type="dfn" href="https://datatracker.ietf.org/doc/html/rfc8941#string" id="ref-for-string①①">sf-string</a></pre>
@@ -1184,7 +1259,7 @@ optionally during session refresh. If the response contains session instructions
 it MUST be in JSON format. 
    <p>At the root of the JSON object the following keys can exist:</p>
    <dl>
-    <dt data-md><dfn data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-session-identifier">session identifier<a class="self-link" href="#session-instructions-session-identifier"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-session-identifier">session identifier</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①④">string</a> representing a <a data-link-type="dfn" href="#device-bound-session-session-identifier" id="ref-for-device-bound-session-session-identifier④">session identifier</a>.
 If this <a data-link-type="dfn" href="#session-instructions" id="ref-for-session-instructions">session instructions</a> is sent during a refresh request this MUST be
@@ -1195,18 +1270,18 @@ be a unique iditifier for this <a data-link-type="dfn" href="https://url.spec.wh
 overwrite the current <a data-link-type="dfn" href="#device-bound-session" id="ref-for-device-bound-session⑤">device bound session</a> with this identifier for the
 current <a data-link-type="dfn" href="https://url.spec.whatwg.org/#host-registrable-domain" id="ref-for-host-registrable-domain⑥">registrable domain</a>.
 This key MUST be present.</p>
-    <dt data-md><dfn data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-refresh_url">refresh_url<a class="self-link" href="#session-instructions-refresh_url"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-refresh_url">refresh_url</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑤">string</a> representing the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑥">url</a> used for future refresh requests.
 This can be a full url, or relative to the current <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request②">request</a>.
 This key is OPTIONAL, if not present the registration url will be used for
 future refresh requests.</p>
-    <dt data-md><dfn data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-continue">continue<a class="self-link" href="#session-instructions-continue"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-continue">continue</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean②">boolean</a> representing if the current session should continue, or be
 closed on the client. This key is OPTIONAL, and if not present the default
 value will be true.</p>
-    <dt data-md><dfn data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-defer_requests">defer_requests<a class="self-link" href="#session-instructions-defer_requests"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="session instructions" data-dfn-type="dfn" data-noexport id="session-instructions-defer_requests">defer_requests</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#boolean" id="ref-for-boolean③">boolean</a> describing the wanted session behavior during a session
 refresh. If this value is true all requests related to this session will be
@@ -1223,7 +1298,7 @@ This key is OPTIONAL, and if not present a value of true is default.</p>
   <c- f>"scope"</c-><c- p>:</c-> <c- p>{</c->
     <c- c1>// Origin-scoped by default (i.e. https://example.com)</c->
     <c- c1>// Specifies to include https://*.example.com except excluded subdomains.</c->
-    <c- c1>// This can only be true if the origin’s host is the root eTLD+1.</c->
+    <c- c1>// This can only be true if the origin's host is the root eTLD+1.</c->
     <c- f>"origin"</c-><c- p>:</c-> <c- u>"example.com"</c-><c- p>,</c->
     <c- f>"include_site"</c-><c- p>:</c-> <c- kc>true</c-><c- p>,</c->
     <c- f>"continue"</c-><c- p>:</c-> <c- kc>false</c-><c- p>,</c->
@@ -1254,36 +1329,36 @@ This key is OPTIONAL, and if not present a value of true is default.</p>
     A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="dbsc-proof">DBSC proof</dfn> proof is a JWT that is signed (using JSON Web Signature
 (JWS)), with a private key chosen by the client. The header of a <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof⑨">DBSC proof</a> MUST contain at least the following parameters: 
    <dl>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-typ">typ<a class="self-link" href="#dbsc-proof-typ"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-typ">typ</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑥">string</a> MUST be "dbsc+jwt"</p>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-alg">alg<a class="self-link" href="#dbsc-proof-alg"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-alg">alg</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑦">string</a> defining the algorithm used to sign this JWT. It MUST be
 either "RS256" or "ES256" from [IANA.JOSE.ALGS].</p>
    </dl>
    <p>The payload of <a data-link-type="dfn" href="#dbsc-proof" id="ref-for-dbsc-proof①⓪">DBSC proof</a> MUST contain at least the following claims:</p>
    <dl>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-aud">aud<a class="self-link" href="#dbsc-proof-aud"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-aud">aud</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑧">string</a>, MUST be the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url" id="ref-for-concept-url⑦">url</a> this JWT was originally sent to.
 Example: "https://example.com/refresh.html"</p>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-jti">jti<a class="self-link" href="#dbsc-proof-jti"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-jti">jti</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string①⑨">string</a>, a copy of the challenge value sent in the registration
 header.</p>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-iat">iat<a class="self-link" href="#dbsc-proof-iat"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-iat">iat</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②⓪">string</a>, this claim identifies the time at which the JWT was
 issued.  This claim can be used to determine the age of the JWT.  Its
 value MUST be a number containing a NumericDate value.</p>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-jwk">jwk<a class="self-link" href="#dbsc-proof-jwk"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-jwk">jwk</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②①">string</a> defining a JWK as specified in [rfc7517].</p>
    </dl>
    <p>In addition the following claims MUST be present if present in <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header④">Sec-Session-Registration</a></code>`</span>:</p>
    <dl>
-    <dt data-md><dfn data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-authorization">authorization<a class="self-link" href="#dbsc-proof-authorization"></a></dfn>
+    <dt data-md><dfn class="dfn-paneled" data-dfn-for="DBSC proof" data-dfn-type="dfn" data-noexport id="dbsc-proof-authorization">authorization</dfn>
     <dd data-md>
      <p>a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#string" id="ref-for-string②②">string</a>, direct copy of the string from <span>`<code><a data-link-type="http-header" href="#sec-session-registration-header" id="ref-for-sec-session-registration-header⑤">Sec-Session-Registration</a></code>`</span>, if set there. Note that this string is
 OPTIONAL to include in the header, but if it is present it is
@@ -1411,7 +1486,7 @@ registrations: <a data-link-type="biblio" href="#biblio-rfc3864" title="Registra
     like this: </p>
    <p class="note" role="note">Note, this is an informative note.</p>
   </div>
-<script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
+  <script src="https://www.w3.org/scripts/TR/2021/fixup.js"></script>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
@@ -1439,7 +1514,6 @@ registrations: <a data-link-type="biblio" href="#biblio-rfc3864" title="Registra
    <li><a href="#refresh-session">Refreshing an existing session</a><span>, in § 6.3</span>
    <li><a href="#device-bound-session-refresh-url">refresh url</a><span>, in § 5.3</span>
    <li><a href="#session-instructions-refresh_url">refresh_url</a><span>, in § 7.5</span>
-   <li><a href="#registrable-domain-sessions">registrable domain sessions</a><span>, in § 5.1</span>
    <li><a href="#scope-specification">scope specification</a><span>, in § 5.5</span>
    <li><a href="#sec-session-challenge-header">Sec-Session-Challenge</a><span>, in § 7.2</span>
    <li><a href="#sec-session-id-header">Sec-Session-Id</a><span>, in § 7.4</span>
@@ -1454,6 +1528,7 @@ registrations: <a data-link-type="biblio" href="#biblio-rfc3864" title="Registra
      <li><a href="#session-instructions-session-identifier">dfn for session instructions</a><span>, in § 7.5</span>
     </ul>
    <li><a href="#session-instructions">session instructions</a><span>, in § 7.5</span>
+   <li><a href="#sessions-by-registrable-domain">sessions by registrable domain</a><span>, in § 5.1</span>
    <li><a href="#session-scope">session scope</a><span>, in § 5.4</span>
    <li><a href="#dbsc-proof-typ">typ</a><span>, in § 7.6</span>
    <li><a href="#scope-specification-type">type</a><span>, in § 5.5</span>
@@ -1494,7 +1569,7 @@ registrations: <a data-link-type="biblio" href="#biblio-rfc3864" title="Registra
     <a data-link-type="biblio">[URL]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="bc9d7803">registrable domain</span>
-     <li><span class="dfn-paneled" id="dcffbccd">url</span>
+     <li><span class="dfn-paneled" id="dcffbccd">URL</span>
     </ul>
   </ul>
   <h2 class="no-num no-ref heading settled" id="references"><span class="content">References</span><a class="self-link" href="#references"></a></h2>
@@ -1519,352 +1594,8 @@ registrations: <a data-link-type="biblio" href="#biblio-rfc3864" title="Registra
    <dt id="biblio-url">[URL]
    <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/"><cite>URL Standard</cite></a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
   </dl>
-<script>/* Boilerplate: script-dfn-panel */
-"use strict";
-{
-    const dfnsJson = window.dfnsJson || {};
-
-    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
-        return mk.aside({
-            class: "dfn-panel",
-            id: `infopanel-for-${dfnID}`,
-            "data-for": dfnID,
-            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
-            },
-            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
-                `Info about the '${dfnText}' ${external?"external":""} reference.`),
-            mk.a({href:url}, url),
-            mk.b({}, "Referenced in:"),
-            mk.ul({},
-                ...refSections.map(section=>
-                    mk.li({},
-                        ...section.refs.map((ref, refI)=>
-                            [
-                                mk.a({
-                                    href: `#${ref.id}`
-                                    },
-                                    (refI == 0) ? section.title : `(${refI + 1})`
-                                ),
-                                " ",
-                            ]
-                        ),
-                    ),
-                ),
-            ),
-        );
-    }
-
-    function genAllDfnPanels() {
-        for(const panelData of Object.values(window.dfnpanelData)) {
-            const dfnID = panelData.dfnID;
-            const dfn = document.getElementById(dfnID);
-            if(!dfn) {
-                console.log(`Can't find dfn#${dfnID}.`, panelData);
-            } else {
-                const panel = genDfnPanel(panelData);
-                append(document.body, panel);
-                insertDfnPopupAction(dfn, panel)
-            }
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-        genAllDfnPanels();
-
-        // Add popup behavior to all dfns to show the corresponding dfn-panel.
-        var dfns = queryAll('.dfn-paneled');
-        for(let dfn of dfns) { ; }
-
-        document.body.addEventListener("click", (e) => {
-            // If not handled already, just hide all dfn panels.
-            hideAllDfnPanels();
-        });
-    })
-
-
-    function hideAllDfnPanels() {
-        // Turn off any currently "on" or "activated" panels.
-        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
-    }
-
-    function showDfnPanel(dfnPanel, dfn) {
-        hideAllDfnPanels(); // Only display one at this time.
-        dfn.setAttribute("aria-expanded", "true");
-        dfnPanel.classList.add("on");
-        dfnPanel.style.left = "5px";
-        dfnPanel.style.top = "0px";
-        const panelRect = dfnPanel.getBoundingClientRect();
-        const panelWidth = panelRect.right - panelRect.left;
-        if (panelRect.right > document.body.scrollWidth) {
-            // Panel's overflowing the screen.
-            // Just drop it below the dfn and flip it rightward instead.
-            // This still wont' fix things if the screen is *really* wide,
-            // but fixing that's a lot harder without 'anchor()'.
-            dfnPanel.style.top = "1.5em";
-            dfnPanel.style.left = "auto";
-            dfnPanel.style.right = "0px";
-        }
-    }
-
-    function pinDfnPanel(dfnPanel) {
-        // Switch it to "activated" state, which pins it.
-        dfnPanel.classList.add("activated");
-        dfnPanel.style.left = null;
-        dfnPanel.style.top = null;
-    }
-
-    function hideDfnPanel(dfnPanel, dfn) {
-        if(!dfn) {
-            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
-        }
-        dfn.setAttribute("aria-expanded", "false")
-        dfnPanel.classList.remove("on");
-        dfnPanel.classList.remove("activated");
-    }
-
-    function toggleDfnPanel(dfnPanel, dfn) {
-        if(dfnPanel.classList.contains("on")) {
-            hideDfnPanel(dfnPanel, dfn);
-        } else {
-            showDfnPanel(dfnPanel, dfn);
-        }
-    }
-
-    function insertDfnPopupAction(dfn, dfnPanel) {
-        // Find dfn panel
-        const panelWrapper = document.createElement('span');
-        panelWrapper.appendChild(dfnPanel);
-        panelWrapper.style.position = "relative";
-        panelWrapper.style.height = "0px";
-        dfn.insertAdjacentElement("afterend", panelWrapper);
-        dfn.setAttribute('role', 'button');
-        dfn.setAttribute('aria-expanded', 'false')
-        dfn.tabIndex = 0;
-        dfn.classList.add('has-dfn-panel');
-        dfn.addEventListener('click', (event) => {
-            showDfnPanel(dfnPanel, dfn);
-            event.stopPropagation();
-        });
-        dfn.addEventListener('keypress', (event) => {
-            const kc = event.keyCode;
-            // 32->Space, 13->Enter
-            if(kc == 32 || kc == 13) {
-                toggleDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        });
-
-        dfnPanel.addEventListener('click', (event) => {
-            if (event.target.nodeName == 'A') {
-                pinDfnPanel(dfnPanel);
-            }
-            event.stopPropagation();
-        });
-
-        dfnPanel.addEventListener('keydown', (event) => {
-            if(event.keyCode == 27) { // Escape key
-                hideDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        })
-    }
-}
-</script>
-<script>/* Boilerplate: script-dfn-panel */
-"use strict";
-{
-    const dfnsJson = window.dfnsJson || {};
-
-    function genDfnPanel({dfnID, url, dfnText, refSections, external}) {
-        return mk.aside({
-            class: "dfn-panel",
-            id: `infopanel-for-${dfnID}`,
-            "data-for": dfnID,
-            "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
-            },
-            mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
-                `Info about the '${dfnText}' ${external?"external":""} reference.`),
-            mk.a({href:url}, url),
-            mk.b({}, "Referenced in:"),
-            mk.ul({},
-                ...refSections.map(section=>
-                    mk.li({},
-                        ...section.refs.map((ref, refI)=>
-                            [
-                                mk.a({
-                                    href: `#${ref.id}`
-                                    },
-                                    (refI == 0) ? section.title : `(${refI + 1})`
-                                ),
-                                " ",
-                            ]
-                        ),
-                    ),
-                ),
-            ),
-        );
-    }
-
-    function genAllDfnPanels() {
-        for(const panelData of Object.values(window.dfnpanelData)) {
-            const dfnID = panelData.dfnID;
-            const dfn = document.getElementById(dfnID);
-            if(!dfn) {
-                console.log(`Can't find dfn#${dfnID}.`, panelData);
-            } else {
-                const panel = genDfnPanel(panelData);
-                append(document.body, panel);
-                insertDfnPopupAction(dfn, panel)
-            }
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", ()=>{
-        genAllDfnPanels();
-
-        // Add popup behavior to all dfns to show the corresponding dfn-panel.
-        var dfns = queryAll('.dfn-paneled');
-        for(let dfn of dfns) { ; }
-
-        document.body.addEventListener("click", (e) => {
-            // If not handled already, just hide all dfn panels.
-            hideAllDfnPanels();
-        });
-    })
-
-
-    function hideAllDfnPanels() {
-        // Turn off any currently "on" or "activated" panels.
-        queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>hideDfnPanel(el));
-    }
-
-    function showDfnPanel(dfnPanel, dfn) {
-        hideAllDfnPanels(); // Only display one at this time.
-        dfn.setAttribute("aria-expanded", "true");
-        dfnPanel.classList.add("on");
-        dfnPanel.style.left = "5px";
-        dfnPanel.style.top = "0px";
-        const panelRect = dfnPanel.getBoundingClientRect();
-        const panelWidth = panelRect.right - panelRect.left;
-        if (panelRect.right > document.body.scrollWidth) {
-            // Panel's overflowing the screen.
-            // Just drop it below the dfn and flip it rightward instead.
-            // This still wont' fix things if the screen is *really* wide,
-            // but fixing that's a lot harder without 'anchor()'.
-            dfnPanel.style.top = "1.5em";
-            dfnPanel.style.left = "auto";
-            dfnPanel.style.right = "0px";
-        }
-    }
-
-    function pinDfnPanel(dfnPanel) {
-        // Switch it to "activated" state, which pins it.
-        dfnPanel.classList.add("activated");
-        dfnPanel.style.left = null;
-        dfnPanel.style.top = null;
-    }
-
-    function hideDfnPanel(dfnPanel, dfn) {
-        if(!dfn) {
-            dfn = document.getElementById(dfnPanel.getAttribute("data-for"));
-        }
-        dfn.setAttribute("aria-expanded", "false")
-        dfnPanel.classList.remove("on");
-        dfnPanel.classList.remove("activated");
-    }
-
-    function toggleDfnPanel(dfnPanel, dfn) {
-        if(dfnPanel.classList.contains("on")) {
-            hideDfnPanel(dfnPanel, dfn);
-        } else {
-            showDfnPanel(dfnPanel, dfn);
-        }
-    }
-
-    function insertDfnPopupAction(dfn, dfnPanel) {
-        // Find dfn panel
-        const panelWrapper = document.createElement('span');
-        panelWrapper.appendChild(dfnPanel);
-        panelWrapper.style.position = "relative";
-        panelWrapper.style.height = "0px";
-        dfn.insertAdjacentElement("afterend", panelWrapper);
-        dfn.setAttribute('role', 'button');
-        dfn.setAttribute('aria-expanded', 'false')
-        dfn.tabIndex = 0;
-        dfn.classList.add('has-dfn-panel');
-        dfn.addEventListener('click', (event) => {
-            showDfnPanel(dfnPanel, dfn);
-            event.stopPropagation();
-        });
-        dfn.addEventListener('keypress', (event) => {
-            const kc = event.keyCode;
-            // 32->Space, 13->Enter
-            if(kc == 32 || kc == 13) {
-                toggleDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        });
-
-        dfnPanel.addEventListener('click', (event) => {
-            if (event.target.nodeName == 'A') {
-                pinDfnPanel(dfnPanel);
-            }
-            event.stopPropagation();
-        });
-
-        dfnPanel.addEventListener('keydown', (event) => {
-            if(event.keyCode == 27) { // Escape key
-                hideDfnPanel(dfnPanel, dfn);
-                event.stopPropagation();
-                event.preventDefault();
-            }
-        })
-    }
-}
-</script>
-<script>/* Boilerplate: script-dfn-panel-json */
-window.dfnpanelData = {};
-window.dfnpanelData['5c66de35'] = {"dfnID": "5c66de35", "url": "https://fetch.spec.whatwg.org/#concept-header-list-get-structured-header", "dfnText": "get a structured field value", "refSections": [{"refs": [{"id": "ref-for-concept-header-list-get-structured-header"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-concept-header-list-get-structured-header\u2460"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['f7b00a8b'] = {"dfnID": "f7b00a8b", "url": "https://fetch.spec.whatwg.org/#concept-response-header-list", "dfnText": "header list", "refSections": [{"refs": [{"id": "ref-for-concept-response-header-list"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-concept-response-header-list\u2460"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['162d2b51'] = {"dfnID": "162d2b51", "url": "https://fetch.spec.whatwg.org/#concept-request-request", "dfnText": "request", "refSections": [{"refs": [{"id": "ref-for-concept-request-request"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-concept-request-request\u2460"}], "title": "7.4. Sec-Session-Id HTTP Header Field"}, {"refs": [{"id": "ref-for-concept-request-request\u2461"}], "title": "7.5. DBSC Session Instruction Format"}], "external": true};
-window.dfnpanelData['e3201629'] = {"dfnID": "e3201629", "url": "https://fetch.spec.whatwg.org/#concept-response-response", "dfnText": "response", "refSections": [{"refs": [{"id": "ref-for-concept-response-response"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-concept-response-response\u2460"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-concept-response-response\u2461"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}], "external": true};
-window.dfnpanelData['a1d47575'] = {"dfnID": "a1d47575", "url": "https://fetch.spec.whatwg.org/#concept-response-status", "dfnText": "status", "refSections": [{"refs": [{"id": "ref-for-concept-response-status"}, {"id": "ref-for-concept-response-status\u2460"}], "title": "6.2. Process challenge"}], "external": true};
-window.dfnpanelData['36858240'] = {"dfnID": "36858240", "url": "https://infra.spec.whatwg.org/#boolean", "dfnText": "boolean", "refSections": [{"refs": [{"id": "ref-for-boolean"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-boolean\u2460"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-boolean\u2461"}, {"id": "ref-for-boolean\u2462"}], "title": "7.5. DBSC Session Instruction Format"}], "external": true};
-window.dfnpanelData['f937b7b6'] = {"dfnID": "f937b7b6", "url": "https://infra.spec.whatwg.org/#iteration-continue", "dfnText": "continue", "refSections": [{"refs": [{"id": "ref-for-iteration-continue"}, {"id": "ref-for-iteration-continue\u2460"}, {"id": "ref-for-iteration-continue\u2461"}, {"id": "ref-for-iteration-continue\u2462"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-iteration-continue\u2463"}, {"id": "ref-for-iteration-continue\u2464"}, {"id": "ref-for-iteration-continue\u2465"}, {"id": "ref-for-iteration-continue\u2466"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['16d07e10'] = {"dfnID": "16d07e10", "url": "https://infra.spec.whatwg.org/#list-iterate", "dfnText": "for each", "refSections": [{"refs": [{"id": "ref-for-list-iterate"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-list-iterate\u2460"}, {"id": "ref-for-list-iterate\u2461"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['c88f3887'] = {"dfnID": "c88f3887", "url": "https://infra.spec.whatwg.org/#struct-item", "dfnText": "item", "refSections": [{"refs": [{"id": "ref-for-struct-item"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-struct-item\u2460"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-struct-item\u2461"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-struct-item\u2462"}], "title": "5.6. Session credential"}], "external": true};
-window.dfnpanelData['649608b9'] = {"dfnID": "649608b9", "url": "https://infra.spec.whatwg.org/#list", "dfnText": "list", "refSections": [{"refs": [{"id": "ref-for-list"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-list\u2460"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-list\u2461"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['84b454ff'] = {"dfnID": "84b454ff", "url": "https://infra.spec.whatwg.org/#ordered-map", "dfnText": "ordered map", "refSections": [{"refs": [{"id": "ref-for-ordered-map"}], "title": "5.1. Sessions by registrable domain"}, {"refs": [{"id": "ref-for-ordered-map\u2460"}], "title": "5.2. Sessions by id"}], "external": true};
-window.dfnpanelData['0698d556'] = {"dfnID": "0698d556", "url": "https://infra.spec.whatwg.org/#string", "dfnText": "string", "refSections": [{"refs": [{"id": "ref-for-string"}, {"id": "ref-for-string\u2460"}, {"id": "ref-for-string\u2461"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-string\u2462"}, {"id": "ref-for-string\u2463"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-string\u2464"}, {"id": "ref-for-string\u2465"}], "title": "5.6. Session credential"}, {"refs": [{"id": "ref-for-string\u2460\u2463"}, {"id": "ref-for-string\u2460\u2464"}], "title": "7.5. DBSC Session Instruction Format"}, {"refs": [{"id": "ref-for-string\u2460\u2465"}, {"id": "ref-for-string\u2460\u2466"}, {"id": "ref-for-string\u2460\u2467"}, {"id": "ref-for-string\u2460\u2468"}, {"id": "ref-for-string\u2461\u24ea"}, {"id": "ref-for-string\u2461\u2460"}, {"id": "ref-for-string\u2461\u2461"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": true};
-window.dfnpanelData['984221ca'] = {"dfnID": "984221ca", "url": "https://infra.spec.whatwg.org/#struct", "dfnText": "struct", "refSections": [{"refs": [{"id": "ref-for-struct"}, {"id": "ref-for-struct\u2460"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-struct\u2461"}], "title": "5.4. Session scope"}, {"refs": [{"id": "ref-for-struct\u2462"}], "title": "5.5. Scope specification"}, {"refs": [{"id": "ref-for-struct\u2463"}], "title": "5.6. Session credential"}], "external": true};
-window.dfnpanelData['c6b25c6b'] = {"dfnID": "c6b25c6b", "url": "https://datatracker.ietf.org/doc/html/rfc8941#text-parse", "dfnText": "parsing structured fields", "refSections": [{"refs": [{"id": "ref-for-text-parse"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-text-parse\u2460"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['b38eaac9'] = {"dfnID": "b38eaac9", "url": "https://datatracker.ietf.org/doc/html/rfc8941#inner-list", "dfnText": "sf-inner-list", "refSections": [{"refs": [{"id": "ref-for-inner-list"}], "title": "6.5. Create session"}], "external": true};
-window.dfnpanelData['b93af9cf'] = {"dfnID": "b93af9cf", "url": "https://datatracker.ietf.org/doc/html/rfc8941#list", "dfnText": "sf-list", "refSections": [{"refs": [{"id": "ref-for-list\u2462"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": true};
-window.dfnpanelData['e7aabcb5'] = {"dfnID": "e7aabcb5", "url": "https://datatracker.ietf.org/doc/html/rfc8941#string", "dfnText": "sf-string", "refSections": [{"refs": [{"id": "ref-for-string\u2466"}, {"id": "ref-for-string\u2467"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-string\u2468"}, {"id": "ref-for-string\u2460\u24ea"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-string\u2460\u2460"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}, {"refs": [{"id": "ref-for-string\u2460\u2461"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-string\u2460\u2462"}], "title": "7.4. Sec-Session-Id HTTP Header Field"}], "external": true};
-window.dfnpanelData['bb423dc4'] = {"dfnID": "bb423dc4", "url": "https://datatracker.ietf.org/doc/html/rfc8941#token", "dfnText": "sf-token", "refSections": [{"refs": [{"id": "ref-for-token"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-token\u2460"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": true};
-window.dfnpanelData['bc9d7803'] = {"dfnID": "bc9d7803", "url": "https://url.spec.whatwg.org/#host-registrable-domain", "dfnText": "registrable domain", "refSections": [{"refs": [{"id": "ref-for-host-registrable-domain"}], "title": "5.1. Sessions by registrable domain"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2460"}], "title": "5.2. Sessions by id"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2461"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2462"}, {"id": "ref-for-host-registrable-domain\u2463"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-host-registrable-domain\u2464"}, {"id": "ref-for-host-registrable-domain\u2465"}], "title": "7.5. DBSC Session Instruction Format"}], "external": true};
-window.dfnpanelData['dcffbccd'] = {"dfnID": "dcffbccd", "url": "https://url.spec.whatwg.org/#concept-url", "dfnText": "url", "refSections": [{"refs": [{"id": "ref-for-concept-url"}, {"id": "ref-for-concept-url\u2460"}], "title": "5.3. Device bound session"}, {"refs": [{"id": "ref-for-concept-url\u2461"}, {"id": "ref-for-concept-url\u2462"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-concept-url\u2463"}, {"id": "ref-for-concept-url\u2464"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-concept-url\u2465"}], "title": "7.5. DBSC Session Instruction Format"}, {"refs": [{"id": "ref-for-concept-url\u2466"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": true};
-window.dfnpanelData['registrable-domain-sessions'] = {"dfnID": "registrable-domain-sessions", "url": "#registrable-domain-sessions", "dfnText": "registrable domain sessions", "refSections": [{"refs": [{"id": "ref-for-registrable-domain-sessions"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-registrable-domain-sessions\u2460"}], "title": "6.2. Process challenge"}], "external": false};
-window.dfnpanelData['session-by-id'] = {"dfnID": "session-by-id", "url": "#session-by-id", "dfnText": "session by id", "refSections": [{"refs": [{"id": "ref-for-session-by-id"}], "title": "5.1. Sessions by registrable domain"}, {"refs": [{"id": "ref-for-session-by-id\u2460"}], "title": "6.1. Identify session"}], "external": false};
-window.dfnpanelData['device-bound-session'] = {"dfnID": "device-bound-session", "url": "#device-bound-session", "dfnText": "device bound session", "refSections": [{"refs": [{"id": "ref-for-device-bound-session"}], "title": "5.2. Sessions by id"}, {"refs": [{"id": "ref-for-device-bound-session\u2460"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-device-bound-session\u2461"}, {"id": "ref-for-device-bound-session\u2462"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-device-bound-session\u2463"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-device-bound-session\u2464"}], "title": "7.5. DBSC Session Instruction Format"}], "external": false};
-window.dfnpanelData['device-bound-session-session-identifier'] = {"dfnID": "device-bound-session-session-identifier", "url": "#device-bound-session-session-identifier", "dfnText": "session identifier", "refSections": [{"refs": [{"id": "ref-for-device-bound-session-session-identifier"}], "title": "5.2. Sessions by id"}, {"refs": [{"id": "ref-for-device-bound-session-session-identifier\u2460"}, {"id": "ref-for-device-bound-session-session-identifier\u2461"}], "title": "6.1. Identify session"}, {"refs": [{"id": "ref-for-device-bound-session-session-identifier\u2462"}], "title": "7.2.1. Sec-Session-Challenge structured header serialization"}, {"refs": [{"id": "ref-for-device-bound-session-session-identifier\u2463"}, {"id": "ref-for-device-bound-session-session-identifier\u2464"}], "title": "7.5. DBSC Session Instruction Format"}], "external": false};
-window.dfnpanelData['device-bound-session-cached-challenge'] = {"dfnID": "device-bound-session-cached-challenge", "url": "#device-bound-session-cached-challenge", "dfnText": "cached challenge", "refSections": [{"refs": [{"id": "ref-for-device-bound-session-cached-challenge"}], "title": "6.2. Process challenge"}], "external": false};
-window.dfnpanelData['session-scope'] = {"dfnID": "session-scope", "url": "#session-scope", "dfnText": "session scope", "refSections": [{"refs": [{"id": "ref-for-session-scope"}], "title": "5.3. Device bound session"}], "external": false};
-window.dfnpanelData['scope-specification'] = {"dfnID": "scope-specification", "url": "#scope-specification", "dfnText": "scope specification", "refSections": [{"refs": [{"id": "ref-for-scope-specification"}, {"id": "ref-for-scope-specification\u2460"}], "title": "5.4. Session scope"}], "external": false};
-window.dfnpanelData['session-credential'] = {"dfnID": "session-credential", "url": "#session-credential", "dfnText": "session credential", "refSections": [{"refs": [{"id": "ref-for-session-credential"}, {"id": "ref-for-session-credential\u2460"}], "title": "5.3. Device bound session"}], "external": false};
-window.dfnpanelData['algorithms-identify-a-session'] = {"dfnID": "algorithms-identify-a-session", "url": "#algorithms-identify-a-session", "dfnText": "identify a session", "refSections": [{"refs": [{"id": "ref-for-algorithms-identify-a-session"}], "title": "6.2. Process challenge"}], "external": false};
-window.dfnpanelData['create-session'] = {"dfnID": "create-session", "url": "#create-session", "dfnText": "Create a new session", "refSections": [{"refs": [{"id": "ref-for-create-session"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}], "external": false};
-window.dfnpanelData['sec-session-registration-header'] = {"dfnID": "sec-session-registration-header", "url": "#sec-session-registration-header", "dfnText": "\nSec-Session-Registration", "refSections": [{"refs": [{"id": "ref-for-sec-session-registration-header"}, {"id": "ref-for-sec-session-registration-header\u2460"}], "title": "6.5. Create session"}, {"refs": [{"id": "ref-for-sec-session-registration-header\u2461"}, {"id": "ref-for-sec-session-registration-header\u2462"}], "title": "7.1. `Sec-Session-Registration` HTTP header field"}, {"refs": [{"id": "ref-for-sec-session-registration-header\u2463"}, {"id": "ref-for-sec-session-registration-header\u2464"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": false};
-window.dfnpanelData['sec-session-challenge-header'] = {"dfnID": "sec-session-challenge-header", "url": "#sec-session-challenge-header", "dfnText": "\nSec-Session-Challenge", "refSections": [{"refs": [{"id": "ref-for-sec-session-challenge-header"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}, {"refs": [{"id": "ref-for-sec-session-challenge-header\u2460"}, {"id": "ref-for-sec-session-challenge-header\u2461"}], "title": "7.2.1. Sec-Session-Challenge structured header serialization"}], "external": false};
-window.dfnpanelData['sec-session-response-header'] = {"dfnID": "sec-session-response-header", "url": "#sec-session-response-header", "dfnText": "\nSec-Session-Response", "refSections": [{"refs": [{"id": "ref-for-sec-session-response-header"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-sec-session-response-header\u2460"}], "title": "7.5. DBSC Session Instruction Format"}], "external": false};
-window.dfnpanelData['sec-session-id-header'] = {"dfnID": "sec-session-id-header", "url": "#sec-session-id-header", "dfnText": "\nSec-Session-Id", "refSections": [{"refs": [{"id": "ref-for-sec-session-id-header"}], "title": "7.4. Sec-Session-Id HTTP Header Field"}], "external": false};
-window.dfnpanelData['session-instructions'] = {"dfnID": "session-instructions", "url": "#session-instructions", "dfnText": "session instructions", "refSections": [{"refs": [{"id": "ref-for-session-instructions"}, {"id": "ref-for-session-instructions\u2460"}], "title": "7.5. DBSC Session Instruction Format"}], "external": false};
-window.dfnpanelData['dbsc-proof'] = {"dfnID": "dbsc-proof", "url": "#dbsc-proof", "dfnText": "DBSC proof", "refSections": [{"refs": [{"id": "ref-for-dbsc-proof"}, {"id": "ref-for-dbsc-proof\u2460"}, {"id": "ref-for-dbsc-proof\u2461"}], "title": "6.2. Process challenge"}, {"refs": [{"id": "ref-for-dbsc-proof\u2462"}, {"id": "ref-for-dbsc-proof\u2463"}], "title": "7.2. `Sec-Session-Challenge` HTTP Header Field"}, {"refs": [{"id": "ref-for-dbsc-proof\u2464"}], "title": "7.2.1. Sec-Session-Challenge structured header serialization"}, {"refs": [{"id": "ref-for-dbsc-proof\u2465"}, {"id": "ref-for-dbsc-proof\u2466"}], "title": "7.3. Sec-Session-Response HTTP Header Field"}, {"refs": [{"id": "ref-for-dbsc-proof\u2467"}], "title": "7.5. DBSC Session Instruction Format"}, {"refs": [{"id": "ref-for-dbsc-proof\u2468"}, {"id": "ref-for-dbsc-proof\u2460\u24ea"}, {"id": "ref-for-dbsc-proof\u2460\u2460"}, {"id": "ref-for-dbsc-proof\u2460\u2461"}], "title": "7.6. DBSC Proof JWT Syntax"}], "external": false};
-</script>
 <script>/* Boilerplate: script-dom-helper */
+"use strict";
 function query(sel) { return document.querySelector(sel); }
 
 function queryAll(sel) { return [...document.querySelectorAll(sel)]; }
@@ -2058,103 +1789,775 @@ function parseHTML(markup) {
 		el.innerHTML = markup;
 		return el.content;
 	}
+}</script>
+<script>/* Boilerplate: script-dfn-panel */
+"use strict";
+{
+let dfnPanelData = {
+"0698d556": {"dfnID":"0698d556","dfnText":"string","external":true,"refSections":[{"refs":[{"id":"ref-for-string"},{"id":"ref-for-string\u2460"},{"id":"ref-for-string\u2461"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-string\u2462"},{"id":"ref-for-string\u2463"}],"title":"5.5. Scope specification"},{"refs":[{"id":"ref-for-string\u2464"},{"id":"ref-for-string\u2465"}],"title":"5.6. Session credential"},{"refs":[{"id":"ref-for-string\u2460\u2463"},{"id":"ref-for-string\u2460\u2464"}],"title":"7.5. DBSC Session Instruction Format"},{"refs":[{"id":"ref-for-string\u2460\u2465"},{"id":"ref-for-string\u2460\u2466"},{"id":"ref-for-string\u2460\u2467"},{"id":"ref-for-string\u2460\u2468"},{"id":"ref-for-string\u2461\u24ea"},{"id":"ref-for-string\u2461\u2460"},{"id":"ref-for-string\u2461\u2461"}],"title":"7.6. DBSC Proof JWT Syntax"}],"url":"https://infra.spec.whatwg.org/#string"},
+"162d2b51": {"dfnID":"162d2b51","dfnText":"request","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-request-request"}],"title":"7.3. Sec-Session-Response HTTP Header Field"},{"refs":[{"id":"ref-for-concept-request-request\u2460"}],"title":"7.4. Sec-Session-Id HTTP Header Field"},{"refs":[{"id":"ref-for-concept-request-request\u2461"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"https://fetch.spec.whatwg.org/#concept-request-request"},
+"16d07e10": {"dfnID":"16d07e10","dfnText":"for each","external":true,"refSections":[{"refs":[{"id":"ref-for-list-iterate"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-list-iterate\u2460"},{"id":"ref-for-list-iterate\u2461"}],"title":"6.5. Create session"}],"url":"https://infra.spec.whatwg.org/#list-iterate"},
+"36858240": {"dfnID":"36858240","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-boolean"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-boolean\u2460"}],"title":"5.4. Session scope"},{"refs":[{"id":"ref-for-boolean\u2461"},{"id":"ref-for-boolean\u2462"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"https://infra.spec.whatwg.org/#boolean"},
+"5c66de35": {"dfnID":"5c66de35","dfnText":"get a structured field value","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-header-list-get-structured-header"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-concept-header-list-get-structured-header\u2460"}],"title":"6.5. Create session"}],"url":"https://fetch.spec.whatwg.org/#concept-header-list-get-structured-header"},
+"649608b9": {"dfnID":"649608b9","dfnText":"list","external":true,"refSections":[{"refs":[{"id":"ref-for-list"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-list\u2460"}],"title":"5.4. Session scope"},{"refs":[{"id":"ref-for-list\u2461"}],"title":"6.5. Create session"}],"url":"https://infra.spec.whatwg.org/#list"},
+"84b454ff": {"dfnID":"84b454ff","dfnText":"ordered map","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-map"}],"title":"5.1. Sessions by registrable domain"},{"refs":[{"id":"ref-for-ordered-map\u2460"}],"title":"5.2. Sessions by id"}],"url":"https://infra.spec.whatwg.org/#ordered-map"},
+"984221ca": {"dfnID":"984221ca","dfnText":"struct","external":true,"refSections":[{"refs":[{"id":"ref-for-struct"},{"id":"ref-for-struct\u2460"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-struct\u2461"}],"title":"5.4. Session scope"},{"refs":[{"id":"ref-for-struct\u2462"}],"title":"5.5. Scope specification"},{"refs":[{"id":"ref-for-struct\u2463"}],"title":"5.6. Session credential"}],"url":"https://infra.spec.whatwg.org/#struct"},
+"a1d47575": {"dfnID":"a1d47575","dfnText":"status","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response-status"},{"id":"ref-for-concept-response-status\u2460"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-concept-response-status\u2461"}],"title":"7.2. `Sec-Session-Challenge` HTTP Header Field"}],"url":"https://fetch.spec.whatwg.org/#concept-response-status"},
+"algorithms-identify-a-session": {"dfnID":"algorithms-identify-a-session","dfnText":"identify a session","external":false,"refSections":[{"refs":[{"id":"ref-for-algorithms-identify-a-session"}],"title":"6.2. Process challenge"}],"url":"#algorithms-identify-a-session"},
+"algorithms-process-a-challenge": {"dfnID":"algorithms-process-a-challenge","dfnText":"process a challenge","external":false,"refSections":[],"url":"#algorithms-process-a-challenge"},
+"b38eaac9": {"dfnID":"b38eaac9","dfnText":"sf-inner-list","external":true,"refSections":[{"refs":[{"id":"ref-for-inner-list"}],"title":"6.5. Create session"}],"url":"https://datatracker.ietf.org/doc/html/rfc8941#inner-list"},
+"b93af9cf": {"dfnID":"b93af9cf","dfnText":"sf-list","external":true,"refSections":[{"refs":[{"id":"ref-for-list\u2462"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"}],"url":"https://datatracker.ietf.org/doc/html/rfc8941#list"},
+"bb423dc4": {"dfnID":"bb423dc4","dfnText":"sf-token","external":true,"refSections":[{"refs":[{"id":"ref-for-token"}],"title":"6.5. Create session"},{"refs":[{"id":"ref-for-token\u2460"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"}],"url":"https://datatracker.ietf.org/doc/html/rfc8941#token"},
+"bc9d7803": {"dfnID":"bc9d7803","dfnText":"registrable domain","external":true,"refSections":[{"refs":[{"id":"ref-for-host-registrable-domain"}],"title":"5.1. Sessions by registrable domain"},{"refs":[{"id":"ref-for-host-registrable-domain\u2460"}],"title":"5.2. Sessions by id"},{"refs":[{"id":"ref-for-host-registrable-domain\u2461"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-host-registrable-domain\u2462"},{"id":"ref-for-host-registrable-domain\u2463"}],"title":"6.1. Identify session"},{"refs":[{"id":"ref-for-host-registrable-domain\u2464"},{"id":"ref-for-host-registrable-domain\u2465"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"https://url.spec.whatwg.org/#host-registrable-domain"},
+"c6b25c6b": {"dfnID":"c6b25c6b","dfnText":"parsing structured fields","external":true,"refSections":[{"refs":[{"id":"ref-for-text-parse"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-text-parse\u2460"}],"title":"6.5. Create session"}],"url":"https://datatracker.ietf.org/doc/html/rfc8941#text-parse"},
+"c88f3887": {"dfnID":"c88f3887","dfnText":"item","external":true,"refSections":[{"refs":[{"id":"ref-for-struct-item"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-struct-item\u2460"}],"title":"5.4. Session scope"},{"refs":[{"id":"ref-for-struct-item\u2461"}],"title":"5.5. Scope specification"},{"refs":[{"id":"ref-for-struct-item\u2462"}],"title":"5.6. Session credential"}],"url":"https://infra.spec.whatwg.org/#struct-item"},
+"close-session": {"dfnID":"close-session","dfnText":"close a session","external":false,"refSections":[],"url":"#close-session"},
+"create-session": {"dfnID":"create-session","dfnText":"Create a new session","external":false,"refSections":[{"refs":[{"id":"ref-for-create-session"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"}],"url":"#create-session"},
+"dbsc-proof": {"dfnID":"dbsc-proof","dfnText":"DBSC proof","external":false,"refSections":[{"refs":[{"id":"ref-for-dbsc-proof"},{"id":"ref-for-dbsc-proof\u2460"},{"id":"ref-for-dbsc-proof\u2461"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-dbsc-proof\u2462"},{"id":"ref-for-dbsc-proof\u2463"}],"title":"7.2. `Sec-Session-Challenge` HTTP Header Field"},{"refs":[{"id":"ref-for-dbsc-proof\u2464"}],"title":"7.2.1. Sec-Session-Challenge structured header serialization"},{"refs":[{"id":"ref-for-dbsc-proof\u2465"},{"id":"ref-for-dbsc-proof\u2466"}],"title":"7.3. Sec-Session-Response HTTP Header Field"},{"refs":[{"id":"ref-for-dbsc-proof\u2467"}],"title":"7.5. DBSC Session Instruction Format"},{"refs":[{"id":"ref-for-dbsc-proof\u2468"},{"id":"ref-for-dbsc-proof\u2460\u24ea"},{"id":"ref-for-dbsc-proof\u2460\u2460"},{"id":"ref-for-dbsc-proof\u2460\u2461"}],"title":"7.6. DBSC Proof JWT Syntax"}],"url":"#dbsc-proof"},
+"dbsc-proof-alg": {"dfnID":"dbsc-proof-alg","dfnText":"alg","external":false,"refSections":[],"url":"#dbsc-proof-alg"},
+"dbsc-proof-aud": {"dfnID":"dbsc-proof-aud","dfnText":"aud","external":false,"refSections":[],"url":"#dbsc-proof-aud"},
+"dbsc-proof-authorization": {"dfnID":"dbsc-proof-authorization","dfnText":"authorization","external":false,"refSections":[],"url":"#dbsc-proof-authorization"},
+"dbsc-proof-iat": {"dfnID":"dbsc-proof-iat","dfnText":"iat","external":false,"refSections":[],"url":"#dbsc-proof-iat"},
+"dbsc-proof-jti": {"dfnID":"dbsc-proof-jti","dfnText":"jti","external":false,"refSections":[],"url":"#dbsc-proof-jti"},
+"dbsc-proof-jwk": {"dfnID":"dbsc-proof-jwk","dfnText":"jwk","external":false,"refSections":[],"url":"#dbsc-proof-jwk"},
+"dbsc-proof-typ": {"dfnID":"dbsc-proof-typ","dfnText":"typ","external":false,"refSections":[],"url":"#dbsc-proof-typ"},
+"dcffbccd": {"dfnID":"dcffbccd","dfnText":"URL","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-url"},{"id":"ref-for-concept-url\u2460"}],"title":"5.3. Device bound session"},{"refs":[{"id":"ref-for-concept-url\u2461"},{"id":"ref-for-concept-url\u2462"}],"title":"6.1. Identify session"},{"refs":[{"id":"ref-for-concept-url\u2463"},{"id":"ref-for-concept-url\u2464"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"},{"refs":[{"id":"ref-for-concept-url\u2465"}],"title":"7.5. DBSC Session Instruction Format"},{"refs":[{"id":"ref-for-concept-url\u2466"}],"title":"7.6. DBSC Proof JWT Syntax"}],"url":"https://url.spec.whatwg.org/#concept-url"},
+"device-bound-session": {"dfnID":"device-bound-session","dfnText":"device bound session","external":false,"refSections":[{"refs":[{"id":"ref-for-device-bound-session"}],"title":"5.2. Sessions by id"},{"refs":[{"id":"ref-for-device-bound-session\u2460"}],"title":"6.1. Identify session"},{"refs":[{"id":"ref-for-device-bound-session\u2461"},{"id":"ref-for-device-bound-session\u2462"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-device-bound-session\u2463"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"},{"refs":[{"id":"ref-for-device-bound-session\u2464"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"#device-bound-session"},
+"device-bound-session-cached-challenge": {"dfnID":"device-bound-session-cached-challenge","dfnText":"cached challenge","external":false,"refSections":[{"refs":[{"id":"ref-for-device-bound-session-cached-challenge"}],"title":"6.2. Process challenge"}],"url":"#device-bound-session-cached-challenge"},
+"device-bound-session-defer-requests": {"dfnID":"device-bound-session-defer-requests","dfnText":"defer requests","external":false,"refSections":[],"url":"#device-bound-session-defer-requests"},
+"device-bound-session-refresh-url": {"dfnID":"device-bound-session-refresh-url","dfnText":"refresh url","external":false,"refSections":[],"url":"#device-bound-session-refresh-url"},
+"device-bound-session-session-identifier": {"dfnID":"device-bound-session-session-identifier","dfnText":"session identifier","external":false,"refSections":[{"refs":[{"id":"ref-for-device-bound-session-session-identifier"}],"title":"5.2. Sessions by id"},{"refs":[{"id":"ref-for-device-bound-session-session-identifier\u2460"},{"id":"ref-for-device-bound-session-session-identifier\u2461"}],"title":"6.1. Identify session"},{"refs":[{"id":"ref-for-device-bound-session-session-identifier\u2462"}],"title":"7.2.1. Sec-Session-Challenge structured header serialization"},{"refs":[{"id":"ref-for-device-bound-session-session-identifier\u2463"},{"id":"ref-for-device-bound-session-session-identifier\u2464"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"#device-bound-session-session-identifier"},
+"e3201629": {"dfnID":"e3201629","dfnText":"response","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response-response"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-concept-response-response\u2460"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"},{"refs":[{"id":"ref-for-concept-response-response\u2461"}],"title":"7.2. `Sec-Session-Challenge` HTTP Header Field"}],"url":"https://fetch.spec.whatwg.org/#concept-response-response"},
+"e7aabcb5": {"dfnID":"e7aabcb5","dfnText":"sf-string","external":true,"refSections":[{"refs":[{"id":"ref-for-string\u2466"},{"id":"ref-for-string\u2467"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-string\u2468"},{"id":"ref-for-string\u2460\u24ea"}],"title":"6.5. Create session"},{"refs":[{"id":"ref-for-string\u2460\u2460"}],"title":"7.2. `Sec-Session-Challenge` HTTP Header Field"},{"refs":[{"id":"ref-for-string\u2460\u2461"}],"title":"7.3. Sec-Session-Response HTTP Header Field"},{"refs":[{"id":"ref-for-string\u2460\u2462"}],"title":"7.4. Sec-Session-Id HTTP Header Field"}],"url":"https://datatracker.ietf.org/doc/html/rfc8941#string"},
+"f7b00a8b": {"dfnID":"f7b00a8b","dfnText":"header list","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response-header-list"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-concept-response-header-list\u2460"}],"title":"6.5. Create session"}],"url":"https://fetch.spec.whatwg.org/#concept-response-header-list"},
+"f937b7b6": {"dfnID":"f937b7b6","dfnText":"continue","external":true,"refSections":[{"refs":[{"id":"ref-for-iteration-continue"},{"id":"ref-for-iteration-continue\u2460"},{"id":"ref-for-iteration-continue\u2461"},{"id":"ref-for-iteration-continue\u2462"}],"title":"6.2. Process challenge"},{"refs":[{"id":"ref-for-iteration-continue\u2463"},{"id":"ref-for-iteration-continue\u2464"},{"id":"ref-for-iteration-continue\u2465"},{"id":"ref-for-iteration-continue\u2466"}],"title":"6.5. Create session"}],"url":"https://infra.spec.whatwg.org/#iteration-continue"},
+"fetch-integration": {"dfnID":"fetch-integration","dfnText":"fetch Integration","external":false,"refSections":[],"url":"#fetch-integration"},
+"refresh-session": {"dfnID":"refresh-session","dfnText":"Refreshing an existing session","external":false,"refSections":[],"url":"#refresh-session"},
+"scope-specification": {"dfnID":"scope-specification","dfnText":"scope specification","external":false,"refSections":[{"refs":[{"id":"ref-for-scope-specification"},{"id":"ref-for-scope-specification\u2460"}],"title":"5.4. Session scope"}],"url":"#scope-specification"},
+"scope-specification-path": {"dfnID":"scope-specification-path","dfnText":"path","external":false,"refSections":[],"url":"#scope-specification-path"},
+"scope-specification-type": {"dfnID":"scope-specification-type","dfnText":"type","external":false,"refSections":[],"url":"#scope-specification-type"},
+"sec-session-challenge-header": {"dfnID":"sec-session-challenge-header","dfnText":"\nSec-Session-Challenge","external":false,"refSections":[{"refs":[{"id":"ref-for-sec-session-challenge-header"}],"title":"7.2. `Sec-Session-Challenge` HTTP Header Field"},{"refs":[{"id":"ref-for-sec-session-challenge-header\u2460"},{"id":"ref-for-sec-session-challenge-header\u2461"}],"title":"7.2.1. Sec-Session-Challenge structured header serialization"}],"url":"#sec-session-challenge-header"},
+"sec-session-id-header": {"dfnID":"sec-session-id-header","dfnText":"\nSec-Session-Id","external":false,"refSections":[{"refs":[{"id":"ref-for-sec-session-id-header"}],"title":"7.4. Sec-Session-Id HTTP Header Field"}],"url":"#sec-session-id-header"},
+"sec-session-registration-header": {"dfnID":"sec-session-registration-header","dfnText":"\nSec-Session-Registration","external":false,"refSections":[{"refs":[{"id":"ref-for-sec-session-registration-header"},{"id":"ref-for-sec-session-registration-header\u2460"}],"title":"6.5. Create session"},{"refs":[{"id":"ref-for-sec-session-registration-header\u2461"},{"id":"ref-for-sec-session-registration-header\u2462"}],"title":"7.1. `Sec-Session-Registration` HTTP header field"},{"refs":[{"id":"ref-for-sec-session-registration-header\u2463"},{"id":"ref-for-sec-session-registration-header\u2464"}],"title":"7.6. DBSC Proof JWT Syntax"}],"url":"#sec-session-registration-header"},
+"sec-session-response-header": {"dfnID":"sec-session-response-header","dfnText":"\nSec-Session-Response","external":false,"refSections":[{"refs":[{"id":"ref-for-sec-session-response-header"}],"title":"7.3. Sec-Session-Response HTTP Header Field"},{"refs":[{"id":"ref-for-sec-session-response-header\u2460"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"#sec-session-response-header"},
+"session-by-id": {"dfnID":"session-by-id","dfnText":"session by id","external":false,"refSections":[{"refs":[{"id":"ref-for-session-by-id"}],"title":"5.1. Sessions by registrable domain"},{"refs":[{"id":"ref-for-session-by-id\u2460"}],"title":"6.1. Identify session"}],"url":"#session-by-id"},
+"session-credential": {"dfnID":"session-credential","dfnText":"session credential","external":false,"refSections":[{"refs":[{"id":"ref-for-session-credential"},{"id":"ref-for-session-credential\u2460"}],"title":"5.3. Device bound session"}],"url":"#session-credential"},
+"session-credential-attributes": {"dfnID":"session-credential-attributes","dfnText":"attributes","external":false,"refSections":[],"url":"#session-credential-attributes"},
+"session-credential-name": {"dfnID":"session-credential-name","dfnText":"name","external":false,"refSections":[],"url":"#session-credential-name"},
+"session-instructions": {"dfnID":"session-instructions","dfnText":"session instructions","external":false,"refSections":[{"refs":[{"id":"ref-for-session-instructions"},{"id":"ref-for-session-instructions\u2460"}],"title":"7.5. DBSC Session Instruction Format"}],"url":"#session-instructions"},
+"session-instructions-continue": {"dfnID":"session-instructions-continue","dfnText":"continue","external":false,"refSections":[],"url":"#session-instructions-continue"},
+"session-instructions-defer_requests": {"dfnID":"session-instructions-defer_requests","dfnText":"defer_requests","external":false,"refSections":[],"url":"#session-instructions-defer_requests"},
+"session-instructions-refresh_url": {"dfnID":"session-instructions-refresh_url","dfnText":"refresh_url","external":false,"refSections":[],"url":"#session-instructions-refresh_url"},
+"session-instructions-session-identifier": {"dfnID":"session-instructions-session-identifier","dfnText":"session identifier","external":false,"refSections":[],"url":"#session-instructions-session-identifier"},
+"session-scope": {"dfnID":"session-scope","dfnText":"session scope","external":false,"refSections":[{"refs":[{"id":"ref-for-session-scope"}],"title":"5.3. Device bound session"}],"url":"#session-scope"},
+"session-scope-include-site": {"dfnID":"session-scope-include-site","dfnText":"include site","external":false,"refSections":[],"url":"#session-scope-include-site"},
+"sessions-by-registrable-domain": {"dfnID":"sessions-by-registrable-domain","dfnText":"sessions by registrable domain","external":false,"refSections":[{"refs":[{"id":"ref-for-sessions-by-registrable-domain"}],"title":"6.1. Identify session"},{"refs":[{"id":"ref-for-sessions-by-registrable-domain\u2460"}],"title":"6.2. Process challenge"}],"url":"#sessions-by-registrable-domain"},
+};
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    genAllDfnPanels();
+
+    document.body.addEventListener("click", (e) => {
+        // If not handled already, just hide all dfn panels.
+        hideAllDfnPanels();
+    });
+});
+
+window.addEventListener("resize", () => {
+    // Pin any visible dfn panel
+    queryAll(".dfn-panel.on, .dfn-panel.activated").forEach(el=>positionDfnPanel(el));
+});
+
+function genAllDfnPanels() {
+    for(const panelData of Object.values(dfnPanelData)) {
+        const dfnID = panelData.dfnID;
+        const dfn = document.getElementById(dfnID);
+        if(!dfn) {
+            console.log(`Can't find dfn#${dfnID}.`, panelData);
+            continue;
+        }
+        dfn.panelData = panelData;
+        insertDfnPopupAction(dfn);
+    }
+}
+
+function genDfnPanel(dfn, { dfnID, url, dfnText, refSections, external }) {
+    const dfnPanel = mk.aside({
+        class: "dfn-panel on",
+        id: `infopanel-for-${dfnID}`,
+        "data-for": dfnID,
+        "aria-labelled-by":`infopaneltitle-for-${dfnID}`,
+        },
+        mk.span({id:`infopaneltitle-for-${dfnID}`, style:"display:none"},
+            `Info about the '${dfnText}' ${external?"external":""} reference.`),
+        mk.a({href:url, class:"dfn-link"}, url),
+        refSections.length == 0 ? [] :
+            mk.b({}, "Referenced in:"),
+            mk.ul({},
+                ...refSections.map(section=>
+                    mk.li({},
+                        ...section.refs.map((ref, refI)=>
+                            [
+                                mk.a({ href: `#${ref.id}` },
+                                    (refI == 0) ? section.title : `(${refI + 1})`
+                                ),
+                                " ",
+                            ]
+                        ),
+                    ),
+                ),
+            ),
+        genLinkingSyntaxes(dfn),
+    );
+
+    dfnPanel.addEventListener('click', (event) => {
+        if (event.target.nodeName == 'A') {
+            scrollToTargetAndHighlight(event);
+            pinDfnPanel(dfnPanel);
+        }
+        event.stopPropagation();
+        refocusOnTarget(event);
+    });
+    dfnPanel.addEventListener('keydown', (event) => {
+        if(event.keyCode == 27) { // Escape key
+            hideDfnPanel({dfnPanel});
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    });
+
+    dfnPanel.dfn = dfn;
+    dfn.dfnPanel = dfnPanel;
+    return dfnPanel;
+}
+
+
+
+function hideAllDfnPanels() {
+    // Delete the currently-active dfn panel.
+    queryAll(".dfn-panel").forEach(dfnPanel=>hideDfnPanel({dfnPanel}));
+}
+
+function showDfnPanel(dfn) {
+    hideAllDfnPanels(); // Only display one at a time.
+
+    dfn.setAttribute("aria-expanded", "true");
+
+    const dfnPanel = genDfnPanel(dfn, dfn.panelData);
+
+    // Give the dfn a unique tabindex, and then
+    // give all the tabbable panel bits successive indexes.
+    let tabIndex = 100;
+    dfn.tabIndex = tabIndex++;
+    const tabbable = dfnPanel.querySelectorAll(":is(a, button)");
+    for (const el of tabbable) {
+        el.tabIndex = tabIndex++;
+    }
+
+    append(document.body, dfnPanel);
+    positionDfnPanel(dfnPanel);
+}
+
+function positionDfnPanel(dfnPanel) {
+    const dfn = dfnPanel.dfn;
+    const dfnPos = getBounds(dfn);
+    dfnPanel.style.top = dfnPos.bottom + "px";
+    dfnPanel.style.left = dfnPos.left + "px";
+
+    const panelPos = dfnPanel.getBoundingClientRect();
+    const panelMargin = 8;
+    const maxRight = document.body.parentNode.clientWidth - panelMargin;
+    if (panelPos.right > maxRight) {
+        const overflowAmount = panelPos.right - maxRight;
+        const newLeft = Math.max(panelMargin, dfnPos.left - overflowAmount);
+        dfnPanel.style.left = newLeft + "px";
+    }
+}
+
+function pinDfnPanel(dfnPanel) {
+    // Switch it to "activated" state, which pins it.
+    dfnPanel.classList.add("activated");
+    dfnPanel.style.position = "fixed";
+    dfnPanel.style.left = null;
+    dfnPanel.style.top = null;
+}
+
+function hideDfnPanel({dfn, dfnPanel}) {
+    if(!dfnPanel) dfnPanel = dfn.dfnPanel;
+    if(!dfn) dfn = dfnPanel.dfn;
+    dfn.dfnPanel = undefined;
+    dfnPanel.dfn = undefined;
+    dfn.setAttribute("aria-expanded", "false");
+    dfn.tabIndex = undefined;
+    dfnPanel.remove()
+}
+
+function toggleDfnPanel(dfn) {
+    if(dfn.dfnPanel) {
+        hideDfnPanel(dfn);
+    } else {
+        showDfnPanel(dfn);
+    }
+}
+
+function insertDfnPopupAction(dfn) {
+    dfn.setAttribute('role', 'button');
+    dfn.setAttribute('aria-expanded', 'false')
+    dfn.tabIndex = 0;
+    dfn.classList.add('has-dfn-panel');
+    dfn.addEventListener('click', (event) => {
+        toggleDfnPanel(dfn);
+        event.stopPropagation();
+    });
+    dfn.addEventListener('keypress', (event) => {
+        const kc = event.keyCode;
+        // 32->Space, 13->Enter
+        if(kc == 32 || kc == 13) {
+            toggleDfnPanel(dfn);
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    });
+}
+
+function refocusOnTarget(event) {
+    const target = event.target;
+    setTimeout(() => {
+        // Refocus on the event.target element.
+        // This is needed after browser scrolls to the destination.
+        target.focus();
+    });
+}
+
+// TODO: shared util
+// Returns the root-level absolute position {left and top} of element.
+function getBounds(el, relativeTo=document.body) {
+    const relativeRect = relativeTo.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const top = elRect.top - relativeRect.top;
+    const left = elRect.left - relativeRect.left;
+    return {
+        top,
+        left,
+        bottom: top + elRect.height,
+        right: left + elRect.width,
+    }
+}
+
+function scrollToTargetAndHighlight(event) {
+    let hash = event.target.hash;
+    if (hash) {
+        hash = decodeURIComponent(hash.substring(1));
+        const dest = document.getElementById(hash);
+        if (dest) {
+            dest.classList.add('highlighted');
+            setTimeout(() => dest.classList.remove('highlighted'), 1000);
+        }
+    }
+}
+
+// Functions, divided by link type, that wrap an autolink's
+// contents with the appropriate outer syntax.
+// Alternately, a string naming another type they format
+// the same as.
+function needsFor(type) {
+    switch(type) {
+        case "descriptor":
+        case "value":
+        case "element-attr":
+        case "attr-value":
+        case "element-state":
+        case "method":
+        case "constructor":
+        case "argument":
+        case "attribute":
+        case "const":
+        case "dict-member":
+        case "event":
+        case "enum-value":
+        case "stringifier":
+        case "serializer":
+        case "iterator":
+        case "maplike":
+        case "setlike":
+        case "state":
+        case "mode":
+        case "context":
+        case "facet": return true;
+
+        default: return false;
+    }
+}
+function refusesFor(type) {
+    switch(type) {
+        case "property":
+        case "element":
+        case "interface":
+        case "namespace":
+        case "callback":
+        case "dictionary":
+        case "enum":
+        case "exception":
+        case "typedef":
+        case "http-header":
+        case "permission": return true;
+
+        default: return false;
+    }
+}
+function linkFormatterFromType(type) {
+    switch(type) {
+        case 'scheme':
+        case 'permission':
+        case 'dfn': return (text) => `[=${text}=]`;
+
+        case 'abstract-op': return (text) => `[\$${text}\$]`;
+
+        case 'function':
+        case 'at-rule':
+        case 'selector':
+        case 'value': return (text) => `''${text}''`;
+
+        case 'http-header': return (text) => `[:${text}:]`;
+
+        case 'interface':
+        case 'constructor':
+        case 'method':
+        case 'argument':
+        case 'attribute':
+        case 'callback':
+        case 'dictionary':
+        case 'dict-member':
+        case 'enum':
+        case 'enum-value':
+        case 'exception':
+        case 'const':
+        case 'typedef':
+        case 'stringifier':
+        case 'serializer':
+        case 'iterator':
+        case 'maplike':
+        case 'setlike':
+        case 'extended-attribute':
+        case 'event':
+        case 'idl': return (text) => `{{${text}}}`;
+
+        case 'element-state':
+        case 'element-attr':
+        case 'attr-value':
+        case 'element': return (element) => `<{${element}}>`;
+
+        case 'grammar': return (text) => `${text} (within a <pre class=prod>)`;
+
+        case 'type': return (text)=> `<<${text}>>`;
+
+        case 'descriptor':
+        case 'property': return (text) => `'${text}'`;
+
+        default: return;
+    };
+};
+
+function genLinkingSyntaxes(dfn) {
+    if(dfn.tagName != "DFN") return;
+
+    const type = dfn.getAttribute('data-dfn-type');
+    if(!type) {
+        console.log(`<dfn> doesn't have a data-dfn-type:`, dfn);
+        return [];
+    }
+
+    // Return a function that wraps link text based on the type
+    const linkFormatter = linkFormatterFromType(type);
+    if(!linkFormatter) {
+        console.log(`<dfn> has an unknown data-dfn-type:`, dfn);
+        return [];
+    }
+
+    let ltAlts;
+    if(dfn.hasAttribute('data-lt')) {
+        ltAlts = dfn.getAttribute('data-lt')
+            .split("|")
+            .map(x=>x.trim());
+    } else {
+        ltAlts = [dfn.textContent.trim()];
+    }
+    if(type == "type") {
+        // lt of "<foo>", but "foo" is the interior;
+        // <<foo/bar>> is how you write it with a for,
+        // not <foo/<bar>> or whatever.
+        for(var i = 0; i < ltAlts.length; i++) {
+            const lt = ltAlts[i];
+            const match = /<(.*)>/.exec(lt);
+            if(match) { ltAlts[i] = match[1]; }
+        }
+    }
+
+    let forAlts;
+    if(dfn.hasAttribute('data-dfn-for')) {
+        forAlts = dfn.getAttribute('data-dfn-for')
+            .split(",")
+            .map(x=>x.trim());
+    } else {
+        forAlts = [''];
+    }
+
+    let linkingSyntaxes = [];
+    if(!needsFor(type)) {
+        for(const lt of ltAlts) {
+            linkingSyntaxes.push(linkFormatter(lt));
+        }
+    }
+    if(!refusesFor(type)) {
+        for(const f of forAlts) {
+            linkingSyntaxes.push(linkFormatter(`${f}/${ltAlts[0]}`))
+        }
+    }
+    return [
+        mk.b({}, 'Possible linking syntaxes:'),
+        mk.ul({},
+            ...linkingSyntaxes.map(link => {
+                const copyLink = async () =>
+                    await navigator.clipboard.writeText(link);
+                return mk.li({},
+                    mk.div({ class: 'link-item' },
+                        mk.button({
+                            class: 'copy-icon', title: 'Copy',
+                            type: 'button',
+                            _onclick: copyLink,
+                            tabindex: 0,
+                        }, mk.span({ class: 'icon' }) ),
+                        mk.span({}, link)
+                    )
+                );
+            })
+        )
+    ];
+}
+}
+</script>
+<script>/* Boilerplate: script-ref-hints */
+"use strict";
+{
+let refsData = {
+"#algorithms-identify-a-session": {"displayText":"identify a session","export":true,"for_":["algorithms"],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"identify a session","type":"dfn","url":"#algorithms-identify-a-session"},
+"#create-session": {"displayText":"create a new session","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"create a new session","type":"dfn","url":"#create-session"},
+"#dbsc-proof": {"displayText":"dbsc proof","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"dbsc proof","type":"dfn","url":"#dbsc-proof"},
+"#device-bound-session": {"displayText":"device bound session","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"device bound session","type":"dfn","url":"#device-bound-session"},
+"#device-bound-session-cached-challenge": {"displayText":"cached challenge","export":true,"for_":["device bound session"],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"cached challenge","type":"dfn","url":"#device-bound-session-cached-challenge"},
+"#device-bound-session-session-identifier": {"displayText":"session identifier","export":true,"for_":["device bound session"],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"session identifier","type":"dfn","url":"#device-bound-session-session-identifier"},
+"#scope-specification": {"displayText":"scope specification","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"scope specification","type":"dfn","url":"#scope-specification"},
+"#sec-session-challenge-header": {"displayText":"sec-session-challenge","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"sec-session-challenge","type":"http-header","url":"#sec-session-challenge-header"},
+"#sec-session-id-header": {"displayText":"sec-session-id","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"sec-session-id","type":"http-header","url":"#sec-session-id-header"},
+"#sec-session-registration-header": {"displayText":"sec-session-registration","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"sec-session-registration","type":"http-header","url":"#sec-session-registration-header"},
+"#sec-session-response-header": {"displayText":"sec-session-response","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"sec-session-response","type":"http-header","url":"#sec-session-response-header"},
+"#session-by-id": {"displayText":"session by id","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"session by id","type":"dfn","url":"#session-by-id"},
+"#session-credential": {"displayText":"session credential","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"session credential","type":"dfn","url":"#session-credential"},
+"#session-instructions": {"displayText":"session instructions","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"session instructions","type":"dfn","url":"#session-instructions"},
+"#session-scope": {"displayText":"session scope","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"session scope","type":"dfn","url":"#session-scope"},
+"#sessions-by-registrable-domain": {"displayText":"sessions by registrable domain","export":true,"for_":[],"level":"1","normative":true,"shortname":"dbsc","spec":"dbsc-1","status":"local","text":"sessions by registrable domain","type":"dfn","url":"#sessions-by-registrable-domain"},
+"https://datatracker.ietf.org/doc/html/rfc8941#inner-list": {"displayText":"sf-inner-list","export":true,"for_":[],"level":"","normative":true,"shortname":"rfc8941","spec":"rfc8941","status":"anchor-block","text":"sf-inner-list","type":"dfn","url":"https://datatracker.ietf.org/doc/html/rfc8941#inner-list"},
+"https://datatracker.ietf.org/doc/html/rfc8941#list": {"displayText":"sf-list","export":true,"for_":[],"level":"","normative":true,"shortname":"rfc8941","spec":"rfc8941","status":"anchor-block","text":"sf-list","type":"dfn","url":"https://datatracker.ietf.org/doc/html/rfc8941#list"},
+"https://datatracker.ietf.org/doc/html/rfc8941#string": {"displayText":"sf-string","export":true,"for_":[],"level":"","normative":true,"shortname":"rfc8941","spec":"rfc8941","status":"anchor-block","text":"sf-string","type":"dfn","url":"https://datatracker.ietf.org/doc/html/rfc8941#string"},
+"https://datatracker.ietf.org/doc/html/rfc8941#text-parse": {"displayText":"parsing structured fields","export":true,"for_":[],"level":"","normative":true,"shortname":"rfc8941","spec":"rfc8941","status":"anchor-block","text":"parsing structured fields","type":"dfn","url":"https://datatracker.ietf.org/doc/html/rfc8941#text-parse"},
+"https://datatracker.ietf.org/doc/html/rfc8941#token": {"displayText":"sf-token","export":true,"for_":[],"level":"","normative":true,"shortname":"rfc8941","spec":"rfc8941","status":"anchor-block","text":"sf-token","type":"dfn","url":"https://datatracker.ietf.org/doc/html/rfc8941#token"},
+"https://fetch.spec.whatwg.org/#concept-header-list-get-structured-header": {"displayText":"get a structured field value","export":true,"for_":["header list"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"get a structured field value","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-list-get-structured-header"},
+"https://fetch.spec.whatwg.org/#concept-request-request": {"displayText":"request","export":true,"for_":["Request"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"request","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-request-request"},
+"https://fetch.spec.whatwg.org/#concept-response-header-list": {"displayText":"header list","export":true,"for_":["response"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"header list","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-response-header-list"},
+"https://fetch.spec.whatwg.org/#concept-response-response": {"displayText":"response","export":true,"for_":["Response"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"response","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-response-response"},
+"https://fetch.spec.whatwg.org/#concept-response-status": {"displayText":"status","export":true,"for_":["response"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"status","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-response-status"},
+"https://infra.spec.whatwg.org/#boolean": {"displayText":"boolean","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"boolean","type":"dfn","url":"https://infra.spec.whatwg.org/#boolean"},
+"https://infra.spec.whatwg.org/#iteration-continue": {"displayText":"continue","export":true,"for_":["iteration"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"continue","type":"dfn","url":"https://infra.spec.whatwg.org/#iteration-continue"},
+"https://infra.spec.whatwg.org/#list": {"displayText":"list","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"list","type":"dfn","url":"https://infra.spec.whatwg.org/#list"},
+"https://infra.spec.whatwg.org/#list-iterate": {"displayText":"for each","export":true,"for_":["list","set"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"for each","type":"dfn","url":"https://infra.spec.whatwg.org/#list-iterate"},
+"https://infra.spec.whatwg.org/#ordered-map": {"displayText":"ordered map","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"ordered map","type":"dfn","url":"https://infra.spec.whatwg.org/#ordered-map"},
+"https://infra.spec.whatwg.org/#string": {"displayText":"string","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"string","type":"dfn","url":"https://infra.spec.whatwg.org/#string"},
+"https://infra.spec.whatwg.org/#struct": {"displayText":"struct","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"struct","type":"dfn","url":"https://infra.spec.whatwg.org/#struct"},
+"https://infra.spec.whatwg.org/#struct-item": {"displayText":"item","export":true,"for_":["struct","tuple"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"item","type":"dfn","url":"https://infra.spec.whatwg.org/#struct-item"},
+"https://url.spec.whatwg.org/#concept-url": {"displayText":"URL","export":true,"for_":[],"level":"1","normative":true,"shortname":"url","spec":"url","status":"current","text":"url","type":"dfn","url":"https://url.spec.whatwg.org/#concept-url"},
+"https://url.spec.whatwg.org/#host-registrable-domain": {"displayText":"registrable domain","export":true,"for_":["host"],"level":"1","normative":true,"shortname":"url","spec":"url","status":"current","text":"registrable domain","type":"dfn","url":"https://url.spec.whatwg.org/#host-registrable-domain"},
+};
+
+function mkRefHint(link, ref) {
+    const linkText = link.textContent;
+    let dfnTextElements = '';
+    if (ref.displayText.toLowerCase() != linkText.toLowerCase()) {
+        // Give the original term if it's being displayed in a different way.
+        // But allow casing differences, they're insignificant.
+        dfnTextElements =
+            mk.li({},
+                mk.b({}, "Term: "),
+                mk.span({}, ref.displayText)
+            );
+    }
+    const forList = ref.for_;
+    let forListElements;
+    if(forList.length == 0) {
+        forListElements = [];
+    } else if(forList.length == 1) {
+        forListElements = mk.li({},
+            mk.b({}, "For: "),
+            mk.span({}, forList[0]),
+        );
+    } else {
+        forListElements = mk.li({},
+            mk.b({}, "For: "),
+            mk.ul({},
+                ...forList.map(forItem =>
+                    mk.li({},
+                        mk.span({}, forItem)
+                    ),
+                ),
+            ),
+        );
+    }
+    const url = ref.url;
+    const safeUrl = encodeURIComponent(url);
+    const hintPanel = mk.aside({
+        class: "ref-hint",
+        id: `ref-hint-for-${safeUrl}`,
+        "data-for": url,
+        "aria-labelled-by": `ref-hint-for-${safeUrl}`,
+    },
+        mk.ul({},
+            dfnTextElements,
+            mk.li({},
+                mk.b({}, "URL: "),
+                mk.a({ href: url, class: "ref" }, url),
+            ),
+            mk.li({},
+                mk.b({}, "Type: "),
+                mk.span({}, `${ref.type}`),
+            ),
+            mk.li({},
+                mk.b({}, "Spec: "),
+                mk.span({}, `${ref.spec ? ref.spec : ''}`),
+            ),
+            forListElements
+        ),
+    );
+    hintPanel.forLink = link;
+    setupRefHintEventListeners(link, hintPanel);
+    return hintPanel;
+}
+
+function hideAllRefHints() {
+    queryAll(".ref-hint").forEach(el=>hideRefHint(el));
+}
+
+function hideRefHint(refHint) {
+    const link = refHint.forLink;
+    link.setAttribute("aria-expanded", "false");
+    if(refHint.teardownEventListeners) {
+        refHint.teardownEventListeners();
+    }
+    refHint.remove();
+}
+
+function showRefHint(link) {
+    if(link.classList.contains("dfn-link")) return;
+    const url = link.getAttribute("href");
+    const ref = refsData[url];
+    if(!ref) return;
+
+    hideAllRefHints(); // Only display one at this time.
+
+    const refHint = mkRefHint(link, ref);
+    append(document.body, refHint);
+    link.setAttribute("aria-expanded", "true");
+    positionRefHint(refHint);
+}
+
+function setupRefHintEventListeners(link, refHint) {
+    if (refHint.teardownEventListeners) return;
+    // Add event handlers to hide the refHint after the user moves away
+    // from both the link and refHint, if not hovering either within one second.
+    let timeout = null;
+    const startHidingRefHint = (event) => {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            hideRefHint(refHint);
+        }, 1000);
+    }
+    const resetHidingRefHint = (event) => {
+        if (timeout) clearTimeout(timeout);
+        timeout = null;
+    };
+    link.addEventListener("mouseleave", startHidingRefHint);
+    link.addEventListener("mouseenter", resetHidingRefHint);
+    link.addEventListener("blur", startHidingRefHint);
+    link.addEventListener("focus", resetHidingRefHint);
+    refHint.addEventListener("mouseleave", startHidingRefHint);
+    refHint.addEventListener("mouseenter", resetHidingRefHint);
+    refHint.addEventListener("blur", startHidingRefHint);
+    refHint.addEventListener("focus", resetHidingRefHint);
+
+    refHint.teardownEventListeners = () => {
+        // remove event listeners
+        resetHidingRefHint();
+        link.removeEventListener("mouseleave", startHidingRefHint);
+        link.removeEventListener("mouseenter", resetHidingRefHint);
+        link.removeEventListener("blur", startHidingRefHint);
+        link.removeEventListener("focus", resetHidingRefHint);
+        refHint.removeEventListener("mouseleave", startHidingRefHint);
+        refHint.removeEventListener("mouseenter", resetHidingRefHint);
+        refHint.removeEventListener("blur", startHidingRefHint);
+        refHint.removeEventListener("focus", resetHidingRefHint);
+    };
+}
+
+function positionRefHint(refHint) {
+    const link = refHint.forLink;
+    const linkPos = getBounds(link);
+    refHint.style.top = linkPos.bottom + "px";
+    refHint.style.left = linkPos.left + "px";
+
+    const panelPos = refHint.getBoundingClientRect();
+    const panelMargin = 8;
+    const maxRight = document.body.parentNode.clientWidth - panelMargin;
+    if (panelPos.right > maxRight) {
+        const overflowAmount = panelPos.right - maxRight;
+        const newLeft = Math.max(panelMargin, linkPos.left - overflowAmount);
+        refHint.style.left = newLeft + "px";
+    }
+}
+
+// TODO: shared util
+// Returns the root-level absolute position {left and top} of element.
+function getBounds(el, relativeTo=document.body) {
+    const relativeRect = relativeTo.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const top = elRect.top - relativeRect.top;
+    const left = elRect.left - relativeRect.left;
+    return {
+        top,
+        left,
+        bottom: top + elRect.height,
+        right: left + elRect.width,
+    }
+}
+
+function showRefHintListener(e) {
+    // If the target isn't in a link (or is a link),
+    // just ignore it.
+    let link = e.target.closest("a");
+    if(!link) return;
+
+    // If the target is in a ref-hint panel
+    // (aka a link in the already-open one),
+    // also just ignore it.
+    if(link.closest(".ref-hint")) return;
+
+    // Otherwise, show the panel for the link.
+    showRefHint(link);
+}
+
+function hideAllHintsListener(e) {
+    // If the click is inside a ref-hint panel, ignore it.
+    if(e.target.closest(".ref-hint")) return;
+    // Otherwise, close all the current panels.
+    hideAllRefHints();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.addEventListener("mousedown", showRefHintListener);
+    document.body.addEventListener("focus", showRefHintListener);
+
+    document.body.addEventListener("click", hideAllHintsListener);
+});
+
+window.addEventListener("resize", () => {
+    // Hide any open ref hint.
+    hideAllRefHints();
+});
 }
 </script>
 <script>/* Boilerplate: script-var-click-highlighting */
+"use strict";
+{
 /*
 Color-choosing design:
 
-Colors are ordered by goodness.
-Each color has a usage count (initially zero).
-Each variable has a last-used color.
-
-* If the var has a last-used color, and that color's usage is 0,
-    return that color.
-* Otherwise, return the lowest-indexed color with the lowest usage.
-    Increment the color's usage and set it as the last-used color
-    for that var.
-* On unclicking, decrement usage of the color.
+* Colors are ordered by goodness.
+* On clicking a var, give it the earliest color
+    with the lowest usage in the algorithm.
+* On re-clicking, re-use the var's most recent color
+    if that's not currently being used elsewhere.
 */
-"use strict";
-{
-    document.addEventListener("click", e=>{
-        if(e.target.nodeName == "VAR") {
-            highlightSameAlgoVars(e.target);
-        }
-    });
-    const indexCounts = new Map();
-    const indexNames = new Map();
-    function highlightSameAlgoVars(v) {
-        // Find the algorithm container.
-        let algoContainer = null;
-        let searchEl = v;
-        while(algoContainer == null && searchEl != document.body) {
-            searchEl = searchEl.parentNode;
-            if(searchEl.hasAttribute("data-algorithm")) {
-                algoContainer = searchEl;
-            }
-        }
 
-        // Not highlighting document-global vars,
-        // too likely to be unrelated.
-        if(algoContainer == null) return;
+const COLOR_COUNT = 7;
 
-        const algoName = algoContainer.getAttribute("data-algorithm");
-        const varName = getVarName(v);
-        const addClass = !v.classList.contains("selected");
-        let highlightClass = null;
-        if(addClass) {
-            const index = chooseHighlightIndex(algoName, varName);
-            indexCounts.get(algoName)[index] += 1;
-            indexNames.set(algoName+"///"+varName, index);
-            highlightClass = nameFromIndex(index);
-        } else {
-            const index = previousHighlightIndex(algoName, varName);
-            indexCounts.get(algoName)[index] -= 1;
-            highlightClass = nameFromIndex(index);
-        }
+document.addEventListener("click", e=>{
+    if(e.target.nodeName == "VAR") {
+        highlightSameAlgoVars(e.target);
+    }
+});
 
-        // Find all same-name vars, and toggle their class appropriately.
+function highlightSameAlgoVars(v) {
+    // Find the algorithm container.
+    let algoContainer = findAlgoContainer(v);
+
+    // Not highlighting document-global vars,
+    // too likely to be unrelated.
+    if(algoContainer == null) return;
+
+    const varName = nameFromVar(v);
+    if(!v.hasAttribute("data-var-color")) {
+        const newColor = chooseHighlightColor(algoContainer, v);
         for(const el of algoContainer.querySelectorAll("var")) {
-            if(getVarName(el) == varName) {
-                el.classList.toggle("selected", addClass);
-                el.classList.toggle(highlightClass, addClass);
+            if(nameFromVar(el) == varName) {
+                el.setAttribute("data-var-color", newColor);
+                el.setAttribute("data-var-last-color", newColor);
+            }
+        }
+    } else {
+        for(const el of algoContainer.querySelectorAll("var")) {
+            if(nameFromVar(el) == varName) {
+                el.removeAttribute("data-var-color");
             }
         }
     }
-    function getVarName(el) {
-        return el.textContent.replace(/(\s|\xa0)+/, " ").trim();
+}
+function findAlgoContainer(el) {
+    while(el != document.body) {
+        if(el.hasAttribute("data-algorithm")) return el;
+        el = el.parentNode;
     }
-    function chooseHighlightIndex(algoName, varName) {
-        let indexes = null;
-        if(indexCounts.has(algoName)) {
-            indexes = indexCounts.get(algoName);
-        } else {
-            // 7 classes right now
-            indexes = [0,0,0,0,0,0,0];
-            indexCounts.set(algoName, indexes);
-        }
+    return null;
+}
+function nameFromVar(el) {
+    return el.textContent.replace(/(\s|\xa0)+/g, " ").trim();
+}
+function colorCountsFromContainer(container) {
+    const namesFromColor = Array.from({length:COLOR_COUNT}, x=>new Set());
+    for(let v of container.querySelectorAll("var[data-var-color]")) {
+        let color = +v.getAttribute("data-var-color");
+        namesFromColor[color].add(nameFromVar(v));
+    }
 
-        // If the element was recently unclicked,
-        // *and* that color is still unclaimed,
-        // give it back the same color.
-        const lastIndex = previousHighlightIndex(algoName, varName);
-        if(indexes[lastIndex] === 0) return lastIndex;
-
-        // Find the earliest index with the lowest count.
-        const minCount = Math.min.apply(null, indexes);
-        let index = null;
-        for(var i = 0; i < indexes.length; i++) {
-            if(indexes[i] == minCount) {
-                return i;
-            }
+    return namesFromColor.map(x=>x.size);
+}
+function leastUsedColor(colors) {
+    // Find the earliest color with the lowest count.
+    let minCount = Infinity;
+    let minColor = null;
+    for(var i = 0; i < colors.length; i++) {
+        if(colors[i] < minCount) {
+            minColor = i;
+            minCount = colors[i];
         }
     }
-    function previousHighlightIndex(algoName, varName) {
-        return indexNames.get(algoName+"///"+varName);
+    return minColor;
+}
+function chooseHighlightColor(container, v) {
+    const colorCounts = colorCountsFromContainer(container);
+    if(v.hasAttribute("data-var-last-color")) {
+        let color = +v.getAttribute("data-var-last-color");
+        if(colorCounts[color] == 0) return color;
     }
-    function nameFromIndex(index) {
-        return "selected" + index;
-    }
+    return leastUsedColor(colorCounts);
+}
 }
 </script>
