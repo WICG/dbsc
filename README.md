@@ -175,7 +175,7 @@ The JWT proof is signed with the newly created private key, and needs to contain
 {
   "aud": "URL of this request",
   "jti": "challenge_value",
-  "iat": "timestamp",
+  "iat": "timestamp", // Number, represent number of seconds since Jan 1, 1970
   "key": {
     "kty": "key type",
     "<kty-specific parameters>": "<value>",
